@@ -24,15 +24,22 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *****************************************************************************/
+
+/*
+ * Usage:
+ * zyfra_debug::printr('My text'); 
+ */
  
 class zyfra_debug{
-    function printr($var){
+    static function printr($var){
         //From
-        echo "<pre>";
+        echo '<pre>';
         print_r($var);
-        echo "</pre>";
-        ob_flush();
-        flush();
+        echo '</pre>';
+        if (ob_get_length()){
+            ob_flush();
+            flush();
+        }           
     }
 }
 ?>

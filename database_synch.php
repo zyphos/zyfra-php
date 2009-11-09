@@ -47,7 +47,7 @@ require_once("../include/Cdb.php");
 //require_once("Csend_data.php");
 include_once 'rpc_big.php';
 
-class STRUCT_table_struct{
+class zyfra_STRUCT_table_struct{
   var $name;
   var $fields;
   var $primary;
@@ -62,7 +62,7 @@ class STRUCT_table_struct{
   }
 }
 
-class STRUCT_table_fields{
+class zyfra_STRUCT_table_fields{
   var $name;
   var $type;
   var $null;
@@ -70,7 +70,7 @@ class STRUCT_table_fields{
   var $extra;
 }
 
-class Csynch_flag{
+class zyfra_synch_flag{
   var $flags;
   function __construct($the_flags){
       $this->flags = $the_flags;
@@ -320,7 +320,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
         $sql = 'SHOW TABLES FROM '.$db->default_db;
         $result_table = $db->query($sql);
         while($table = $db->fetch_array($result_table)){
-            $the_table = new STRUCT_table_struct;
+            $the_table = new zyfra_STRUCT_table_struct;
             $the_table->name = $table[0];  //Get the table name
             
             //Get colums from the table
@@ -328,7 +328,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
             $result_cols = $db->query($sql);
             //Field	Type	Null	Key	Default	Extra
             while($col = $db->fetch_object($result_cols)){
-                $the_col = new STRUCT_table_fields;
+                $the_col = new zyfra_STRUCT_table_fields;
                 $the_col->name = $col->Field;  //Get the col name
                 $the_col->type = $col->Type;  //Get the col type
                 $the_col->null = 'NOT NULL';

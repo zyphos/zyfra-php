@@ -32,6 +32,7 @@
 * $my_cookie->data = 'Hi';
 * $my_cookie->txt = array('hi', 1, 'yop');
 * $my_cookie->store(100); //Keep cookie stored for 100 seconds, -1 = Infinite
+* // Warning !! ->store() method must be called before any text output.
 * 
 * 
 * $my_cookie->delete(); //remove the cookie 
@@ -46,7 +47,7 @@
 * v0.01	04/11/2009	Creation
 *****************************************************************************/
 
-class Ccookie{
+class zyfra_cookie{
     //todo:
     // add multi cookie split 
     
