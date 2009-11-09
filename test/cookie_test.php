@@ -2,9 +2,9 @@
     include_once '../cookie.php';
     include_once '../debug.php';
     
-    
     $my_cookie = new zyfra_cookie('ZyfraTest');
     
+    //Make a copy of old data stored in the cookie
     if(isset($my_cookie->my_var)) $my_var = $my_cookie->my_var;
     if(isset($my_cookie->my_obj)) $my_obj = $my_cookie->my_obj;
     
@@ -17,9 +17,10 @@
     
     $my_cookie->my_obj = new my_class;
     
-    $my_cookie->store(10);
+    //You must store cookie before outputting any data.
+    $my_cookie->store(10); //Store the cookie for 10 sec
     
-    
+    //Finally show the old datas that were stored in a cookie.
     if(isset($my_var)){
         print 'my_var='.$my_var.'<br>';
     }
