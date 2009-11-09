@@ -21,6 +21,7 @@
     $my_cookie->store(10); //Store the cookie for 10 sec
     
     //Finally show the old datas that were stored in a cookie.
+    print '<h2>Old data</h2>';
     if(isset($my_var)){
         print 'my_var='.$my_var.'<br>';
     }
@@ -28,4 +29,6 @@
         print 'my_obj=<br>';
         zyfra_debug::printr($my_obj);
     }
+    print '<h2>New data</h2>';
+    zyfra_debug::printr($my_cookie->get_data());
 ?>

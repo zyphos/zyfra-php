@@ -4,7 +4,7 @@
 *		 Cookie Class
 *		 ---------------
 *
-*		 Class to proper handle cookie.
+*		 Class to handle cookie easily.
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
@@ -46,6 +46,12 @@
 * 
 * v0.01	04/11/2009	Creation
 *****************************************************************************/
+
+/*
+ * Todo:
+ * - Add a header to cookie, to handle only cookie made by this class
+ * - Split cookie to handle big size
+ */
 
 class zyfra_cookie{
     //todo:
@@ -109,6 +115,10 @@ class zyfra_cookie{
             ' on line ' . $trace[0]['line'],
             E_USER_NOTICE);
         return null;
+    }
+    
+    public function get_data(){
+        return $this->data;
     }
 
     /**  As of PHP 5.1.0  */
