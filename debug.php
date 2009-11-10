@@ -32,10 +32,18 @@
  
 class zyfra_debug{
     static function printr($var){
-        //From
         echo '<pre>';
         print_r($var);
         echo '</pre>';
+        self::flush();           
+    }
+    
+    static function print($txt){
+        print($txt);
+        self::flush();
+    }
+    
+    static function flush(){
         if (ob_get_length()){
             ob_flush();
             flush();
