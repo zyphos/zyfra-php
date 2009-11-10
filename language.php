@@ -27,7 +27,7 @@
 
 class zyfra_language{
     private $default = 'en';
-    private $languages;
+    protected $languages;
     
     protected function get_all_languages(){
         //Need to be override by your one method.
@@ -66,12 +66,12 @@ class zyfra_language{
         return isset($this->languages[strtolower($abv)]);
     }
     
-    public function get_language_id($abv){
+    public function get_id($abv){
         if(!$this->is_a_language($abv)) $this->languages[$this->default]->id;
         return $this->languages[strtolower($abv)]->id;
     }
     
-    public function get_language_name($abv){
+    public function get_name($abv){
         if(!$this->is_a_language($abv)) $this->languages[$this->default]->name;
         return $this->languages[strtolower($abv)]->name;
     }
