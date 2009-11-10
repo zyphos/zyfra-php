@@ -212,7 +212,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
             //Delete
             if($sync_flags->delete()){
                 $this->log('Computing deletions...<br>');
-                list($local2del, $remote2del) = $this->compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts);
+                list($local2del, $remote2del) = $this->compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts, $last_start_ts);
                 if (count($local2del) > 0){
                     $this->log('Deleting from local...<br>');
                     $this->log($this->rpc_delete($table_name, $key_names, $local2del));    
@@ -423,13 +423,14 @@ class Cdatabase_synch extends zyfra_rpc_big{
         }
     }
     
-    function compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts){
+    function compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts, $last_start_ts){
         $local2del = array();
         $remote2del = array();
         if ($sync_flags->src_dst_can_delete()){
             //$remote2del
             foreach($remote_indexes as $key=>$dates){
-                if ((!isset($local_indexes[$key])&&($dates[1]<$sync_start_ts))){
+                if ((!isset($local_indexes[$key])&&($dates[1]<$sync_start_ts)&&
+                  ($dates[1]<($last_start_ts + $this->delta_time)))){
                     $remote2del[] = $key;
                 }
             }
@@ -437,7 +438,8 @@ class Cdatabase_synch extends zyfra_rpc_big{
         if ($sync_flags->dst_src_can_delete()){
             //$local2del
             foreach($local_indexes as $key=>$dates){
-                if ((!isset($remote_indexes[$key])&&($dates[1]<$sync_start_ts))){
+                if ((!isset($remote_indexes[$key])&&($dates[1]<$sync_start_ts)&&
+                  ($dates[1]<$last_start_ts))){
                     $local2del[] = $key;
                 }
             }
