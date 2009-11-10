@@ -46,6 +46,7 @@ require_once("../config/Cconfig.php");
 require_once("../include/Cdb.php");
 //require_once("Csend_data.php");
 include_once 'rpc_big.php';
+include_once 'debug.php';
 
 class zyfra_STRUCT_table_struct{
   var $name;
@@ -158,9 +159,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
     } 
     
     function log($msg){
-        echo $msg;
-        ob_flush();
-        flush();
+        zyfra_debug::print($msg);
     }
     
     function sync($synch_table_lst, $incremental = true){
@@ -193,9 +192,9 @@ class Cdatabase_synch extends zyfra_rpc_big{
             // *2 = Be sure
             $sync_start_ts = time() - abs($this->delta_time * 2); 
             $this->log('Start time: '.date('Y-m-d H:i:s', $sync_start_ts).'<br>');
-            list($last_sync_start_ts, $last_sync_end_ts) = $this->get_last_sync_by_table($sync_id, $table_name);
-            $this->log('Last sync started at: '.date('Y-m-d H:i:s', $last_sync_start_ts).'<br>');
-            $this->log('Last sync stoped at: '.date('Y-m-d H:i:s', $last_sync_end_ts).'<br>');
+            list($last_start_ts, $last_end_ts) = $this->get_last_sync_by_table($sync_id, $table_name);
+            $this->log('Last sync started at: '.date('Y-m-d H:i:s', $last_start_ts).'<br>');
+            $this->log('Last sync stoped at: '.date('Y-m-d H:i:s', $last_end_ts).'<br>');
             $this->log('Delta time: '.$this->delta_time.' sec.<br>');
             /*if(abs($sync_start_ts - $last_sync_start_ts) < (abs($this->delta_time)*10)){
                 //It's to early to make a sync, delta time is huge.

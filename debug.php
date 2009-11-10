@@ -46,8 +46,8 @@ class zyfra_debug{
     static function flush(){
         if (ob_get_length()){
             ob_flush();
-            flush();
-        }           
+        }
+        flush();
     }
 }
 ?>
