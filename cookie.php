@@ -4,7 +4,7 @@
 *		 Cookie Class
 *		 ---------------
 *
-*		 Class to handle cookie easily.
+*		 Class to handle cookie easily. Can store up to +-680KB
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
@@ -44,22 +44,16 @@
 * Revisions
 * ---------
 * 
-* v0.01	04/11/2009	Creation
+* v0.0.1	04/11/2009	Creation
 *****************************************************************************/
 
-/*
- * Todo:
- * - Add a header to cookie, to handle only cookie made by this class
- * - Split cookie to handle big size
- */
 
 class zyfra_cookie{
-    //todo:
-    // add multi cookie split 
-    
     private $name;
     private $max_size = 4096; //Cookies are limited to 4 Ko
     private $data = array();
+    private $header = 'ZyfraCookieV0.0.1';
+    private $control_len = 48; //2 nb cookie, 6 data len, 40 sha1
     
     function __construct($name){
         $this->name = $name;
@@ -71,23 +65,56 @@ class zyfra_cookie{
         if ($expire_delay_seconds < 0){
             $expire_delay_seconds = pow(2,31)-1;
         }
+		$cookie_max_size = $this->max_size - strlen($this->header);
+		$first_cookie_max_size = $cookie_max_size - $this->controle_len;
+		$max_total_size = $first_cookie_max_size + 256 * $cookie_max_size; 
         $data = $this->cookie_serialize();
-        if (strlen($data) > $this->max_size){
-            throw new Exception('Cookie max size is 4KB.');
+        if (strlen($data) > $max_total_size){
+            throw new Exception('Cookie max size is '.
+                ((int)$max_total_size/1024).'KB.');
         }
-        setcookie($this->name, $data, time()+$expire_delay_seconds,'/');
+        $nb_cookies = ceil(($max_total_size - $first_cookie_max_size) / 
+            $cookie_max_size);
+        $expire = time()+$expire_delay_seconds;
+        $cookie_str = $this->header.sprintf('%02x%06x', $nb_cookies, 
+            strlen($data)).sha1($data).substr($data, 0, $first_cookie_max_size);
+        setcookie($this->name, $cookie_str, time() + $expire_delay_seconds,'/');
+        $pos = strlen($cookie_str);
+        for ($i = 0; $i < $nb_cookies; $i++){
+            $cookie_str = $this->header.substr($data, $pos, $cookie_max_size);
+            setcookie($this->name.$i, $cookie_str, time() + 
+                $expire_delay_seconds,'/');
+            $pos += strlen($cookie_str);
+        }
     }
     
     public function delete(){
         $this->data = array();
         setcookie($this->name, false,0,'/');
-	      if (isset($_COOKIE[$this->name])) unset($_COOKIE[$this->name]);
+        if (isset($_COOKIE[$this->name])) unset($_COOKIE[$this->name]);
+        for($i = 0; $i < 256; $i++){
+            setcookie($this->name.$i, false,0,'/');
+            if (isset($_COOKIE[$this->name.$i])) 
+                unset($_COOKIE[$this->name.$i]);
+        }
     }
     
     private function retrieve(){
-        if(isset($_COOKIE[$this->name])){
-            $this->cookie_unserialize($_COOKIE[$this->name]);
+        $header_len = strlen($this->header);
+        if(!isset($_COOKIE[$this->name])) return; //1st check
+        $cookie_str = $_COOKIE[$this->name];
+        if (substr($cookie_str, 0, $header_len) != $this->header) return; //2nd
+        $control = substr($cookie_str, $header_len, $this->control_len);
+        sscanf($control,'%02x%06x%40s', $nb_cookies, $data_len, $sha1);
+        $data = substr($cookie_str, $header_len + $this->control_len);
+        for ($i = 0; $i < $nb_cookies; $i++){
+            if(!isset($_COOKIE[$this->name.$i])) return; //3rd check
+            $cookie_str = $_COOKIE[$this->name];
+            if (substr($cookie_str, 0, $header_len) != $this->header) return;
+            $data .= substr($cookie_str, $header_len);
         }
+        if ((strlen($data)!=$data_len)||(sha1($data)!=$sha1)) return;
+        $this->cookie_unserialize($data);
     }
     
     private function cookie_serialize(){
