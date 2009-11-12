@@ -54,7 +54,7 @@
 
 include_once 'fake_file.php';
 
-class zyfra_data{
+class zyfra_send_data{
     private $crypt_key = "Hello world !"; // Encryption key
     // File first bytes limited to 20 chars !!! 
     protected $file_header = "SendData_v0.1";

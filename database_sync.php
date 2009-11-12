@@ -159,7 +159,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
     } 
     
     function log($msg){
-        zyfra_debug::print($msg);
+        zyfra_debug::_print($msg);
     }
     
     function sync($synch_table_lst, $incremental = true){
