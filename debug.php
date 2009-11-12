@@ -38,7 +38,7 @@ class zyfra_debug{
         self::flush();           
     }
     
-    static function print($txt){
+    static function _print($txt){
         print($txt);
         self::flush();
     }
