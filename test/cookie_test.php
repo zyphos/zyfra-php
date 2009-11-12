@@ -29,6 +29,9 @@
         print 'my_obj=<br>';
         zyfra_debug::printr($my_obj);
     }
+
     print '<h2>New data</h2>';
-    zyfra_debug::printr($my_cookie->get_data());
+    print 'my_var='.$my_cookie->my_var.'<br>';
+    print 'my_obj=<br>';
+    zyfra_debug::printr($my_cookie->my_obj);
 ?>
