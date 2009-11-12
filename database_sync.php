@@ -29,6 +29,14 @@
 /*****************************************************************************
 * Quick Usage:
 * ------------
+* require_once 'ZyfraPHP/database_sync.php';
+* class MySync extends zyfra_database_synch{
+*     function __construct(){
+*         self::set_crypt_key('MyCryptKey');
+*         parent::__construct();
+*     }
+* }
+* new MySync();
 * 
 *****************************************************************************/
 
@@ -41,10 +49,11 @@
 
 /*
  * Todo:
+ * 
  */
+
 require_once("../config/Cconfig.php");
 require_once("../include/Cdb.php");
-//require_once("Csend_data.php");
 include_once 'rpc_big.php';
 include_once 'debug.php';
 
@@ -149,7 +158,6 @@ class zyfra_database_synch extends zyfra_rpc_big{
     function __construct(){
         global $db;
         $this->field_separator = chr(254).chr(254);
-        self::set_crypt_key('huhu hu');
         $this->db = $db;
         parent::__construct();
     }
@@ -601,6 +609,46 @@ class zyfra_database_synch extends zyfra_rpc_big{
         	last_sync_end DATETIME,
         	UNIQUE tns (table_name, sync_id));';
         $db->query($sql);
+    }
+    
+    function no_rpc(){
+        //Default no_rpc, can be override
+        if (isset($_GET['do_sync'])&&isset($_GET['slst_file'])){
+            $incremental = false;
+            if(isset($_GET['incremental'])&&(int)$_GET['incremental']==1){
+                $incremental = true;
+            }
+            echo '<h1>Doing sync</h1>';
+            echo 'Started at: '.date('Y-m-d H:i:s').'<hr>';
+            $start = microtime(true);
+            $this->sync($_GET['slst_file'], $incremental);
+            $finish = microtime(true);
+            echo '<hr>Finished at: '.date('Y-m-d H:i:s');
+            printf('<hr>%.3f seconds',$finish-$start);
+        }else{
+            echo "<table width='100%'><tr><td align='center'>";
+            echo '<h1>Sync</h1>';
+            echo "<form action='' method='GET'>";
+            echo "<select name='slst_file'>";
+            foreach($this->get_slst() as $slst_file){
+                echo "<option value='".$slst_file."'>".$slst_file."</option>";
+            }
+            echo "</select> ";
+            echo " <input type='checkbox' name='incremental' value='1'>Incremental</input> ";
+            echo "<input type='submit' name='do_sync' value='Go'></form>";
+            echo "</td></tr></table>";
+        }
+    }
+    
+    private function get_slst(){
+        $slst_files = array();
+        $files = scandir(getcwd());
+        foreach($files as $filename){
+            if (strtolower(array_pop(explode('.',$filename)))=='slst'){
+                $slst_files[] = $filename;
+            }
+        }
+        return $slst_files;
     }
 }
 
