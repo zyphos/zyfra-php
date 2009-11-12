@@ -90,12 +90,14 @@ class zyfra_cookie{
     
     public function delete(){
         $this->data = array();
-        setcookie($this->name, false,0,'/');
-        if (isset($_COOKIE[$this->name])) unset($_COOKIE[$this->name]);
+        if (isset($_COOKIE[$this->name])) {
+            unset($_COOKIE[$this->name]);
+            setcookie($this->name, false,0,'/');
+        }
         for($i = 0; $i < 256; $i++){
-            setcookie($this->name.$i, false,0,'/');
             if (isset($_COOKIE[$this->name.$i])) 
                 unset($_COOKIE[$this->name.$i]);
+                setcookie($this->name.$i, false,0,'/');
         }
     }
     
