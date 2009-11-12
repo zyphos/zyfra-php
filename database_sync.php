@@ -52,7 +52,6 @@
  * 
  */
 
-require_once("../config/Cconfig.php");
 require_once("../include/Cdb.php");
 include_once 'rpc_big.php';
 include_once 'debug.php';

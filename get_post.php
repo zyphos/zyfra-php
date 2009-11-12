@@ -35,16 +35,15 @@
 
 class zyfra_get_post {
     public static function sanitize(){
-        if(get_magic_quotes_gpc()){
-            foreach($_POST as $key=>$value){
-                $_POST[$key] = stripslashes($value);
-            }
-            foreach($_GET as $key=>$value){
-                $_GET[$key] = stripslashes($value);
-            }
-            foreach($_COOKIE as $key=>$value){
+        // Clean $_POST, $_GET, $_COOKIE fields from magic_quotes_gpc
+        global $var_zyfra_get_post_is_sanitized;
+        if(get_magic_quotes_gpc()&&(!isset($var_zyfra_get_post_is_sanitized)||
+          !$var_zyfra_get_post_is_sanitized)){
+            foreach($_POST as $key=>$value) $_POST[$key] = stripslashes($value);
+            foreach($_GET as $key=>$value) $_GET[$key] = stripslashes($value);
+            foreach($_COOKIE as $key=>$value) 
                 $_COOKIE[$key] = stripslashes($value);
-            }
+            $var_zyfra_get_post_is_sanitized = true; //Avoid doing this twice
         }
     }
 }
