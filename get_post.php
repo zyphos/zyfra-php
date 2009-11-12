@@ -39,12 +39,21 @@ class zyfra_get_post {
         global $var_zyfra_get_post_is_sanitized;
         if(get_magic_quotes_gpc()&&(!isset($var_zyfra_get_post_is_sanitized)||
           !$var_zyfra_get_post_is_sanitized)){
-            foreach($_POST as $key=>$value) $_POST[$key] = stripslashes($value);
-            foreach($_GET as $key=>$value) $_GET[$key] = stripslashes($value);
+            foreach($_POST as $key=>$value) 
+                $_POST[$key] = self::unquote($value);
+            foreach($_GET as $key=>$value) $_GET[$key] = self::unquote($value);
             foreach($_COOKIE as $key=>$value) 
-                $_COOKIE[$key] = stripslashes($value);
+                $_COOKIE[$key] = self::unquote($value);
             $var_zyfra_get_post_is_sanitized = true; //Avoid doing this twice
         }
+    }
+    
+    private static function unquote($data){
+        if (is_array($data)){
+            foreach($data as &$row) $row = self::unquote($row);
+            return $data;
+        }
+        return stripslashes($data);
     }
 }
 ?>
