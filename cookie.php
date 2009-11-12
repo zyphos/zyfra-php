@@ -4,7 +4,7 @@
 *		 Cookie Class
 *		 ---------------
 *
-*		 Class to handle cookie easily. Can store up to +-680KB
+*		 Class to handle cookie easily.
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
