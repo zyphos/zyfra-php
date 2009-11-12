@@ -138,7 +138,7 @@ class zyfra_synch_flag{
 }
 
 
-class Cdatabase_synch extends zyfra_rpc_big{
+class zyfra_database_synch extends zyfra_rpc_big{
     var $delta_time=0;
     var $field_separator;
     var $sync_data_table_name = 'data_sync';
@@ -168,7 +168,8 @@ class Cdatabase_synch extends zyfra_rpc_big{
         $tables_struct = $this->get_tables_struct();
         //Send table struct
         list($sync_id, $url, $table_list) = $this->read_table_list($synch_table_lst);
-        $remote_time = Crpc_big::send_rpc($url, 'get_time', NULL);
+        $remote_time = zyfra_rpc_big::send_rpc($url, 'get_time', NULL);
+        if (trim($remote_time) == '') throw new Exception('RPC isn\'t working!');
         $this->delta_time = strtotime($remote_time.' UTC')-time();
         if ($incremental){
             $this->log('Synchronization is INCREMENTAL<hr>');
@@ -181,7 +182,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
             $this->log('<h2>Doing table "'.$table_name.'"</h2>');
             $key_names = explode(',',$key_names);
             $col_names = explode(',',$col_names);
-            $sync_flags = new Csynch_flag($sync_flags);
+            $sync_flags = new zyfra_synch_flag($sync_flags);
             $this->log('Flags: '.$sync_flags->get_txt().'<br>');
             if(!$sync_flags->sync_needed()) {
                 $this->log('No Sync needed.<br>');
@@ -206,7 +207,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
             $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
             $this->log(count($local_indexes).'<br>');
             $this->log('Getting remote table indexes... ');
-            $remote_indexes = Crpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
+            $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
             $this->log(count($remote_indexes).'<br>');
             
             //Delete
@@ -219,7 +220,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
                 }
                 if (count($remote2del) > 0){
                     $this->log('Deleting from remote...<br>');
-                    $this->log(Crpc_big::send_rpc($url, 'delete', array($table_name, $key_names, $remote2del)));    
+                    $this->log(zyfra_rpc_big::send_rpc($url, 'delete', array($table_name, $key_names, $remote2del)));    
                 }
                 unset($local2del, $remote2del);
             }
@@ -230,7 +231,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
                 $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
                 $this->log(count($local_datas).'<br>');
                 $this->log('Getting remote table datas... ');
-                $remote_datas = Crpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
+                $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
                 $this->log(count($remote_datas).'<br>');
                 
                 //Update
@@ -243,7 +244,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
                     }
                     if (count($remote2update) > 0){
                         $this->log('Updating to remote...<br>');
-                        $this->log(Crpc_big::send_rpc($url, 'update', array($table_name, $key_names, $col_names, $remote2update)));
+                        $this->log(zyfra_rpc_big::send_rpc($url, 'update', array($table_name, $key_names, $col_names, $remote2update)));
                     }                    
                     unset($local2update, $remote2update);    
                 }
@@ -259,7 +260,7 @@ class Cdatabase_synch extends zyfra_rpc_big{
                     }
                     if (count($remote2add) > 0){
                         $this->log('Adding to remote...<br>');
-                        $this->log(Crpc_big::send_rpc($url, 'add', array($table_name, $key_names, $col_names, $remote2add)));
+                        $this->log(zyfra_rpc_big::send_rpc($url, 'add', array($table_name, $key_names, $col_names, $remote2add)));
                     }
                     unset($local2add, $remote2add);
                 }

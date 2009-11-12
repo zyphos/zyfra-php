@@ -71,7 +71,7 @@ class zyfra_send_data{
             return $this->close_and_send_file();
         $this->current_url = $url; 
         if (is_null($this->file2send)){
-            $this->file2send = new Cfake_file($this->send_filename, 'wb+');
+            $this->file2send = new zyfra_fake_file($this->send_filename, 'wb+');
             $file_header = rtrim($this->file_header);
             $file_header = str_pad($file_header,20);
             $this->file2send->write($file_header, 20);
