@@ -66,15 +66,19 @@ class zyfra_cookie{
             $expire_delay_seconds = pow(2,31)-1;
         }
 		$cookie_max_size = $this->max_size - strlen($this->header);
-		$first_cookie_max_size = $cookie_max_size - $this->controle_len;
+		$first_cookie_max_size = $cookie_max_size - $this->control_len;
 		$max_total_size = $first_cookie_max_size + 256 * $cookie_max_size; 
         $data = $this->cookie_serialize();
         if (strlen($data) > $max_total_size){
             throw new Exception('Cookie max size is '.
                 ((int)$max_total_size/1024).'KB.');
         }
-        $nb_cookies = ceil(($max_total_size - $first_cookie_max_size) / 
+        if (strlen($data) <= $first_cookie_max_size){
+            $nb_cookies = 0;
+        }else{
+            $nb_cookies = ceil((strlen($data) - $first_cookie_max_size) / 
             $cookie_max_size);
+        }
         $expire = time()+$expire_delay_seconds;
         $cookie_str = $this->header.sprintf('%02x%06x', $nb_cookies, 
             strlen($data)).sha1($data).substr($data, 0, $first_cookie_max_size);
@@ -95,9 +99,10 @@ class zyfra_cookie{
             setcookie($this->name, false,0,'/');
         }
         for($i = 0; $i < 256; $i++){
-            if (isset($_COOKIE[$this->name.$i])) 
+            if (isset($_COOKIE[$this->name.$i])){
                 unset($_COOKIE[$this->name.$i]);
                 setcookie($this->name.$i, false,0,'/');
+            }
         }
     }
     
