@@ -31,7 +31,7 @@ class zyfra_http {
          * input:
          * - $url: string, url of the target ie: 'http://www.google.com/thepath/here/myfile.txt'
          * output:
-         *  - integer: size of file in byte 
+         *  - integer: size of file in byte
          */
         if(preg_match("/(?:http:\/\/)([^\/]*)(.*)/",$url,$data)<1) {
             throw new Exception('Can\'t retrieve server name from provided URL.');
@@ -62,17 +62,25 @@ class zyfra_http {
         }
         flush();
     }
-    
-    static function scriptify($html){
-        /* Show HTML code only if script are supported
+
+    static function scriptify($html_with_script, $html_without_script = ''){
+        /* Show HTML code only if javascript is supported
          * input:
-         * - $html: string, HTML content to show 
+         * - $html_with_script: string, HTML content to show if script is active
+         * - $html_without_script: string, HTML content to show in other case
          * output:
          * - string: the scriptified HTML code
          */
-        return '<script type="text/javascript">document.write("'.
-            str_replace(array('"',"\n"),array('\"',''),$html).
-            '");</script>';
+        $html_out = '';
+        if ($html_with_script != ''){
+            $html_out .= '<script type="text/javascript">document.write("'.
+            str_replace(array('"',"\n"),array('\"',''),$html_with_script).
+            	'");</script>';
+        }
+        if ($html_without_script != ''){
+            $html_out .= '<noscript>'.$html_without_script.'</noscript>';
+        }
+        return $html_out;
     }
 }
 ?>
