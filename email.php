@@ -98,7 +98,7 @@ class zyfra_email{
             $mimeStr=$mimeStrs[$i];
             $mimeStr->charset=strtolower($mimeStr->charset);
             if (($mimeStr == 'default' && $inputCharset == $targetCharset)
-            || $mimStr->charset == $targetCharset) {
+            || $mimeStr->charset == $targetCharset) {
                 $decodedStr.=$mimStr->text;
             } else {
                 $decodedStr.=mb_convert_encoding(
