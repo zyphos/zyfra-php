@@ -29,7 +29,7 @@ class zyfra_string {
     public static function trim($txt){
         // Trim function that can handle array
         if (is_array($txt)){
-            foreach($txt as &$row) &$row = self::trim($txt);
+            foreach($txt as &$row) $row = self::trim($txt);
         }
         if(is_string($txt)) return trim($txt);            
         return $txt;
