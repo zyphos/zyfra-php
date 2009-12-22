@@ -45,7 +45,7 @@ class zyfra_csv{
         $this->field_delimiter = $field_delimiter;
         if (is_file($filename_data)){
             $this->filename = $filename_data;
-            $filename_data = file_get_contents($filename);
+            $filename_data = file_get_contents($filename_data);
         }
         $this->bulk_array = $this->parse($filename_data);
         $this->count_columns();
