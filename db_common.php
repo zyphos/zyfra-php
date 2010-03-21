@@ -24,7 +24,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *****************************************************************************/
-require_once("htmlMimeMail5/htmlMimeMail5.php");
+#require_once("htmlMimeMail5/htmlMimeMail5.php");
 
 class zyfra_db_common {
   var $link=false;
@@ -191,14 +191,14 @@ class zyfra_db_common {
 	}	
    
   function __destruct(){
-      if (strlen($this->errors2mail)>0){
+      /*if (strlen($this->errors2mail)>0){
           //Email the error
 		      $mailError = new htmlMimeMail5();
 		      $mailError->setFrom("email@myhost.tld");
 		      $mailError->setSubject("Myhost web db error");
 		      $mailError->setHTML($this->errors2mail);
 		      $mailError->send(array("email@myhost.tld"));
-      }
+      }*/
   }
 }
 
