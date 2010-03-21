@@ -320,5 +320,5 @@
 			return mysql_real_escape_string($data);
 		}		
 	}
-	$MySQL = new CMySQL;
+	$MySQL = new zyfra_mysql;
 ?>
