@@ -67,7 +67,7 @@
               //On limite le nombre de r�sultat et on calcul les pages
               $page_nr = 1;
               if(isset($_GET["page_nr"])){
-                $page_nr = $_GET["page_nr"];
+                $page_nr = (int)$_GET["page_nr"];
               }
               $this->nb_row_per_page = $nb_row_per_page;
               $this->page_nr = $page_nr;
