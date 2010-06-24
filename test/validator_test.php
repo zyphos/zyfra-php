@@ -18,6 +18,8 @@ $checks[] = array('email', 'h-ihe_llo.com');
 $checks[] = array('email_net', 'hi@erfdgerthgfd.com');
 $checks[] = array('email_net', 'hi@yahoo.com');
 $checks[] = array('email_net', 'h-ihe_llo.com');
+$checks[] = array('url', 'http://www.google.be:81/#hl=en&q=lavcopts+%2B264&aq=f&aqi=&aql=&oq=&gs_rfai=&fp=d75900b3b07570fc');
+$checks[] = array('url', 'http://This is cool');
 $checks[] = array('vat', 'FR19501271332');
 $checks[] = array('vat', 'BE0454016220');
 $checks[] = array('vat', 'BE0477143395');
