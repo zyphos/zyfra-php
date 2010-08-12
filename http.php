@@ -82,5 +82,34 @@ class zyfra_http {
         }
         return $html_out;
     }
+    
+    static function force_auto_reload($html_content){
+        /* Force the client web browser to reload of all .css and .js when 
+         * they are modified.
+         * 
+         * input:
+         * - $html_content: string, HTML content to scan
+         * output:
+         * - string: HTML with replaced .css and .js filename
+         * You must add this to .htaccess:
+         * RewriteEngine on
+         * RewriteRule ^(.*)\.[\d]{10}\.(css|js)$ $1.$2 [L]
+         */
+        return preg_replace_callback("/[a-z0-1.\/\_-]*(\.css|\.js)/i", 'zyfra_http::_threat_url_force_reload', $html_content);
+    }
+    
+    static function _threat_url_force_reload($matches){
+        $url = $matches[0];
+        if (substr($url,0,1)=='/'){
+            $filename = $_SERVER['DOCUMENT_ROOT'].$url;
+        }else{
+            $filename = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$url;
+        }
+        if(!file_exists($filename)){
+            return $url;
+        }
+        $mtime = filemtime($filename);
+        return preg_replace('{\\.([^./]+)$}', ".$mtime.\$1", $url);
+    }    
 }
 ?>
