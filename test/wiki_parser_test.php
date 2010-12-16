@@ -6,10 +6,10 @@ $text = <<<EOF
 ===Title3===
 ====Title4====
 =====Title5=====
-Normal<br>
-''Italic''<br>
-'''Bold'''<br>
-''''Bold Italic''''<br>
+Normal
+''Italic''
+'''Bold'''
+'''''Bold Italic'''''
 * List
 ** List2
 *** List3

@@ -443,6 +443,9 @@ class zyfra_wiki_parser {
                 $this->mInPre = false;
             }
             if ($paragraphStack === false) {
+                if (substr($output, -1) == "\n"){
+                    $output .= '<br />';
+                }
                 $output .= $t."\n";
             }
         }
