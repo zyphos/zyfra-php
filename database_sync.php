@@ -374,11 +374,15 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $data_array = array();
         //$this->log('Getting data from '.$table_name.'...');
         $wheres = array();
-        $wheres[] = $this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts);
+        //$wheres[] = $this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts);
         if($incremental){
             $wheres[] = $this->update_field.'>='.gmdate('\'Y-m-d H:i:s\'', $last_start_ts);
         }
-        $where = ' WHERE ('.implode(')AND(', $wheres).')';
+        if (count($wheres)>0){
+            $where = ' WHERE ('.implode(')AND(', $wheres).')';            
+        }else{
+            $where = '';
+        }
         $sql = "SELECT ".implode(",",$key_names).",".implode(",",$col_names)." 
         	FROM ".$table_name.$where;
         $result = $db->query($sql);
@@ -397,8 +401,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
     function rpc_get_table_indexes($table_name, $key_names, $start_ts){
         // Return all keys with create timestamp and modified unix timestamp
         //$this->log('Getting keys from '.$src->table_name.'...');
+        //$sql = 'SELECT '.implode(',',$key_names).','.$this->create_field.','.$this->update_field.'
+        //	FROM '.$table_name. ' WHERE ('.$this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts).')';
         $sql = 'SELECT '.implode(',',$key_names).','.$this->create_field.','.$this->update_field.'
-        	FROM '.$table_name. ' WHERE ('.$this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts).')';
+        	FROM '.$table_name;
         $all_index = array();
         while($row = $this->db->get_row_object($sql)){
             $the_index = $this->make_index($key_names, $row);
