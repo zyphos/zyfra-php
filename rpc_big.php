@@ -138,6 +138,8 @@ class zyfra_rpc_big{
             if (method_exists($this, $rpc_fx_name)){
                 if (is_null($rpc->params)) $rpc->params = array();
                 return call_user_func_array(array($this, $rpc_fx_name), $rpc->params);
+            }else{
+                throw new Exception("RPC method doesn't exists (".$rpc_fx_name.')');
             }
         }else{
             return NULL;
