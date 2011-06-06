@@ -41,13 +41,19 @@ class zyfra_i18n{
         //'UTF-8'
     }
 
-    function remove_accent($str){
+    public static function remove_accent($str){
         /* Remove accent and special character from string
          * Input:
          * - $str: The string to be parse
          * Output:
          * - string, without any accent or special character
          */
+        if(is_array($str)){
+            foreach($str as $key=>$value){
+                $str[$key] = self::remove_accent($value);
+            }
+        }
+        if(!is_string($str)) return $str;
         $str = htmlentities($str);
         $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1', 
             $str);
