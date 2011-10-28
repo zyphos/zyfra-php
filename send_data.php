@@ -64,6 +64,19 @@ class zyfra_send_data{
     private $current_url = '';
     private $has_content = false;
     public $logging = false;
+    private $cnx;
+    
+    function __construct(){
+        $cnx = curl_init();
+        curl_setopt($cnx, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($cnx, CURLOPT_BINARYTRANSFER, TRUE);
+        curl_setopt($cnx, CURLOPT_POST, TRUE);
+        $this->cnx = $cnx;
+    }
+    
+    function __destruct(){
+        curl_close($this->cnx);
+    }
     
     
     public function send(&$data, $url = NULL, $wait = FALSE){
@@ -235,17 +248,11 @@ class zyfra_send_data{
             }else{
                 $post_data[$this->post_field_prefix.'data'] = $fname_data;
             }
-            
-            // init curl handle
-            $ch = curl_init($post_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER, TRUE);
-            curl_setopt($ch, CURLOPT_POST, TRUE);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            curl_setopt($this->cnx, CURLOPT_URL, $post_url);
+            curl_setopt($this->cnx, CURLOPT_POSTFIELDS, $post_data);
             // perform post
             $this->log('Sending data...');
-            $result = curl_exec($ch);
-            curl_close ($ch);
+            $result = curl_exec($this->cnx);
             return $result;
         }else{
             header("Content-Type: application/octet-stream; ");
