@@ -168,10 +168,15 @@ class zyfra_send_data{
         $block_crc32 = $block_header_array["crc"];
         $block_data = $file->read($block_size);
         //Check data integrity
-        if((strlen($block_data)!=$block_size)||
-          (crc32($block_data)!=$block_crc32)){
+        $calc_len = strlen($block_data);
+        $calc_crc32 = crc32($block_data); 
+        if(($calc_len!=$block_size)||
+          ($calc_crc32!=$block_crc32)){
             //Bad data !
-            throw new Exception('Data corrupted (read_block)');
+            $msg = 'Data corrupted (read_block)';
+            if ($calc_len!=$block_size) $msg .= ' len: '.$calc_len.' <> '.$block_size;
+            if ($calc_crc32!=$block_crc32) $msg .= ' crc32: '.$calc_crc32.' <> '.$block_crc32;
+            throw new Exception($msg);
         }
         //Block ok
         $data = $this->unmake_str($block_data);
