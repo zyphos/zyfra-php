@@ -102,7 +102,7 @@ class zyfra_rpc_big{
         unset($sd);
     }
     
-    public is_rpc_call(){
+    public function is_rpc_call(){
         return $this->is_rpc;
     }
     
