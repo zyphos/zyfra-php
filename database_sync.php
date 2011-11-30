@@ -171,6 +171,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     
     function sync($synch_table_lst, $incremental = true){
         global $db;
+        $db->query('BEGIN');
         
         $tables_struct = $this->get_tables_struct();
         //Send table struct
@@ -281,6 +282,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             unset($table_name,$key_names,$col_names,$sync_flags);
             unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
         }
+        $db->query('COMMIT');
     }
     
     function read_data_needed($sync_flags){
@@ -516,18 +518,21 @@ class zyfra_database_synch extends zyfra_rpc_big{
     function rpc_delete($table_name, $key_names, $row2del){
         $out = '';
         $db = $this->db;
+        if($this->is_rpc_call()) $db->query('BEGIN');
         foreach($row2del as $index2del){
             $keys_sql = $this->get_fields_sql($key_names, $index2del);
             $sql = 'DELETE FROM '.$table_name.' WHERE ('.implode(')AND(',$keys_sql).');';
             $out .= $sql.'<br>';
             $db->query($sql);
         }
+        if($this->is_rpc_call()) $db->query('COMMIT');
         return $out;
     }
     
     function rpc_update($table_name, $key_names, $col_names, $row2update){
         $out = '';
         $db = $this->db;
+        if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = $col_names;
         array_push($col_names_sql, $this->create_field, $this->update_field);
         foreach($row2update as $index2update=>$data2update){
@@ -537,12 +542,14 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $out .= $sql.'<br>';
             $db->query($sql);
         }
+        if($this->is_rpc_call()) $db->query('COMMIT');
         return $out;
     }
     
     function rpc_add($table_name, $key_names, $col_names, $row2add){
         $out = '';
         $db = $this->db;
+        if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = array_merge($key_names, $col_names);
         array_push($col_names_sql, $this->create_field, $this->update_field);
         $col_names_sql = $this->do_sql_escape($col_names_sql);
@@ -556,6 +563,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $out .= $sql.'<br>';
             $db->query($sql);
         }
+        if($this->is_rpc_call()) $db->query('COMMIT');
         return $out;
     }
     
