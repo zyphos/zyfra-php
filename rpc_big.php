@@ -82,6 +82,7 @@ class zyfra_STRUCT_rpc{
 class zyfra_rpc_big{
     private static $file_header = 'rpc_big v0.01';
     private static $crypt_key = 'Hello world !';
+    private $is_rpc = false;
     
     function __construct(){
         $sd = new zyfra_send_data();
@@ -90,6 +91,7 @@ class zyfra_rpc_big{
         // Check for RPC
         $obj_array = $sd->get_data();
         if (is_array($obj_array)){
+            $this->is_rpc=true;
             foreach($obj_array as $key=>$obj){
                 // Send back responses
                 $sd->send($this->dispatch_rpc($obj), NULL, count($obj_array)!=($key+1));
@@ -98,6 +100,10 @@ class zyfra_rpc_big{
             $this->no_rpc();
         }
         unset($sd);
+    }
+    
+    public is_rpc_call(){
+        return $this->is_rpc;
     }
     
     public static function send_rpc($url, $fx_name, $params = NULL){
