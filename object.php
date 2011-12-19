@@ -63,7 +63,7 @@ $ideas = $new_idea->select('name');
 * In order to use the autoload object when needed
 class MyPool extends Pool {
 protected function get_include_object_php($object_name){
-return dirname(__FILE__).'/objects/'.$key.'.php';
+return dirname(__FILE__).'/objects/'.$object_name.'.php';
 }
 }
 $pool = MyPool::get();

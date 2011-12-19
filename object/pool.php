@@ -18,8 +18,7 @@ class Pool{
 
     static function get(){
         if (!isset(self::$instance)) {
-            $c = __CLASS__;
-            self::$instance = new $c;
+            self::$instance = new static;
         }
         return self::$instance;
     }
@@ -33,7 +32,7 @@ class Pool{
         $file = $this->get_include_object_php($key);
         if ($file != null) {
             if(file_exists($file)){
-                include 'objects/'.$key.'.php';
+                include $file;
             }
         }
         $obj = new $key($this);
