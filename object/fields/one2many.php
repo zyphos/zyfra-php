@@ -1,5 +1,6 @@
 <?
 class One2ManyField extends Field{
+    var $type='one2many';
     var $relation_object_name;
     var $relation_object_field;
     var $relation_object=null;

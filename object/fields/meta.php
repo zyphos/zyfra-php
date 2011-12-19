@@ -1,5 +1,6 @@
 <?php
 class MetaField extends Field{
+    var $type='meta';
     var $stored=false;
     var $type_objects;
     var $column_object;
