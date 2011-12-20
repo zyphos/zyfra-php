@@ -20,6 +20,7 @@ class TextField extends Field{
     }
 
     function sql_write($sql_write, $value, $fields, $context){
+        if ($this->read_only) return;
         $ctx = $sql_write->context;
         $language_id = array_get($ctx, 'language_id');
         if (!$this->translate || !$language_id){

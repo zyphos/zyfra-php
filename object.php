@@ -88,6 +88,7 @@ class ObjectModel{
     var $_create_date = 'create_date';
     var $_write_date = 'write_date';
     var $_visible_field = 'visible';
+    var $_read_only = false;
 
     function __construct($pool, $args = null){
         if(is_array($args)){
@@ -165,6 +166,7 @@ class ObjectModel{
     }
 
     function update_sql(){
+        if ($this->_read_only) return null;
         if (property_exists($this, '__update_sql_done')) return;
         #1 Check if table exists
         $db = $this->_pool->db;
@@ -220,7 +222,7 @@ class ObjectModel{
         * or
         * $values = array[](column: value, col2: value2);
         */
-        if (count($values) == 0) return;
+        if ($this->_read_only || count($values) == 0) return null;
         $values2add = array();
         if(is_int(key($values))){
             $multi_values=true;
@@ -243,10 +245,12 @@ class ObjectModel{
     }
 
     function write($values, $where, $where_datas = array(), $context = array()){
+        if ($this->_read_only) return null;
         $sql_write = new SQLWrite($this, $values, $where, $where_datas, $context);
     }
 
     function unlink($where, $datas = array(), $context = array()){
+        if ($this->_read_only) return null;
         $columns_before = array_keys($this->__before_unlink_fields);
         $columns_after = array_keys($this->__after_unlink_fields);
         $columns = array_merge($columns_before, $columns_after);

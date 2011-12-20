@@ -10,6 +10,8 @@ abstract class Field{
     var $needed_columns;
     var $default_value=null;
     var $widget='text';
+    var $required=false;
+    var $read_only=false;
 
     function __construct($label, $args = null){
         $this->label = $label;
@@ -26,6 +28,7 @@ abstract class Field{
     }
 
     function sql_write($sql_write, $value, $fields, $context){
+        if ($this->read_only) return;
         $sql_write->add_assign($this->name.'='.$this->sql_format($value));
     }
 
