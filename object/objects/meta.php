@@ -20,7 +20,8 @@ class meta_columns extends ObjectModel{
     function init(){
         $this->name = new CharField('Name', 50);
         $this->label = new CharField('Label', 50, array('translate'=>true));
-        $this->tof = new IntField('Type of field');
+        $tof = array(1=>'float', 2=>'int', 3=>'txt');
+        $this->tof = new IntSelectField('Type of field', $tof);
         $this->dimension_id = new Many2OneField('Dimension', 'meta_dimensions');
     }
 }

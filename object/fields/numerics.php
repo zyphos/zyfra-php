@@ -54,8 +54,32 @@ class BooleanField extends Field{
     function sql_format($value){
         return $value?1:0;
     }
+
     function get_sql_def(){
         return 'INT(1)';
+    }
+}
+
+class IntSelectField extends Field{
+    var $select_values;
+    var $widget='intselect';
+
+    function __construct($label, $select_values = null, $args = null){
+        if (is_array($select_values)) {
+            $this->select_values = $select_values;
+        }else{
+            $this->select_values = array($select_values);
+        }
+        parent::__construct($label, $args = null);
+    }
+
+    function sql_format($value){
+        if(is_string($value)){
+            $key = array_search($value, $this->select_values);
+            if($key !== false) return $key;
+        }
+        if (is_numeric($value)) return (int)$value;
+        return null;
     }
 }
 ?>
