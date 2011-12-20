@@ -1,6 +1,6 @@
 <?
 class DatetimeField extends Field{
-    var $type='datetime';
+    var $widget='datetime';
     function sql_format($value){
         if (is_int($value)){
             return "'".gmdate('Y-m-d H:i:s', $value)."'";

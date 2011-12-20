@@ -9,7 +9,7 @@ abstract class Field{
     var $relational = false;
     var $needed_columns;
     var $default_value=null;
-    var $type='field';
+    var $widget='text';
 
     function __construct($label, $args = null){
         $this->label = $label;

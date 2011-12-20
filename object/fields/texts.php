@@ -1,6 +1,6 @@
 <?php
 class TextField extends Field{
-    var $type='text';
+    var $widget='text';
     var $translate=false;
 
     function sql_create($sql_create, $value, $fields, $context){
@@ -120,7 +120,7 @@ class TextField extends Field{
 }
 
 class CharField extends TextField{
-    var $type='char';
+    var $widget='char';
     var $size;
 
     function __construct($label, $size, $args = array()){

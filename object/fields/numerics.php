@@ -4,7 +4,7 @@ class IntField extends Field{
     var $auto_increment = false;
     var $size = 11;
     var $default_value=null;
-    var $type='integer';
+    var $widget='integer';
 
     function sql_format($value){
         return (int)$value;
@@ -25,7 +25,7 @@ class IntField extends Field{
 
 class FloatField extends Field{
     var $default_value=0;
-    var $type='float';
+    var $widget='float';
 
     function sql_format($value){
         return (float)$value;
@@ -37,7 +37,7 @@ class FloatField extends Field{
 
 class DoubleField extends Field{
     var $default_value=0;
-    var $type='double';
+    var $widget='double';
 
     function sql_format($value){
         return (double)$value;
@@ -49,7 +49,7 @@ class DoubleField extends Field{
 
 class BooleanField extends Field{
     var $default_value=0;
-    var $type='boolean';
+    var $widget='boolean';
 
     function sql_format($value){
         return $value?1:0;
