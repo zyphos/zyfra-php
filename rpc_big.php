@@ -83,6 +83,7 @@ class zyfra_rpc_big{
     private static $file_header = 'rpc_big v0.01';
     private static $crypt_key = 'Hello world !';
     private $is_rpc = false;
+    private $log_error_file = '';
     
     function __construct(){
         $sd = new zyfra_send_data();
@@ -106,6 +107,19 @@ class zyfra_rpc_big{
         return $this->is_rpc;
     }
     
+    public function set_rpc_error_file($filename){
+        $this->log_error_file = $filename;
+    }
+    
+    private function throw_exception($msg){
+        if($this->log_error_file!=''){
+            $fp = fopen($this->log_error_file,'a');
+            fwrite($fp, gmdate('Y-m-d H:i:s - '.$msg."\n");
+            fclose($fp);
+        }
+        throw new Exception($msg);
+    }
+    
     public static function send_rpc($url, $fx_name, $params = NULL){
         if ($url instanceof zyfra_rpc_big){
             $url = self::get_self_url();
@@ -116,12 +130,12 @@ class zyfra_rpc_big{
         if (is_array($fx_name)){
             foreach($fx_name as $key=>$row){
                 $rpc = new zyfra_STRUCT_rpc($row[0]);
-                if (!is_null($row[1]) && !is_array($row[1])) throw new Exception('RPC params should be a array for rpc function '.$row[0]);
+                if (!is_null($row[1]) && !is_array($row[1])) $this->throw_exception('RPC params should be a array for rpc function '.$row[0]);
                 $rpc->params = $row[1];
                 $results = $sd->send($rpc, $url, count($fx_name)!=($key+1));
             }
         }else{
-            if (!is_null($params) && !is_array($params)) throw new Exception('RPC params should be a array for function '.$fx_name);
+            if (!is_null($params) && !is_array($params)) $this->throw_exception('RPC params should be a array for function '.$fx_name);
             $rpc = new zyfra_STRUCT_rpc($fx_name);
             $rpc->params = $params;
             $results = $sd->send($rpc, $url);
@@ -133,7 +147,7 @@ class zyfra_rpc_big{
                 return $results[0];
             }
         }else{
-            throw new Exception('RPC response should be a array ('.$results.')');
+            $this->throw_exception('RPC response should be a array ('.$results.')');
         }    
     }
     
@@ -145,7 +159,7 @@ class zyfra_rpc_big{
                 if (is_null($rpc->params)) $rpc->params = array();
                 return call_user_func_array(array($this, $rpc_fx_name), $rpc->params);
             }else{
-                throw new Exception("RPC method doesn't exists (".$rpc_fx_name.')');
+                $this->throw_exception("RPC method doesn't exists (".$rpc_fx_name.')');
             }
         }else{
             return NULL;
