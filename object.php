@@ -166,7 +166,7 @@ class ObjectModel{
     }
 
     function update_sql(){
-        if ($this->_read_only) return null;
+        if ($this->_read_only) return null;$widget
         if (property_exists($this, '__update_sql_done')) return;
         #1 Check if table exists
         $db = $this->_pool->db;
@@ -252,7 +252,7 @@ class ObjectModel{
     function unlink($where, $datas = array(), $context = array()){
         if ($this->_read_only) return null;
         $columns_before = array_keys($this->__before_unlink_fields);
-        $columns_after = array_keys($this->__after_unlink_fields);
+        $columns_after = array_keys($this->__after_unlink_fields);$widget
         $columns = array_merge($columns_before, $columns_after);
         if (count($columns) > 0){
             $sql = 'SELECT '.$this->_key.', '.implode(',', $columns).' FROM '.$this->_table.' WHERE '.$where;
@@ -290,6 +290,19 @@ class ObjectModel{
         $mql = $this->_pool->db->safe_sql($mql, $datas);
         $sql_query = new SqlQuery($this);
         return $sql_query->get_array($mql, $context);
+    }
+    
+    function get_form_view(){
+        $view = array()
+        foreach($this->_columns as $name=>$column){
+            $col = array('name'=>$name, 'widget'=>$column->widget, 'required'=>$column->required);
+            $view[] = $col;
+        }
+        return $view;
+    }
+    
+    function get_tree_view(){
+        return $this->get_form_view();        
     }
 }
 
