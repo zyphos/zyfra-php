@@ -56,10 +56,10 @@ class Many2OneField extends Field{
                 $operator = $context['operator'];
                 switch($operator){
                     case 'parent_of':
-                        $sql = 'LEFT JOIN ma_category AS %ta% ON '.$pa.'.'.$this->pleft.'<%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>%ta%.'.$this->pright;
+                        $sql = 'LEFT JOIN '.$this->object->_table.' AS %ta% ON '.$pa.'.'.$this->pleft.'<%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>%ta%.'.$this->pright;
                         break;
                     case 'child_of':
-                        $sql = 'LEFT JOIN ma_category AS %ta% ON '.$pa.'.'.$this->pleft.'>%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<%ta%.'.$this->pright;
+                        $sql = 'LEFT JOIN '.$this->object->_table.' AS %ta% ON '.$pa.'.'.$this->pleft.'>%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<%ta%.'.$this->pright;
                         break;
                 }
                 $field_link = $parent_alias->alias.'.'.$this->name.$operator;
