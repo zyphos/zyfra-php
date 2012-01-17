@@ -12,7 +12,6 @@ abstract class Field{
     var $widget='text';
     var $required=false;
     var $read_only=false;
-    var $required=false;
 
     function __construct($label, $args = null){
         $this->label = $label;
