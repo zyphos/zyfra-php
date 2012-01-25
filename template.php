@@ -44,6 +44,7 @@
 * ?><br>
 * b=<?=$b?><br>
 * d=<?=$d?>
+* <? require($_tpl_path.'subtemplate.php');?>
 * 
 *****************************************************************************/
 
@@ -110,6 +111,7 @@ class zyfra_template{
         foreach($this->vars as $var_name=>$value){
             $$var_name = $value;
         }
+        $_tpl_path = $this->template_path;
         require $this->get_template_file();
         $content = ob_get_contents();
         ob_end_clean();
