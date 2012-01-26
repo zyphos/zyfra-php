@@ -88,6 +88,7 @@ class ObjectModel{
     var $_create_date = 'create_date';
     var $_write_date = 'write_date';
     var $_visible_field = 'visible';
+    var $_visible_condition;
     var $_read_only = false;
 
     function __construct($pool, $args = null){
@@ -126,6 +127,9 @@ class ObjectModel{
 
     function set_column_instance($name, &$col){
         $col->set_instance($this, $name);
+        if ($name == $this->_visible_field && $this->_visible_condition == ''){
+            $this->_visible_condition = $this->_visible_field.'=1';
+        }
         $methods = array('before_create', 'after_create', 'before_write',
         				'after_write', 'before_unlink', 'after_unlink');
         foreach($methods as $method){

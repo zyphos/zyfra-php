@@ -141,8 +141,8 @@ class SqlQuery{
         if (array_get($this->context, 'domain')){
             $this->where[] = $this->context['domain'];
         }
-        if (array_get($this->context, 'visible', true)&&(array_key_exists($this->object->_visible_field, $this->object->_columns))){
-            $this->where[] = $this->object->_visible_field.'=1';
+        if (array_get($this->context, 'visible', true)&&($this->object->_visible_condition != '')){
+            $this->where[] = $this->object->_visible_condition;
         }
         if (count($this->where)>0 && !array_key_exists('where',$query_datas)){
             $query_datas['where'] = '';
