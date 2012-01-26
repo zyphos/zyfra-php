@@ -175,7 +175,7 @@ class Many2OneField extends Field{
         }
         $right = $left+1;
 
-        if ($id==null || $i==0){
+        if ($id==null || $id==0){
             $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0');
         }else{
             $rows = $this->object->select($key.' AS id WHERE '.$this->name.'=%s', array(), array($id));
