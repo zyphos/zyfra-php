@@ -55,6 +55,7 @@ class MqlWhere{
 class SqlQuery{
     var $table_alias;
     var $table_alias_nb;
+    var $table_alias_prefix;
     var $sub_query_nb;
     var $group_by;
     var $order_by;
@@ -62,7 +63,8 @@ class SqlQuery{
     var $sub_queries;
     var $no_alias = '';
 
-    function __construct($object){
+    function __construct($object, $ta_prefix = ''){
+        $this->table_alias_prefix = $ta_prefix;
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
         $this->init();
@@ -74,7 +76,11 @@ class SqlQuery{
         $this->pool = $this->object->_pool;
         $this->table_alias = array();
         //$this->fields_alias = array();
-        $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');
+        if ($this->table_alias_prefix != ''){
+            $this->add_table_alias('', $this->table_alias_prefix, null, '');
+        }else{
+            $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');    
+        }
         $this->sub_queries = array();
         $this->group_by = array();
         $this->where = array();
@@ -89,10 +95,14 @@ class SqlQuery{
         if (array_key_exists($field_link, $this->table_alias)){
             return $this->table_alias[$field_link];
         }
-        $table_alias = 't'.$this->table_alias_nb++;
+        $table_alias = $this->table_alias_prefix.'t'.$this->table_alias_nb++;
         if ($sql != ''){
             $sql = str_replace('%ta%', $table_alias, $sql);
         }
+        return $this->add_table_alias($field_link, $table_alias, $parent_alias, $sql);
+    }
+    
+    private function add_table_alias($field_link, $table_alias, $parent_alias, $sql){
         $ta = new SqlTableAlias($table_alias, $parent_alias, $sql);
         $this->table_alias[$field_link] = $ta;
         return $ta;
