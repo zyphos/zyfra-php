@@ -75,7 +75,7 @@ class Many2OneField extends Field{
         }
         $parameter = array_key_exists('param', $context)?$context['parameter']:'';
         $field_link = $parent_alias->alias.'.'.$this->name.$parameter;
-        $sql = 'LEFT JOIN '.$this->relation_object->_table.' AS %ta% ON %ta%.'.$this->relation_object->_key.'='.$parent_alias->alias.'.'.$this->name;
+        $sql = ($this->required?'':'LEFT ').'JOIN '.$this->relation_object->_table.' AS %ta% ON %ta%.'.$this->relation_object->_key.'='.$parent_alias->alias.'.'.$this->name;
         if (array_get($sql_query->context, 'visible', true)&&($this->relation_object->_visible_condition != '')){
             list($sql_txt, $on_condition) = explode(' ON ', $sql);
             $visible_sql_q = new SqlQuery($this->relation_object, '%ta%');
