@@ -58,6 +58,10 @@ function html($var){
     return htmlentities($var);
 }
 
+function htmlquotes($var){
+    return htmlentities($var,ENT_QUOTES);
+}
+
 $_cycle_datas = array();
 function cycle(){
     global $_cycle_datas;
