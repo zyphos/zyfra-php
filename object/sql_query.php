@@ -159,6 +159,19 @@ class SqlQuery{
         if(!$no_init) $this->init();
         return $sql;
     }
+    
+    function where2sql($mql, $context = array()){
+        $this->context = $context;
+        if (array_get($this->context, 'domain')){
+            $this->where[] = $this->context['domain'];
+        }
+        if (array_get($this->context, 'visible', true)&&($this->object->_visible_condition != '')){
+            $this->where[] = $this->object->_visible_condition;
+        }
+        $sql = $this->parse_mql_where($mql);
+        $sql .= ' '.$this->get_table_sql();
+        return $sql;
+    }
 
     function get_array($mql, $context = array()){
         $sql = $this->mql2sql($mql, $context, true);
