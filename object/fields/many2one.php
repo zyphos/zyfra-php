@@ -2,6 +2,7 @@
 class Many2OneField extends Field{
     var $relation_object_name;
     var $relation_object=null;
+    var $relation_object_key='';
     var $left_right=true;
     var $relational=true;
     var $default_value=null;
@@ -43,14 +44,16 @@ class Many2OneField extends Field{
             }
             $this->get_relation_object()->add_column($field, new One2ManyField($label, $object->_name, $name));
         }
+        if ($this->relation_object_key == '') $this->relation_object_key = $this->get_relation_object()->_key;
     }
 
     function get_sql_def(){
-        return $this->get_relation_object()->_columns[$this->relation_object->_key]->get_sql_def();
+        return $this->get_relation_object()->_columns[$this->relation_object_key]->get_sql_def();
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
-        if ((count($fields) == 0)||($fields[0] == $this->get_relation_object()->_key)){
+        $robj = $this->get_relation_object();
+        if ((count($fields) == 0)||($fields[0] == $this->relation_object_key)){
             if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){
                 $pa = $parent_alias->alias;
                 $operator = $context['operator'];
@@ -75,10 +78,10 @@ class Many2OneField extends Field{
         }
         $parameter = array_key_exists('param', $context)?$context['parameter']:'';
         $field_link = $parent_alias->alias.'.'.$this->name.$parameter;
-        $sql = ($this->required?'':'LEFT ').'JOIN '.$this->relation_object->_table.' AS %ta% ON %ta%.'.$this->relation_object->_key.'='.$parent_alias->alias.'.'.$this->name;
-        if (array_get($sql_query->context, 'visible', true)&&($this->relation_object->_visible_condition != '')){
+        $sql = ($this->required?'':'LEFT ').'JOIN '.$robj->_table.' AS %ta% ON %ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.$this->name;
+        if (array_get($sql_query->context, 'visible', true)&&($robj->_visible_condition != '')){
             list($sql_txt, $on_condition) = explode(' ON ', $sql);
-            $visible_sql_q = new SqlQuery($this->relation_object, '%ta%');
+            $visible_sql_q = new SqlQuery($robj, '%ta%');
             $sql = $sql_txt.' ON ('.$on_condition.')AND('.$visible_sql_q->where2sql('').')';
         }
         $ta = $sql_query->get_table_alias($field_link, $sql, $parent_alias);
@@ -91,11 +94,11 @@ class Many2OneField extends Field{
             }else{
                 $field_alias = '';
             }
-            $sql_query->split_select_fields($sub_mql, false, $this->relation_object, $ta, $field_alias);
+            $sql_query->split_select_fields($sub_mql, false, $robj, $ta, $field_alias);
             return null;
         }
         $context['parameter'] = $field_param;
-        return $this->relation_object->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
+        return $robj->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
     }
 
     function sql_create($sql_create, $value, $fields, $context){
