@@ -160,6 +160,10 @@ class ObjectModel{
             $this->{$name} = $value;
         }
     }
+    
+    function __get($name){
+        return $this->_columns[$name];
+    }
 
     function init(){
         //Contains fields definitions
