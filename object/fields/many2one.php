@@ -189,7 +189,6 @@ class Many2OneField extends Field{
         }
         if ($id!=0 && $id!=null){
             $db = $this->object->_pool->db;
-            $db = $this->object->_pool->db;
             $db->safe_query('UPDATE '.$table.' SET '.$this->pleft.'='.$left.', '.$this->pright.'='.$right.' WHERE '.$key.'=%s', array($id));
         }
         return $right+1;
