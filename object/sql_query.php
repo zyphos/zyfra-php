@@ -288,7 +288,7 @@ class SqlQuery{
     }
 
     function parse_mql_having($mql_having){
-        return $this->parse_mql_where($mql_having);
+        return $this->mql_where->parse($mql_having);
     }
 
     private function convert_order_by(&$array_order_parsed, $mql_order_by){
