@@ -43,7 +43,7 @@ class One2ManyField extends Field{
             if ($parameter != ''){
                 $mql_where = new MqlWhere($sql_query);
                 $sql_where = $mql_where->parse($parameter, $robject, $ta);
-                $sql_query->table_alias[$field_link]->sql .= ' AND('.$sql_where.')';
+                $sql_query->where_no_parse[] = $sql_where; 
             }
             return 'count('.$key_field.')';
         }else{
