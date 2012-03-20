@@ -57,7 +57,6 @@ class One2ManyField extends Field{
                 $sub_mql = substr($field_name, 1, -1);
                 $sql_query->add_sub_query($robject, $this->relation_object_field, $sub_mql, $field_alias, $parameter);
                 $parent_alias->set_used();
-                //print 'sub_query: '.$sub_mql."<br>\n";
                 return $key_field;
             }else{
                 if ($parameter != ''){
@@ -65,13 +64,8 @@ class One2ManyField extends Field{
                     $sql_where = $mql_where->parse($parameter, $robject, $ta);
                     $sql_query->table_alias[$field_link]->sql .= ' AND('.$sql_where.')';
                 }
-                //print 'field_name:'.$field_name."<br>\n";
                 list($field_name, $field_param) = $sql_query->split_field_param($field_name);
                 $context['parameter'] = $field_param;
-                //print 'field:'.$field_name."<br>\n";
-                //print 'params:'.$field_param."<br>\n<br>\n";
-
-                //print $field_name.'['.$field_param."]<br>\n";
                 return $robject->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
             }
         }
