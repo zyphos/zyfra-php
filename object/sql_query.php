@@ -60,6 +60,7 @@ class SqlQuery{
     var $group_by;
     var $order_by;
     var $where;
+    var $where_no_parse;
     var $sub_queries;
     var $no_alias = '';
 
@@ -84,6 +85,7 @@ class SqlQuery{
         $this->sub_queries = array();
         $this->group_by = array();
         $this->where = array();
+        $this->where_no_parse = array();
         $this->order_by = array();
     }
 
@@ -271,6 +273,14 @@ class SqlQuery{
             }
         }
         $where = $this->mql_where->parse($mql_where);
+        if (count($this->where_no_parse)){
+            $where_np = implode(' AND ', $this->where_no_parse);
+            if ($where != ''){
+                $where = $where_np.' AND('.$where.')';
+            }else{
+                $where = $where_np;
+            }
+        }
         return $where;
     }
 
