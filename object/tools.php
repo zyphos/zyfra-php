@@ -52,12 +52,14 @@ function specialsplit($string, $split_var = ',') {
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
             case '(':
+            case '[':
                 $level++;
-                $ret[$cur] .= '(';
+                $ret[$cur] .= $string[$i];
                 break;
             case ')':
+            case ']':
                 $level--;
-                $ret[$cur] .= ')';
+                $ret[$cur] .= $string[$i];
                 break;
             case $split_var:
                 if ($level == 0) {
