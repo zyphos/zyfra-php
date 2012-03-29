@@ -111,7 +111,7 @@ class zyfra_rpc_big{
         $this->log_error_file = $filename;
     }
     
-    private function throw_exception($msg){
+    private static function throw_exception($msg){
         if($this->log_error_file!=''){
             $fp = fopen($this->log_error_file,'a');
             fwrite($fp, gmdate('Y-m-d H:i:s - '.$msg."\n"));
@@ -130,12 +130,12 @@ class zyfra_rpc_big{
         if (is_array($fx_name)){
             foreach($fx_name as $key=>$row){
                 $rpc = new zyfra_STRUCT_rpc($row[0]);
-                if (!is_null($row[1]) && !is_array($row[1])) $this->throw_exception('RPC params should be a array for rpc function '.$row[0]);
+                if (!is_null($row[1]) && !is_array($row[1])) self::throw_exception('RPC params should be a array for rpc function '.$row[0]);
                 $rpc->params = $row[1];
                 $results = $sd->send($rpc, $url, count($fx_name)!=($key+1));
             }
         }else{
-            if (!is_null($params) && !is_array($params)) $this->throw_exception('RPC params should be a array for function '.$fx_name);
+            if (!is_null($params) && !is_array($params)) self::throw_exception('RPC params should be a array for function '.$fx_name);
             $rpc = new zyfra_STRUCT_rpc($fx_name);
             $rpc->params = $params;
             $results = $sd->send($rpc, $url);
@@ -147,7 +147,7 @@ class zyfra_rpc_big{
                 return $results[0];
             }
         }else{
-            $this->throw_exception('RPC response should be a array ('.$results.')');
+            self::throw_exception('RPC response should be a array ('.$results.')');
         }    
     }
     
@@ -159,7 +159,7 @@ class zyfra_rpc_big{
                 if (is_null($rpc->params)) $rpc->params = array();
                 return call_user_func_array(array($this, $rpc_fx_name), $rpc->params);
             }else{
-                $this->throw_exception("RPC method doesn't exists (".$rpc_fx_name.')');
+                self::throw_exception("RPC method doesn't exists (".$rpc_fx_name.')');
             }
         }else{
             return NULL;
