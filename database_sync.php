@@ -522,7 +522,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         foreach($row2del as $index2del){
             $keys_sql = $this->get_fields_sql($key_names, $index2del);
             $sql = 'DELETE FROM '.$table_name.' WHERE ('.implode(')AND(',$keys_sql).');';
-            $out .= '.';
+            $out .= '. ';
             //$out .= $sql.'<br>';
             $db->query($sql);
         }
@@ -540,7 +540,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $keys_sql = $this->get_fields_sql($key_names, $index2update);
             $datas_sql = $this->get_fields_sql($col_names_sql, $data2update);
             $sql = 'UPDATE '.$table_name.' SET '.implode(',',$datas_sql).' WHERE ('.implode(')AND(',$keys_sql).');';
-            $out .= '.';
+            $out .= '. ';
             //$out .= $sql.'<br>';
             $db->query($sql);
         }
@@ -562,7 +562,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $datas_sql = array_merge($keys, $datas_sql);
             $datas_sql = $this->do_sql_escape($datas_sql);
             $sql = $sql_common.implode('\',\'',$datas_sql).'\');';
-            $out .= '.';
+            $out .= '. ';
             //$out .= $sql.'<br>';
             $db->query($sql);
         }
