@@ -64,7 +64,7 @@ class One2ManyField extends Field{
                     $sql_where = $mql_where->parse($parameter, $robject, $ta);
                     $sql_query->table_alias[$field_link]->sql .= ' AND('.$sql_where.')';
                 }
-                list($field_name, $field_param) = $sql_query->split_field_param($field_name);
+                list($field_name, $field_param) = specialsplitparam($field_name);
                 $context['parameter'] = $field_param;
                 return $robject->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
             }

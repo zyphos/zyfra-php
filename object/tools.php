@@ -22,16 +22,16 @@ function specialsplitparam($string) {
                 $cur .= ')';
                 break;
             case '[':
-                if ($level == 0) {
+                $levelb++;
+                if ($level == 0 && $levelb == 1) {
                     $cur = &$param;
                     break;
                 }
                 $cur .= '[';
-                $levelb++;
                 break;
                 // else fallthrough
             case ']':
-                if ($level == 0 && $levelb == 0) {
+                if ($level == 0 && $levelb == 1) {
                     return array($field, $param);
                 }
                 $levelb--;
@@ -48,9 +48,23 @@ function specialsplit($string, $split_var = ',') {
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
     $cur = 0;         // current index in the array to return, for convenience
+    $ignore = '';
 
     for ($i = 0; $i < strlen($string); $i++) {
-        switch ($string[$i]) {
+        $char = $string[$i];
+        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+            if ($char == $ignore){
+                $ignore = '';
+            }elseif($ignore == ''){
+                $ignore = $char;
+            }
+            $ret[$cur] .= $char;
+            continue;
+        }elseif ($ignore != ''){
+            $ret[$cur] .= $char;
+            continue;
+        }
+        switch ($char) {
             case '(':
             case '[':
                 $level++;
@@ -69,14 +83,77 @@ function specialsplit($string, $split_var = ',') {
                 }
                 // else fallthrough
             default:
+                if ($level == 0) {
+                    if (is_array($split_var) && in_array($char, $split_var)){
+                        $ret[++$cur] = $char;
+                        $ret[++$cur] = '';
+                        break;
+                    }elseif($char == $split_var){
+                        $ret[++$cur] = '';
+                        break;
+                    }
+                }
                 $ret[$cur] .= $string[$i];
         }
     }
+    return $ret;
+}
 
+function specialsplitnotpar($string, $split_var = ',') {
+    $level = 0;       // number of nested sets of brackets
+    $ret = array(''); // array to return
+    $cur = 0;         // current index in the array to return, for convenience
+    $ignore = '';
+
+    for ($i = 0; $i < strlen($string); $i++) {
+        $char = $string[$i];
+        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+            if ($char == $ignore){
+                $ignore = '';
+            }elseif($ignore == ''){
+                $ignore = $char;
+            }
+            $ret[$cur] .= $char;
+            continue;
+        }elseif ($ignore != ''){
+            $ret[$cur] .= $char;
+            continue;
+        }
+        switch ($char) {
+            case '[':
+                $level++;
+                $ret[$cur] .= $string[$i];
+                break;
+            case ']':
+                $level--;
+                $ret[$cur] .= $string[$i];
+                break;
+            case $split_var:
+                if ($level == 0) {
+                    $cur++;
+                    $ret[$cur] = '';
+                    break;
+                }
+                // else fallthrough
+            default:
+                if ($level == 0) {
+                    if (is_array($split_var) && in_array($char, $split_var)){
+                        $ret[++$cur] = $char;
+                        $ret[++$cur] = '';
+                        break;
+                    }elseif($char == $split_var){
+                        $ret[++$cur] = '';
+                        break;
+                    }
+                }
+                $ret[$cur] .= $string[$i];
+        }
+    }
     return $ret;
 }
 
 function multispecialsplit($string, $split_var = ',') {
+    //Spacialsplit with multi character $split_var
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
     $cur = 0;         // current index in the array to return, for convenience
