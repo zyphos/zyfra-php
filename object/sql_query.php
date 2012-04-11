@@ -27,28 +27,32 @@ class MqlWhere{
 
     function __construct($sql_query){
         $this->sql_query = $sql_query;
+        $this->operators = array('parent_of', 'child_of');
+        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or', 'in');
+        $this->basic_operators = array('+','-','=',' ','/','*','(',')',',','<','>','!');
     }
 
     function parse($mql_where, $obj=null, $ta=null){
         $this->obj = $obj;
         $this->ta = $ta;
-        //([a-z_.0-9]+) +
-        $regex = "/\"[^\"]*\"|'[^']*'|unknown|between|false|like|null|true|div|mod|not|xor|and|or|in|([a-z_.0-9]+) +(parent_of|child_of)|([a-z_.0-9]+)/";
-        $sql_where = preg_replace_callback($regex, array($this, 'preg_parse'), $mql_where);
-        return $sql_where;
-    }
-
-    function preg_parse($matches){
-        if(count($matches)==4){
-            return $this->sql_query->field2sql($matches[3], $this->obj, $this->ta);
-        }elseif(count($matches)==3){
-            //Custom operator
-            $field = $matches[1];
-            $operator = $matches[2];
-            return $this->sql_query->field2sql($field, $this->obj, $this->ta, '', $operator);
+        $mql_where = preg_replace('/\s+/',' ', $mql_where); // May induce bug if double or more space are necessary for comparaison
+        $fields = specialsplitnotpar($mql_where, $this->basic_operators);
+        foreach($fields as $key=>&$field){
+            $lfield = strtolower($field);
+            if($key % 2 == 1) continue;
+            if ($field == '') continue;
+            if (in_array($lfield, $this->operators)){
+                $field = '';
+            }elseif (in_array($lfield, $this->reserved_words)){
+                continue;
+            }elseif (isset($fields[$key+2]) && (in_array(strtolower($fields[$key+2]), $this->operators))){
+                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+2]));
+            }else{
+                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta);
+            }
         }
-        //print $matches[0]."\n";
-        return $matches[0];
+        $sql_where = implode('', $fields);
+        return $sql_where;
     }
 }
 
