@@ -2,7 +2,8 @@
 class Many2OneField extends Field{
     var $relation_object_name;
     var $relation_object=null;
-    var $relation_object_key='';
+    var $relation_object_key;
+    var $local_key;
     var $left_right=true;
     var $relational=true;
     var $default_value=null;
@@ -10,6 +11,8 @@ class Many2OneField extends Field{
     var $widget='many2one';
 
     function __construct($label, $relation_object_name, $args = array()){
+        $this->relation_object_key='';
+        $this->local_key='';
         parent::__construct($label, $args);
         $this->relation_object_name = $relation_object_name;
     }
@@ -45,6 +48,30 @@ class Many2OneField extends Field{
             $this->get_relation_object()->add_column($field, new One2ManyField($label, $object->_name, $name));
         }
         if ($this->relation_object_key == '') $this->relation_object_key = $this->get_relation_object()->_key;
+        // Multikey support
+        $foreign_keys = explode(',', $this->relation_object_key);
+        $n_foreign_keys = count($foreign_keys);
+        if($n_foreign_keys > 1){
+            $local_keys = explode(',', $this->local_key);
+            foreach(array_keys($local_keys) as $index) {
+                if ($local_keys[$index] == '') unset($local_keys[$index]);
+            }
+            //array_unshift($local_keys, $name);
+            $n_local_keys = count($local_keys);
+            if($n_local_keys < $n_foreign_keys){
+                $delta = $n_foreign_keys - $n_local_keys;
+                $local_keys = array_merge($local_keys, array_slice($foreign_keys,-$delta,$delta));
+            }
+            $this->local_keys = $local_keys;
+            $this->foreign_keys = $foreign_keys;
+            //Todo: create local fields for storage
+            $robj_name = $this->get_relation_object()->_name;
+            foreach($this->local_keys as $field_name){
+                if(isset($this->$field_name)) continue;
+                $object->add_column($field_name, new Many2OneField($field_name, $robj_name)); //Warning, those columns should not be used, it's only for table update.
+            }
+            $this->relation_object_key = $this->local_keys[0];
+        }
     }
 
     function get_sql_def(){
@@ -78,7 +105,20 @@ class Many2OneField extends Field{
         }
         $parameter = array_key_exists('param', $context)?$context['parameter']:'';
         $field_link = $parent_alias->alias.'.'.$this->name.$parameter;
-        $sql = ($this->required?'':'LEFT ').'JOIN '.$robj->_table.' AS %ta% ON %ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.$this->name;
+        if (isset($this->local_keys)){
+            // Threat multi key
+            $palias = $parent_alias->alias;
+            $relations = array();
+            foreach ($this->local_keys as $key=>$local_key){
+                $foreign_key = $this->foreign_keys[$key];
+                $relations[] = '%ta%.'.$foreign_key.'='.$palias.'.'.$local_key;
+            }
+            $sql_on = implode(' and ', $relations);
+        }else{
+            $sql_on = '%ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.$this->name;
+        }
+        
+        $sql = ($this->required?'':'LEFT ').'JOIN '.$robj->_table.' AS %ta% ON '.$sql_on;
         if (array_get($sql_query->context, 'visible', true)&&($robj->_visible_condition != '')){
             list($sql_txt, $on_condition) = explode(' ON ', $sql);
             $visible_sql_q = new SqlQuery($robj, '%ta%');
