@@ -191,6 +191,7 @@ class SqlQuery{
                 if(array_key_exists($field_alias, $field_alias_ids)){
                     $ids = $field_alias_ids[$field_alias];
                     $row_alias_ids = $row_field_alias_ids[$field_alias];
+                    foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                 }else{
                     $ids = array();
                     $row_alias_ids = array();
@@ -200,6 +201,7 @@ class SqlQuery{
                         $row->$field_alias = array();
                     }
                     $ids = array_keys($ids);
+                    foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                     $field_alias_ids[$field_alias] = $ids;
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
