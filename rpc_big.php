@@ -83,7 +83,7 @@ class zyfra_rpc_big{
     private static $file_header = 'rpc_big v0.01';
     private static $crypt_key = 'Hello world !';
     private $is_rpc = false;
-    private $log_error_file = '';
+    private static $log_error_file = '';
     
     function __construct(){
         $sd = new zyfra_send_data();
@@ -108,12 +108,12 @@ class zyfra_rpc_big{
     }
     
     public function set_rpc_error_file($filename){
-        $this->log_error_file = $filename;
+        self::log_error_file = $filename;
     }
     
     private static function throw_exception($msg){
-        if($this->log_error_file!=''){
-            $fp = fopen($this->log_error_file,'a');
+        if(self::log_error_file!=''){
+            $fp = fopen(self::log_error_file,'a');
             fwrite($fp, gmdate('Y-m-d H:i:s - '.$msg."\n"));
             fclose($fp);
         }
