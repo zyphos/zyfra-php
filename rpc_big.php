@@ -108,12 +108,12 @@ class zyfra_rpc_big{
     }
     
     public function set_rpc_error_file($filename){
-        self::log_error_file = $filename;
+        self::$log_error_file = $filename;
     }
     
     private static function throw_exception($msg){
-        if(self::log_error_file!=''){
-            $fp = fopen(self::log_error_file,'a');
+        if(self::$log_error_file!=''){
+            $fp = fopen(self::$log_error_file,'a');
             fwrite($fp, gmdate('Y-m-d H:i:s - '.$msg."\n"));
             fclose($fp);
         }
