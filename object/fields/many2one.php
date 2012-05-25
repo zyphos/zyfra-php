@@ -212,7 +212,7 @@ class Many2OneField extends Field{
         return $l1;
     }
 
-    function rebuilt_tree($id = 0, $left = 1, $key='', $table=''){
+    function rebuild_tree($id = 0, $left = 1, $key='', $table=''){
         if($key == '' || $table == ''){
             $key = $this->object->_key;
             $table = $this->object->_table;
@@ -225,7 +225,7 @@ class Many2OneField extends Field{
             $rows = $this->object->select($key.' AS id WHERE '.$this->name.'=%s', array(), array($id));
         }
         foreach ($rows as $row){
-            $right = $this->rebuilt_tree($row->id, $right, $key, $table);
+            $right = $this->rebuild_tree($row->id, $right, $key, $table);
         }
         if ($id!=0 && $id!=null){
             $db = $this->object->_pool->db;
