@@ -169,6 +169,103 @@ class zyfra_database_synch extends zyfra_rpc_big{
         zyfra_debug::_print($msg);
     }
     
+    function sync_table($table_name, $key_names, $col_names, $sync_flags,$sync_id,$url){
+        $this->log('<h2>Doing table "'.$table_name.'"</h2>');
+        $key_names = explode(',',$key_names);
+        $col_names = explode(',',$col_names);
+        $sync_flags = new zyfra_synch_flag($sync_flags);
+        $this->log('Flags: '.$sync_flags->get_txt().'<br>');
+        if(!$sync_flags->sync_needed()) {
+            $this->log('No Sync needed.<br>');
+            return;
+        }
+        //Pseudo start time in the past, we are sure that those datas
+        //aren't going to be updated
+        // *2 = Be sure
+        $sync_start_ts = time() - abs($this->delta_time * 2);
+        $this->log('Start time: '.date('Y-m-d H:i:s', $sync_start_ts).'<br>');
+        list($last_start_ts, $last_end_ts) = $this->get_last_sync_by_table($sync_id, $table_name);
+        $this->log('Last sync started at: '.date('Y-m-d H:i:s', $last_start_ts).'<br>');
+        $this->log('Last sync stoped at: '.date('Y-m-d H:i:s', $last_end_ts).'<br>');
+        $this->log('Delta time: '.$this->delta_time.' sec.<br>');
+        /*if(abs($sync_start_ts - $last_sync_start_ts) < (abs($this->delta_time)*10)){
+         //It's to early to make a sync, delta time is huge.
+        $this->log('It\'s to early to make a sync, delta time is huge. '.$table_name.'<br>');
+        continue; //Skip this sync
+        }*/
+        //Get indexes
+        $this->log('Getting local table indexes... ');
+        $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
+        $this->log(count($local_indexes).'<br>');
+        $this->log('Getting remote table indexes... ');
+        $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
+        $this->log(count($remote_indexes).'<br>');
+        
+        //Delete
+        if($sync_flags->delete()){
+            $this->log('Computing deletions...<br>');
+            list($local2del, $remote2del) = $this->compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts, $last_start_ts);
+            if (count($local2del) > 0){
+                $this->log('Deleting from local...<br>');
+                $this->log($this->rpc_delete($table_name, $key_names, $local2del));
+            }
+            if (count($remote2del) > 0){
+                $this->log('Deleting from remote...<br>');
+                $this->log(zyfra_rpc_big::send_rpc($url, 'delete', array($table_name, $key_names, $remote2del)));
+            }
+            unset($local2del, $remote2del);
+        }
+        
+        //Get datas
+        if ($this->read_data_needed($sync_flags)){
+            $this->log('Getting local table datas... ');
+            $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
+            $this->log(count($local_datas).'<br>');
+            $this->log('Getting remote table datas... ');
+            $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
+            $this->log(count($remote_datas).'<br>');
+        
+            //Update
+            if($sync_flags->update()){
+                $this->log('Computing updates...<br>');
+                list($local2update, $remote2update) = $this->compute2update($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags);
+                if (count($local2update) > 0){
+                    $this->log('Updating to local...<br>');
+                    $this->log($this->rpc_update($table_name, $key_names, $col_names, $local2update));
+                }
+                if (count($remote2update) > 0){
+                    $this->log('Updating to remote...<br>');
+                    $this->log(zyfra_rpc_big::send_rpc($url, 'update', array($table_name, $key_names, $col_names, $remote2update)));
+                }
+                unset($local2update, $remote2update);
+            }
+        
+        
+            //Add
+            if($sync_flags->add()){
+                $this->log('Computing adds...<br>');
+                list($local2add, $remote2add) = $this->compute2add($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags);
+                if (count($local2add) > 0){
+                    $this->log('Adding to local...<br>');
+                    $this->log($this->rpc_add($table_name, $key_names, $col_names, $local2add));
+                }
+                if (count($remote2add) > 0){
+                    $this->log('Adding to remote...<br>');
+                    $this->log(zyfra_rpc_big::send_rpc($url, 'add', array($table_name, $key_names, $col_names, $remote2add)));
+                }
+                unset($local2add, $remote2add);
+            }
+        }
+        
+        //Mark table has updated
+        $sync_stop_ts = time()- abs($this->delta_time * 2);
+        $this->log('Stop time: '.date('Y-m-d H:i:s',$sync_stop_ts).'<br>');
+        $this->log('Duration: '.($sync_stop_ts - $sync_start_ts).' seconds<hr>');
+        $this->set_last_sync_for_table($sync_id,$table_name,$sync_start_ts,$sync_stop_ts);
+        unset($table_name,$key_names,$col_names,$sync_flags);
+        unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
+    }
+    
     function sync($synch_table_lst, $incremental = true){
         global $db;
         $db->query('BEGIN');
@@ -187,100 +284,17 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Sync id: '.$sync_id.'<hr>');
         foreach ($table_list as $table){
             list($table_name,$key_names,$col_names,$sync_flags) = explode(':',$table);
-            $this->log('<h2>Doing table "'.$table_name.'"</h2>');
-            $key_names = explode(',',$key_names);
-            $col_names = explode(',',$col_names);
-            $sync_flags = new zyfra_synch_flag($sync_flags);
-            $this->log('Flags: '.$sync_flags->get_txt().'<br>');
-            if(!$sync_flags->sync_needed()) {
-                $this->log('No Sync needed.<br>');
-                continue;
-            }
-            //Pseudo start time in the past, we are sure that those datas 
-            //aren't going to be updated
-            // *2 = Be sure
-            $sync_start_ts = time() - abs($this->delta_time * 2); 
-            $this->log('Start time: '.date('Y-m-d H:i:s', $sync_start_ts).'<br>');
-            list($last_start_ts, $last_end_ts) = $this->get_last_sync_by_table($sync_id, $table_name);
-            $this->log('Last sync started at: '.date('Y-m-d H:i:s', $last_start_ts).'<br>');
-            $this->log('Last sync stoped at: '.date('Y-m-d H:i:s', $last_end_ts).'<br>');
-            $this->log('Delta time: '.$this->delta_time.' sec.<br>');
-            /*if(abs($sync_start_ts - $last_sync_start_ts) < (abs($this->delta_time)*10)){
-                //It's to early to make a sync, delta time is huge.
-                $this->log('It\'s to early to make a sync, delta time is huge. '.$table_name.'<br>');
-                continue; //Skip this sync
-            }*/
-            //Get indexes
-            $this->log('Getting local table indexes... ');
-            $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
-            $this->log(count($local_indexes).'<br>');
-            $this->log('Getting remote table indexes... ');
-            $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
-            $this->log(count($remote_indexes).'<br>');
-            
-            //Delete
-            if($sync_flags->delete()){
-                $this->log('Computing deletions...<br>');
-                list($local2del, $remote2del) = $this->compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts, $last_start_ts);
-                if (count($local2del) > 0){
-                    $this->log('Deleting from local...<br>');
-                    $this->log($this->rpc_delete($table_name, $key_names, $local2del));    
-                }
-                if (count($remote2del) > 0){
-                    $this->log('Deleting from remote...<br>');
-                    $this->log(zyfra_rpc_big::send_rpc($url, 'delete', array($table_name, $key_names, $remote2del)));    
-                }
-                unset($local2del, $remote2del);
-            }
-            
-            //Get datas
-            if ($this->read_data_needed($sync_flags)){
-                $this->log('Getting local table datas... ');
-                $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
-                $this->log(count($local_datas).'<br>');
-                $this->log('Getting remote table datas... ');
-                $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
-                $this->log(count($remote_datas).'<br>');
-                
-                //Update
-                if($sync_flags->update()){
-                    $this->log('Computing updates...<br>');
-                    list($local2update, $remote2update) = $this->compute2update($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags);
-                    if (count($local2update) > 0){
-                        $this->log('Updating to local...<br>');
-                        $this->log($this->rpc_update($table_name, $key_names, $col_names, $local2update));    
-                    }
-                    if (count($remote2update) > 0){
-                        $this->log('Updating to remote...<br>');
-                        $this->log(zyfra_rpc_big::send_rpc($url, 'update', array($table_name, $key_names, $col_names, $remote2update)));
-                    }                    
-                    unset($local2update, $remote2update);    
-                }
-                
-                
-                //Add
-                if($sync_flags->add()){
-                    $this->log('Computing adds...<br>');
-                    list($local2add, $remote2add) = $this->compute2add($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags);
-                    if (count($local2add) > 0){
-                        $this->log('Adding to local...<br>');
-                        $this->log($this->rpc_add($table_name, $key_names, $col_names, $local2add));
-                    }
-                    if (count($remote2add) > 0){
-                        $this->log('Adding to remote...<br>');
-                        $this->log(zyfra_rpc_big::send_rpc($url, 'add', array($table_name, $key_names, $col_names, $remote2add)));
-                    }
-                    unset($local2add, $remote2add);
+            $nb_try = 0;
+            while(true){
+                try {
+                    $nb_try++;
+                    if ($nb_try>1) $this->log('Failed retrying attempt nr '.$nb_try);
+                    $this->sync_table($table_name,$key_names,$col_names,$sync_flags,$sync_id,$url);
+                    break;
+                } catch (Exception $e) {
+                    if ($nb_try > 4) throw $e;
                 }
             }
-            
-            //Mark table has updated
-            $sync_stop_ts = time()- abs($this->delta_time * 2);
-            $this->log('Stop time: '.date('Y-m-d H:i:s',$sync_stop_ts).'<br>');
-            $this->log('Duration: '.($sync_stop_ts - $sync_start_ts).' seconds<hr>');
-            $this->set_last_sync_for_table($sync_id,$table_name,$sync_start_ts,$sync_stop_ts);
-            unset($table_name,$key_names,$col_names,$sync_flags);
-            unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
         }
         $db->query('COMMIT');
     }
