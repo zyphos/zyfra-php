@@ -266,7 +266,8 @@ class SqlQuery{
             }
             $sql_field = $this->field2sql($field_name, $obj, $ta, $alias);
             if ($sql_field != null) {
-                $no_alias = $recursive || $auto_alias && (array_pop(explode('.',$sql_field))==$alias);
+                $fields = explode('.',$sql_field);
+                $no_alias = $recursive || $auto_alias && (array_pop($fields)==$alias);
                 $this->sql_select_fields[] = $sql_field.($no_alias?'':' AS '.$alias);
             }
         }
