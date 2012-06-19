@@ -169,7 +169,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         zyfra_debug::_print($msg);
     }
     
-    function sync_table($table_name, $key_names, $col_names, $sync_flags,$sync_id,$url){
+    function sync_table($table_name, $key_names, $col_names, $sync_flags,$sync_id,$url,$incremental){
         $this->log('<h2>Doing table "'.$table_name.'"</h2>');
         $key_names = explode(',',$key_names);
         $col_names = explode(',',$col_names);
@@ -289,7 +289,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 try {
                     $nb_try++;
                     if ($nb_try>1) $this->log('Failed retrying attempt nr '.$nb_try);
-                    $this->sync_table($table_name,$key_names,$col_names,$sync_flags,$sync_id,$url);
+                    $this->sync_table($table_name,$key_names,$col_names,$sync_flags,$sync_id,$url,$incremental);
                     break;
                 } catch (Exception $e) {
                     if ($nb_try > 4) throw $e;
