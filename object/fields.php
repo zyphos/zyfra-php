@@ -37,6 +37,7 @@ abstract class Field{
     }
 
     function set_instance($object, $name){
+        if (is_null($this->label) || $this->label == '') $this->label = $name;
         $this->name = $name;
         $this->object = $object;
     }
