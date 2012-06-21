@@ -15,14 +15,15 @@ class Many2OneField extends RelationalField{
 
     function set_instance($object, $name){
         parent::set_instance($object, $name);
-        if (!$this->left_right) return;
-        if ($object->_name != $this->relation_object_name){
-            $this->left_right = false;
-        }else{
-            $this->pleft = $name.'_pleft';
-            $this->pright = $name.'_pright';
-            $this->needed_columns[$this->pleft] = new IntField($this->label.' left');
-            $this->needed_columns[$this->pright] = new IntField($this->label.' right');
+        if ($this->left_right){
+            if ($object->_name != $this->relation_object_name){
+                $this->left_right = false;
+            }else{
+                $this->pleft = $name.'_pleft';
+                $this->pright = $name.'_pright';
+                $this->needed_columns[$this->pleft] = new IntField($this->label.' left');
+                $this->needed_columns[$this->pright] = new IntField($this->label.' right');
+            }
         }
         if ($this->back_ref_field !== null){
             if(is_array($this->back_ref_field)){
