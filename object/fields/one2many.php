@@ -1,28 +1,15 @@
 <?
-class One2ManyField extends Field{
+require_once 'relational.php';
+
+class One2ManyField extends RelationalField{
     var $widget='one2many';
-    var $relation_object_name;
     var $relation_object_field;
-    var $relation_object=null;
     var $stored=false;
-    var $relational=true;
 
     function __construct($label, $relation_object_name, $relation_object_field, $args = array()){
-        parent::__construct($label, $args);
+        parent::__construct($label, $relation_object_name, $args);
         $this->left_right = true;
-        $this->relation_object_name = $relation_object_name;
         $this->relation_object_field = $relation_object_field;
-    }
-
-    function get_relation_object(){
-        if ($this->relation_object===null){
-            try{
-                $this->relation_object = $this->object->_pool->__get($this->relation_object_name);
-            } catch(PoolObjectException $e){
-                throw new Exception('Could not find object '.$this->relation_object_name.' field many2one '.$this->name.' from object '.$this->object->_name);
-            }
-        }
-        return $this->relation_object;
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
