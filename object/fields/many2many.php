@@ -44,7 +44,7 @@ class Many2ManyField extends One2ManyField{
         if (!$pool->object_in_pool($this->relation_table)){
             $rel_table_object = new ObjectModel($pool, array(
                     '_name'=>$this->relation_table,
-                    '_columns'=>array($object->_name.'_id'=>new Many2OneField(null, $this->object->_name),
+                    '_columns'=>array($object->_name.'_id'=>new Many2OneField(null, $object->_name),
                             $robj->_name.'_id'=>new Many2OneField(null, $robj->_name)
                     )));
             $pool->add_object($this->relation_table, $rel_table_object);
