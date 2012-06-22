@@ -49,11 +49,15 @@ class Many2ManyField extends One2ManyField{
                     )));
             $pool->add_object($this->relation_table, $rel_table_object);
         }
+        $this->m2m_relation_object = $this->relation_object;
+        $this->m2m_relation_object_field = $this->relation_object_field;
+        $this->relation_object = $rel_table_object;
+        $this->relation_object_field = $object->name.'_id';
     }
     
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
         $new_fields = $fields; //copy
-        array_unshift($new_fields, $robj->_name.'_id');
+        array_unshift($new_fields, $this->m2m_relation_object->_name.'_id');
         return parent::get_sql($parent_alias, $new_fields, $sql_query, $context=array());
     }
 }
