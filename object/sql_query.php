@@ -208,8 +208,12 @@ class SqlQuery{
                     $field_alias_ids[$field_alias] = $ids;
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
-                if ($parameter!='') $parameter .= ' AND ';
-                $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')')));
+                if ($sub_mql = '!function!'){
+                    $sub_datas = $robject->$rfield->eval_fx($ids, $context);
+                }else{
+                    if ($parameter!='') $parameter .= ' AND ';
+                    $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')')));
+                }
                 foreach($row_alias_ids as $row_id=>$id){
                     foreach($sub_datas as $sub_row){
                         if ($sub_row->_subid == $id){
