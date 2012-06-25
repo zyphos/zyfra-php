@@ -75,18 +75,6 @@ require_once('fields/numerics.php');
 require_once('fields/time.php');
 require_once('fields/many2one.php');
 require_once('fields/one2many.php');
+require_once('fields/many2many.php');
 require_once('fields/meta.php');
-
-class Many2ManyField extends Field{
-    var $relation_object_name;
-    var $relation_object_field;
-    var $relation_object;
-    var $relational=true;
-
-    function __construct($label, $relation_object_name, $args = array()){
-        parent::__construct($label, $args);
-        $this->left_right = true;
-        $this->relation_object_name = $relation_object_name;
-    }
-}
 ?>
