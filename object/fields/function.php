@@ -17,7 +17,7 @@ class FunctionField extends Field{
     
     function get_values($ids, $context){
         //should return an array of object with $o->_subid = id 
-        if (is_null($this->get_values_fx)) return [];
+        if (is_null($this->get_values_fx)) return array();
         return call_user_func($this->get_values_fx, $ids, $context);
     }
 }
