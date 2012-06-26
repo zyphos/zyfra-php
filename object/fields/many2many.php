@@ -27,7 +27,7 @@ class Many2ManyField extends One2ManyField{
         if ($this->relation_table == ''){
             //Auto find relation table name
             if ($this->back_ref_field !== null){
-                $this->relation_table = 'm2m_'.$object->_name.'_'.$name.'_'.$robj->_name.'_'.$this->back_ref_field;
+                $this->relation_table = 'm2m_'.$object->_name.'_'.$name.'_'.$robj->_name.'_'.$br_field;
             }else{
                 if ($object->_name <= $robj->_name){
                     $this->relation_table = 'm2m_'.$object->_name.'_'.$robj->_name;
@@ -37,7 +37,10 @@ class Many2ManyField extends One2ManyField{
             }
         }
         if ($this->back_ref_field !== null){
-            $this->get_relation_object()->add_column($br_field, new Many2ManyField($br_label, $object->_name, $name, array('relation_table'=>$this->relation_table)));
+            // Bug: !! The remote column won't be created if this class isn't intanciated !!
+            if(!isset($this->get_relation_object()->_columns[$name])){
+                $this->get_relation_object()->add_column($br_field, new Many2ManyField($br_label, $object->_name, $name, array('relation_table'=>$this->relation_table)));
+            }
         }
         if ($this->relation_object_key == '') $this->relation_object_key = $robj->_key;
         $pool = $object->_pool;
