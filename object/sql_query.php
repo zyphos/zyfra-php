@@ -208,7 +208,7 @@ class SqlQuery{
                     $field_alias_ids[$field_alias] = $ids;
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
-                if ($sub_mql = '!function!'){
+                if ($sub_mql == '!function!'){
                     $sub_datas = $robject->$rfield->eval_fx($ids, $context);
                 }else{
                     if ($parameter!='') $parameter .= ' AND ';
