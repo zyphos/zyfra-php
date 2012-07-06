@@ -12,6 +12,7 @@ abstract class Field{
     var $widget='text';
     var $required=false;
     var $read_only=false;
+    var $instanciated=false;
 
     function __construct($label, $args = null){
         $this->label = $label;
@@ -37,6 +38,8 @@ abstract class Field{
     }
 
     function set_instance($object, $name){
+        if ($this->instanciated) return;
+        $this->instanciated=true;
         if (is_null($this->label) || $this->label == '') $this->label = $name;
         $this->name = $name;
         $this->object = $object;

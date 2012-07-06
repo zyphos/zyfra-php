@@ -90,6 +90,7 @@ class ObjectModel{
     var $_visible_field = 'visible';
     var $_visible_condition;
     var $_read_only = false;
+    var $_instanciated = false;
 
     function __construct($pool, $args = null){
         if(is_array($args)){
@@ -126,6 +127,7 @@ class ObjectModel{
     }
 
     function set_column_instance($name, &$col){
+        if ($col->instanciated) return;
         $col->set_instance($this, $name);
         if ($name == $this->_visible_field && $this->_visible_condition == ''){
             $this->_visible_condition = $this->_visible_field.'=1';
@@ -144,6 +146,8 @@ class ObjectModel{
     }
 
     function set_instance(){
+        if ($this->_instanciated) return;
+        $this->_instanciated = true;
         if (!isset($this->_name)) $this->_name = get_class($this);
         foreach($this->_columns as $name=>&$col){
             $this->set_column_instance($name, $col);
