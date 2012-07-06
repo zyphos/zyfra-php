@@ -49,5 +49,29 @@ class zyfra_debug{
         }
         flush();
     }
+    
+    function print_backtrace(){
+        $bt = debug_backtrace();
+        array_shift($bt);
+        echo '<pre>';
+        $nbt = count($bt);
+        foreach($bt as $t){
+            echo $nbt--.'. '.$t['function'].'(';
+            if (isset($t['args'])){
+                $args = $t['args'];
+                foreach($args as $key=>$value){
+                    if (is_object($value)){
+                        echo '-obj-';
+                    }else{
+                        echo $value;
+                    }
+                    if ($key < count($args)-1) echo ',';
+                }
+            }
+            echo ') in '.$t['file'].' line '.$t['line']."\n";
+        }
+        echo '</pre>';
+    }
+    
 }
 ?>
