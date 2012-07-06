@@ -35,6 +35,9 @@ class Pool{
                 include $file;
             }
         }
+        if(!class_exists($key)){
+            throw new Exception("Object class [".$key."] doesn't exists");
+        }
         $obj = new $key($this);
         $this->add_object($key, $obj);
         return $obj;
