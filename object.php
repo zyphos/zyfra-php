@@ -102,7 +102,7 @@ class ObjectModel{
         $this->_pool = $pool;
         if (!isset($this->_columns)) throw new Exception('Object needs _columns');
         $methods = array('before_create', 'after_create', 'before_write',
-        				'after_write', 'before_unlink', 'after_unlink');
+                'after_write', 'before_unlink', 'after_unlink');
         foreach($methods as $method){
             $this->{'__'.$method.'_fields'} = array();
         }
@@ -133,7 +133,7 @@ class ObjectModel{
             $this->_visible_condition = $this->_visible_field.'=1';
         }
         $methods = array('before_create', 'after_create', 'before_write',
-        				'after_write', 'before_unlink', 'after_unlink');
+                'after_write', 'before_unlink', 'after_unlink');
         foreach($methods as $method){
             if (method_exists($col, $method.'_trigger')){
                 $this->{'__'.$method.'_fields'}[$name] = True;
@@ -164,7 +164,7 @@ class ObjectModel{
             $this->{$name} = $value;
         }
     }
-    
+
     function __get($name){
         return $this->_columns[$name];
     }
@@ -307,7 +307,7 @@ class ObjectModel{
         $sql_query = new SqlQuery($this);
         return $sql_query->get_array($mql, $context);
     }
-    
+
     function get_form_view(){
         $view = array();
         foreach($this->_columns as $name=>$column){
@@ -316,9 +316,9 @@ class ObjectModel{
         }
         return $view;
     }
-    
+
     function get_tree_view(){
-        return $this->get_form_view();        
+        return $this->get_form_view();
     }
 }
 
