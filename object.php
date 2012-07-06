@@ -258,11 +258,15 @@ class ObjectModel{
 
     function write($values, $where, $where_datas = array(), $context = array()){
         if ($this->_read_only) return null;
+        if (is_int($where)) $where = $this->_key.'='.$where;
+        if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
         $sql_write = new SQLWrite($this, $values, $where, $where_datas, $context);
     }
 
     function unlink($where, $datas = array(), $context = array()){
         if ($this->_read_only) return null;
+        if (is_int($where)) $where = $this->_key.'='.$where;
+        if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
         $columns_before = array_keys($this->__before_unlink_fields);
         $columns_after = array_keys($this->__after_unlink_fields);
         $columns = array_merge($columns_before, $columns_after);
