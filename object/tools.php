@@ -161,12 +161,14 @@ function multispecialsplit($string, $split_var = ',') {
     for ($i = 0; $i < strlen($string); $i++) {
         switch ($string[$i]) {
             case '(':
+            case '[':
                 $level++;
-                $ret[$cur] .= '(';
+                $ret[$cur] .= $string[$i];
                 break;
             case ')':
+            case ']':
                 $level--;
-                $ret[$cur] .= ')';
+                $ret[$cur] .= $string[$i];
                 break;
             default:
                 if ($level == 0){
