@@ -146,13 +146,16 @@ class Many2ManyField extends One2ManyField{
                     break;
                 case 6: //Set a list of links
                     $new_rids = $val[2];
+                    if (!count($new_rids)){
+                        $this->relation_object->unlink($this->rt_local_field.' in %s', array($local_ids));
+                        return;
+                    }
                     $this->relation_object->unlink($this->rt_local_field.' in %s and '.$this->rt_foreign_field.' not in %s', array($local_ids, $new_rids));
-                    $result = $this->relation_object->select($this->rt_local_field.','.$this->rt_foreign_field.' where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' in %s', array(), array($local_ids, $new_rids));
+                    $result = $this->relation_object->select($this->rt_local_field.' as id,'.$this->rt_foreign_field.' as rid where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' in %s', array(), array($local_ids, $new_rids));
                     $existing_ids = array();
                     foreach($result as $row){
-                        list($id,$rid) = $row;
-                        if(!isset($existing_ids[$id])) $existing_ids[$id] = array();
-                        $existing_ids[$id][] = $rid;
+                        if(!isset($existing_ids[$row->id])) $existing_ids[$row->id] = array();
+                        $existing_ids[$row->id][] = $row->rid;
                     }
                     foreach($local_ids as $id){
                         if(!isset($existing_ids[$id])){
