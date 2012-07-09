@@ -37,8 +37,8 @@ class Many2ManyField extends One2ManyField{
             $this->rt_foreign_field = $robj->_name.'_id';
         }
         if ($this->rt_foreign_field == $this->rt_local_field){
-            if ($this->back_ref_field !== null) $this->rt_foreign_field = $br_field.'_'.$this->rt_foreign_field;
-            $this->rt_local_field = $name.'_'.$this->rt_local_field;
+            if ($this->back_ref_field !== null) $this->rt_local_field = $br_field.'_'.$this->rt_local_field;
+            $this->rt_foreign_field = $name.'_'.$this->rt_foreign_field;
         }
         if ($this->back_ref_field !== null){
             // Bug: !! The remote column won't be created if this class isn't intanciated !!
