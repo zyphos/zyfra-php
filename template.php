@@ -51,7 +51,7 @@
 function text2url($txt){
     $txt = remove_accent($txt);
     $txt = strtolower($txt);
-    $txt = str_replace(array('(',')','"',chr(153)),'', $txt);
+    $txt = str_replace(array('(',')','"',chr(153),chr(174)),'', $txt);
     return str_replace(array(' ',',',"'"),'-', $txt);
 }
 
