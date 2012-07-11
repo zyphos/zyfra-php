@@ -51,11 +51,14 @@
 function text2url($txt){
     $txt = remove_accent($txt);
     $txt = strtolower($txt);
-    return str_replace(array(' ',','),'-', $txt);
+    $txt = str_replace(array('(',')','"',chr(153)),'', $txt);
+    return str_replace(array(' ',',',"'"),'-', $txt);
 }
 
 function html($var){
-    return htmlentities($var);
+    $var = htmlentities($var);
+    $var = str_replace(chr(153),'<sup>TM</sup>', $var);
+    return $var;
 }
 
 function htmlquotes($var){
