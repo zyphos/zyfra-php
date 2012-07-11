@@ -68,7 +68,7 @@ class Many2ManyField extends One2ManyField{
     }
 
     function _auto_set_relation_table($object, $name, $br_field, $robj){
-        //Auto find relation table name
+        //Auto find relation table name maximum 64 chars according to MySQL
         if ($this->back_ref_field !== null){
             if ($this->equal2equal){
                 $this->relation_table = 'e2e_'.$object->_name.'_'.$name;
@@ -82,9 +82,9 @@ class Many2ManyField extends One2ManyField{
                     }
 
                 }elseif($object->_name < $robj->_name){
-                    $this->relation_table = 'm2m_'.$object->_name.'_'.$name.'_'.$robj->_name.'_'.$br_field;
+                    $this->relation_table = 'm2m_'.substr($object->_name, 0, 10).'_'.substr($name, 0, 10).'_'.substr($robj->_name, 0, 10).'_'.substr($br_field, 0, 10);
                 }else{
-                    $this->relation_table = 'm2m_'.$robj->_name.'_'.$br_field.'_'.$object->_name.'_'.$name;
+                    $this->relation_table = 'm2m_'.substr($robj->_name, 0, 10).'_'.substr($br_field, 0, 10).'_'.substr($object->_name, 0, 10).'_'.substr($name, 0, 10);
                 }
             }
         }else{
