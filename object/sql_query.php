@@ -209,7 +209,7 @@ class SqlQuery{
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
                 if ($sub_mql == '!function!'){
-                    $sub_datas = $robject->$rfield->eval_fx($ids, $context);
+                    $sub_datas = $robject->$rfield->get($ids, $context);
                 }else{
                     if ($parameter!='') $parameter .= ' AND ';
                     $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')')));

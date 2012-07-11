@@ -67,6 +67,14 @@ abstract class Field{
     function get_sql_extra(){
         return '';
     }
+    
+    function get($ids, $context){
+        return array();
+    }
+    
+    function set($ids, $value, $context){
+        
+    }
 
     //abstract function after_create_trigger(&$values);
     //abstract function after_write_trigger(&$values);

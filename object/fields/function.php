@@ -2,8 +2,15 @@
 require_once 'relational.php';
 
 class FunctionField extends Field{
-    // FunctionField('Label', array('get_values_fx', array($this, 'my_fx')));
-    var $get_values_fx=null;
+    // FunctionField('Label', 'my_fx');
+    // FunctionField('Label', array($my_obj, 'my_fx'));
+    var $get_fx=null;
+    var $set_fx=null;
+    
+    function __construct($label, $fx, $args = null){
+        parent::__construct($label, $args);
+        $this->get_fx = $fx;
+    }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
         if (array_key_exists('field_alias', $context)){
@@ -15,9 +22,14 @@ class FunctionField extends Field{
         return $parent_alias->alias.'.'.$this->object->_key;
     }
     
-    function get_values($ids, $context){
+    function get($ids, $context){
         //should return an array of object with $o->_subid = id 
-        if (is_null($this->get_values_fx)) return array();
-        return call_user_func($this->get_values_fx, $ids, $context);
+        if (is_null($this->get_fx)) return array();
+        return call_user_func($this->get_fx, $ids, $context);
+    }
+    
+    function set($ids, $value, $context){
+        if (is_null($this->set_fx)) return array();
+        return call_user_func($this->set_fx, $ids, $value, $context);
     }
 }
