@@ -6,6 +6,7 @@ class FunctionField extends Field{
     // FunctionField('Label', array($my_obj, 'my_fx'));
     var $get_fx=null;
     var $set_fx=null;
+    var $stored=false;
     
     function __construct($label, $fx, $args = null){
         parent::__construct($label, $args);
