@@ -35,7 +35,7 @@ class MqlWhere{
     function parse($mql_where, $obj=null, $ta=null){
         $this->obj = $obj;
         $this->ta = $ta;
-        $mql_where = preg_replace('/\s+/',' ', $mql_where); // May induce bug if double or more space are necessary for comparaison
+        $mql_where = trim_inside($mql_where);
         $fields = specialsplitnotpar($mql_where, $this->basic_operators);
         foreach($fields as $key=>&$field){
             $lfield = strtolower($field);
