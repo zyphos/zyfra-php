@@ -97,17 +97,21 @@ class SqlQuery{
         $this->no_alias = $alias;
     }
 
+    public function get_new_table_alias(){
+        return $this->table_alias_prefix.'t'.$this->table_alias_nb++;
+    }
+
     public function get_table_alias($field_link, $sql = '', $parent_alias=null){
         if (array_key_exists($field_link, $this->table_alias)){
             return $this->table_alias[$field_link];
         }
-        $table_alias = $this->table_alias_prefix.'t'.$this->table_alias_nb++;
+        $table_alias = $this->get_new_table_alias();
         if ($sql != ''){
             $sql = str_replace('%ta%', $table_alias, $sql);
         }
         return $this->add_table_alias($field_link, $table_alias, $parent_alias, $sql);
     }
-    
+
     private function add_table_alias($field_link, $table_alias, $parent_alias, $sql){
         $ta = new SqlTableAlias($table_alias, $parent_alias, $sql);
         $this->table_alias[$field_link] = $ta;
