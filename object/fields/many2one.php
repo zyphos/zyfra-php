@@ -68,21 +68,21 @@ class Many2OneField extends RelationalField{
         $robj = $this->get_relation_object();
         if ((count($fields) == 0)||($fields[0] == $this->relation_object_key)){
             if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){
+                $obj = $this->object;
                 $pa = $parent_alias->alias;
                 $operator = $context['operator'];
+                $op_data = $context['op_data'];
+                $ta = $sql_query->get_new_table_alias();
                 switch($operator){
                     case 'parent_of':
-                        $sql = 'LEFT JOIN '.$this->object->_table.' AS %ta% ON '.$pa.'.'.$this->pleft.'<%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>%ta%.'.$this->pright;
+                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
                         break;
                     case 'child_of':
-                        $sql = 'LEFT JOIN '.$this->object->_table.' AS %ta% ON '.$pa.'.'.$this->pleft.'>%ta%.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<%ta%.'.$this->pright;
+                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
                         break;
                 }
-                $field_link = $parent_alias->alias.'.'.$this->name.$operator;
-                $ta = $sql_query->get_table_alias($field_link, $sql, $parent_alias);
                 $sql_query->order_by[] = $pa.'.'.$this->pleft;
-                $ta->set_used();
-                return $ta->alias.'.'.$this->object->_key.'=';
+                return $sql;
             }else{
                 $field_link = $parent_alias->alias.'.'.$this->name;
                 $parent_alias->set_used();

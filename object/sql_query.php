@@ -45,8 +45,10 @@ class MqlWhere{
                 $field = '';
             }elseif (in_array($lfield, $this->reserved_words)){
                 continue;
-            }elseif (isset($fields[$key+2]) && (in_array(strtolower($fields[$key+2]), $this->operators))){
-                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+2]));
+            }elseif (isset($fields[$key+4]) && (in_array(strtolower($fields[$key+2]), $this->operators))){
+                $op_data = $this->sql_query->field2sql($fields[$key+4], $this->obj, $this->ta);
+                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+2]), $op_data);
+                $fields[$key+4] = $fields[$key+2] = '';
             }else{
                 $field = $this->sql_query->field2sql($field, $this->obj, $this->ta);
             }
@@ -357,7 +359,7 @@ class SqlQuery{
         $field = array_shift($fields);
         list($field_name, $field_data) = specialsplitparam($field);
         if (!array_key_exists($field_name, $obj->_columns)) return $field_name;
-        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator);
+        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator, 'op_data'=>$op_data);
         return $obj->_columns[$field_name]->get_sql($ta, $fields, $this, $context);
     }
 
