@@ -152,37 +152,53 @@ function specialsplitnotpar($string, $split_var = ',') {
     return $ret;
 }
 
-function multispecialsplit($string, $split_var = ',') {
-    //Spacialsplit with multi character $split_var
+function multispecialsplit($string, $split_var = ',', $return_key=false) {
+    //Specialsplit with multi character $split_var
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
     $cur = 0;         // current index in the array to return, for convenience
-    $split_length = strlen($split_var);
+    $ignore = '';
+    if(!is_array($split_var)) $split_var = array($split_var);
     for ($i = 0; $i < strlen($string); $i++) {
-        switch ($string[$i]) {
+        $char = $string[$i];
+        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+            if ($char == $ignore){
+                $ignore = '';
+            }elseif($ignore == ''){
+                $ignore = $char;
+            }
+            $ret[$cur] .= $char;
+            continue;
+        }elseif ($ignore != ''){
+            $ret[$cur] .= $char;
+            continue;
+        }
+        switch ($char) {
             case '(':
             case '[':
                 $level++;
-                $ret[$cur] .= $string[$i];
+                $ret[$cur] .= $char;
                 break;
             case ')':
             case ']':
                 $level--;
-                $ret[$cur] .= $string[$i];
+                $ret[$cur] .= $char;
                 break;
             default:
                 if ($level == 0){
-                if(substr($string, $i, $split_length)==$split_var){
-                    $cur++;
-                    $ret[$cur] = '';
-                    $i += $split_length-1;
-                    break;
+                    foreach ($split_var as $sv){
+                        $split_length = strlen($sv);
+                        if(substr($string, $i, strlen($sv))==$sv){
+                            if ($return_key) $ret[++$cur] = $sv;
+                            $ret[++$cur] = '';
+                            $i += $split_length-1;
+                            break 2;
+                        }
+                    }
                 }
-            }
-            $ret[$cur] .= $string[$i];
+                $ret[$cur] .= $char;
         }
     }
-
     return $ret;
 }
 ?>
