@@ -341,7 +341,8 @@ class SqlQuery{
         return specialsplitparam($field_name);
     }
 
-    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator=''){
+    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
+        if (is_numeric($field_name)) return $field_name;
         if ($obj === null) $obj = $this->object;
         if ($ta === null) $ta = $this->table_alias[''];
         $fx_regex = '/^([a-z_]+)\((.*)\)$/';
