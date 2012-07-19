@@ -4,6 +4,41 @@ function array_get($array, $key, $default=false){
     return $default;
 }
 
+function trim_inside($string){
+    // Intelligent trim, it doesn't trim quoted content
+    $quote = '';
+    $r = '';
+    $last = true;
+    for ($i = 0; $i < strlen($string); $i++) {
+        $c = $string[$i];
+        switch ($c) {
+            case ' ':
+            case "\t":
+            case "\n":
+                if (!$last){
+                    $r .= ' ';
+                    $last = true;
+                    break;
+                }
+            case "\r":
+                if ($quote != '') $r .= $c;
+                $last = true;
+                break;
+            case '"':
+            case "'":
+                if($quote == $c){
+                    $quote = '';
+                }elseif($quote == ''){
+                    $quote = $c;
+                }
+            default:
+                $last = false;
+                $r .= $c;
+        }
+    }
+    return $r;
+}
+
 function specialsplitparam($string) {
     $level = 0;       // number of nested sets of brackets
     $field = '';
