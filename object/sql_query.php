@@ -130,7 +130,7 @@ class SqlQuery{
 
     function mql2sql($mql, $context = array(), $no_init=false){
         $debug = array_get($context, 'debug', false);
-        if ($debug) echo 'mql: '.$mql."<br>\n";
+        if ($debug) echo 'mql: '.htmlentities($mql)."<br>\n";
         $this->context = $context;
         $mql = strtolower($mql);
         $keywords = array('limit', 'order by', 'having', 'group by', 'where');
@@ -171,7 +171,7 @@ class SqlQuery{
         }
         $sql .= ' '.$this->get_table_sql().$sql_words;
         if(!$no_init) $this->init();
-        if ($debug) echo 'sql: '.$sql."<br>\n";
+        if ($debug) echo 'sql: '.htmlentities($sql)."<br>\n";
         return $sql;
     }
     
