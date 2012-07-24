@@ -69,12 +69,16 @@ class SqlQuery{
     var $where_no_parse;
     var $sub_queries;
     var $no_alias = '';
+    var $sql_field_alias;
+    var $required_fields;
+    var $remove_from_result;
 
     function __construct($object, $ta_prefix = ''){
         $this->table_alias_prefix = $ta_prefix;
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
         $this->init();
+        $this->remove_from_result = array();
     }
 
     private function init(){
@@ -93,6 +97,8 @@ class SqlQuery{
         $this->where = array();
         $this->where_no_parse = array();
         $this->order_by = array();
+        $this->required_fields = array();
+        $this->sql_field_alias = array();
     }
 
     public function no_alias($alias){
@@ -200,13 +206,13 @@ class SqlQuery{
                 if(array_key_exists($field_alias, $field_alias_ids)){
                     $ids = $field_alias_ids[$field_alias];
                     $row_alias_ids = $row_field_alias_ids[$field_alias];
-                    foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
+                    //foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                 }else{
                     $ids = array();
                     $row_alias_ids = array();
                     foreach($datas as $row_id=>$row){
                         $ids[$row->{$field_alias}] = true;
-                        $row_alias_ids[$row_id] = $row->$field_alias;
+                        $row_alias_ids[$row->$field_alias] = $row_id;
                         $row->$field_alias = array();
                     }
                     $ids = array_keys($ids);
@@ -215,20 +221,40 @@ class SqlQuery{
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
                 if ($sub_mql == '!function!'){
-                    $sub_datas = $robject->$rfield->get($ids, $context);
+                    if(count($parameter)>0){
+                        $fx_data = array();
+                        foreach ($ids as $id){
+                            $obj = new stdClass;
+                            foreach($parameter as $key=>$field){
+                                $obj->$key = $datas[$row_alias_ids[$id]]->{$this->sql_field_alias[$field]};
+                            }
+                            $fx_data[$id] = $obj;
+                        }
+                    }
+                    $sub_datas = $robject->$rfield->get($ids, $context, $fx_data);
+                    foreach($row_alias_ids as $id=>$row_id){
+                        $datas[$row_id]->{$field_alias}= $sub_datas[$id];
+                    }
                 }else{
                     if ($parameter!='') $parameter .= ' AND ';
                     $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')')));
-                }
-                foreach($row_alias_ids as $row_id=>$id){
-                    foreach($sub_datas as $sub_row){
-                        if ($sub_row->_subid == $id){
-                            $datas[$row_id]->{$field_alias}[] = $sub_row;
+                    foreach($row_alias_ids as $id=>$row_id){
+                        foreach($sub_datas as $sub_row){
+                            if ($sub_row->_subid == $id){
+                                $datas[$row_id]->{$field_alias}[] = $sub_row;
+                            }
                         }
                     }
                 }
                 foreach($sub_datas as $sub_row){
                     unset($sub_row->_subid);
+                }
+            }
+        }
+        if(count($this->remove_from_result)){
+            foreach($datas as &$row){
+                foreach($this->remove_from_result as $alias){
+                    unset($row->$alias);
                 }
             }
         }
@@ -277,9 +303,19 @@ class SqlQuery{
             $sql_field = $this->field2sql($field_name, $obj, $ta, $alias);
             if ($sql_field != null) {
                 $fields = explode('.',$sql_field);
-                $no_alias = $recursive || $auto_alias && (array_pop($fields)==$alias);
+                $last_field = array_pop($fields);
+                $no_alias = $recursive || $auto_alias && ($last_field==$alias);
                 $this->sql_select_fields[] = $sql_field.($no_alias?'':' AS '.$alias);
+                $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
             }
+        }
+        $rqi = 0;
+        foreach($this->required_fields as $field){
+            if (isset($this->sql_field_alias[$field])) continue;
+            $alias = '_rq'.++$rqi;
+            $this->sql_select_fields[] = $field.' AS '.$alias;
+            $this->sql_field_alias[$field] = $alias;
+            $this->remove_from_result[] = $alias;
         }
     }
 
@@ -360,11 +396,16 @@ class SqlQuery{
         list($field_name, $field_data) = specialsplitparam($field);
         if (!array_key_exists($field_name, $obj->_columns)) return $field_name;
         $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator, 'op_data'=>$op_data);
+        $context = array_merge($this->context, $context);
         return $obj->_columns[$field_name]->get_sql($ta, $fields, $this, $context);
     }
 
     function add_sub_query($robject, $rfield, $sub_mql, $field_alias, $parameter){
         $this->sub_queries[] = array($robject, $rfield, $sub_mql, $field_alias, $parameter);
+    }
+    
+    function add_required_fields($required_fields){
+        $this->required_fields = array_unique(array_merge($this->required_fields, $required_fields));
     }
 }
 ?>

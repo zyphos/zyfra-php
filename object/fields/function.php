@@ -5,8 +5,10 @@ class FunctionField extends Field{
     var $get_fx=null;
     var $set_fx=null;
     var $stored=false;
+    var $required_fields;
 
     function __construct($label, $fx, $args = null){
+        $this->required_fields = array();
         parent::__construct($label, $args);
         $this->get_fx = $fx;
     }
@@ -17,14 +19,21 @@ class FunctionField extends Field{
         }else{
             $field_alias = '';
         }
-        $sql_query->add_sub_query($this->object, $this->name, '!function!', $field_alias, '');
+        if (count($this->required_fields)){
+            $reqf = array();
+            foreach($this->required_fields as $rf){
+                $reqf[$rf] = $sql_query->field2sql($rf, $this->object, $parent_alias);
+            }
+            $sql_query->add_required_fields($reqf);
+        }
+        $sql_query->add_sub_query($this->object, $this->name, '!function!', $field_alias, $reqf);
         return $parent_alias->alias.'.'.$this->object->_key;
     }
 
-    function get($ids, $context){
-        //should return an array of object with $o->_subid = id
+    function get($ids, $context, $datas){
+        //should return an array of object with array[id] = result
         if (is_null($this->get_fx)) return array();
-        return call_user_func($this->get_fx, $ids, $context);
+        return call_user_func($this->get_fx, $ids, $context, $datas);
     }
 
     function set($ids, $value, $context){
