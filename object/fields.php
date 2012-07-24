@@ -89,4 +89,5 @@ require_once('fields/one2many.php');
 require_once('fields/many2many.php');
 require_once('fields/meta.php');
 require_once('fields/function.php');
+require_once('fields/shortcut.php');
 ?>
