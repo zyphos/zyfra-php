@@ -48,6 +48,16 @@
 * 
 *****************************************************************************/
 
+function remove_accent($str){
+    //return strtr($chaine,
+    //   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
+    //   'aaaaaaaaaaaaaacceeeeeeeeiiiiiiiinnoooooooooouuuuuuuuy');
+    $str = htmlentities($str);
+    $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1',$str);
+    $str = str_replace("&amp;"," and ",$str);
+    return html_entity_decode($str);
+}
+
 function text2url($txt){
     $txt = remove_accent($txt);
     $txt = strtolower($txt);
