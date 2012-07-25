@@ -187,11 +187,16 @@ function specialsplitnotpar($string, $split_var = ',') {
     return $ret;
 }
 
-function multispecialsplit($string, $split_var = ',', $return_key=false) {
+function multispecialsplit($string, $split_var = ',', $return_key=false, $key_index = false) {
     //Specialsplit with multi character $split_var
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
-    $cur = 0;         // current index in the array to return, for convenience
+    if($key_index){
+        $cur = '';
+    }else{
+        $cur = 0;         // current index in the array to return, for convenience
+    }
+    
     $ignore = '';
     if(!is_array($split_var)) $split_var = array($split_var);
     for ($i = 0; $i < strlen($string); $i++) {
@@ -224,8 +229,13 @@ function multispecialsplit($string, $split_var = ',', $return_key=false) {
                     foreach ($split_var as $sv){
                         $split_length = strlen($sv);
                         if(substr($string, $i, strlen($sv))==$sv){
-                            if ($return_key) $ret[++$cur] = $sv;
-                            $ret[++$cur] = '';
+                            if($key_index){
+                                $cur = $sv;
+                                $ret[$cur] = '';
+                            }else{
+                                if ($return_key) $ret[++$cur] = $sv;
+                                $ret[++$cur] = '';
+                            }
                             $i += $split_length-1;
                             break 2;
                         }
