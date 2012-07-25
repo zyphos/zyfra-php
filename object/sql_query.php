@@ -1,5 +1,6 @@
 <?php
 require_once('tools.php');
+require_once(dirname(__FILE__).'/../debug.php');
 
 class SqlTableAlias{
     var $parent;
@@ -57,6 +58,7 @@ class MqlWhere{
         return $sql_where;
     }
 }
+$sql_query_id = 0;
 
 class SqlQuery{
     var $table_alias;
@@ -74,11 +76,13 @@ class SqlQuery{
     var $remove_from_result;
 
     function __construct($object, $ta_prefix = ''){
+        global $sql_query_id;
         $this->table_alias_prefix = $ta_prefix;
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
         $this->init();
         $this->remove_from_result = array();
+        $this->__uid__ = ++$sql_query_id;
     }
 
     private function init(){
@@ -136,7 +140,6 @@ class SqlQuery{
 
     function mql2sql($mql, $context = array(), $no_init=false){
         $debug = array_get($context, 'debug', false);
-        if ($debug) echo 'mql: '.htmlentities($mql)."<br>\n";
         $this->context = $context;
         $mql = strtolower($mql);
         $keywords = array('limit', 'order by', 'having', 'group by', 'where');
@@ -147,6 +150,17 @@ class SqlQuery{
                 $query_datas[$keyword] = trim($datas[1]);
             }
             $mql = $datas[0];
+        }
+        if ($debug) {
+            $s = multispecialsplit($mql, ',');
+            $s = array_map('htmlentities', $s);
+            $txt = implode($s,",<br>");
+            $txt .= "<br>";
+            foreach(array_reverse($query_datas,true) as $key=>$value){
+                $txt .= '<b>'.strtoupper($key).'</b><br>'.htmlentities($value).'<br>';
+            }
+            $txt .= '<b>Context:</b><pre>'.print_r($context, true).'</pre>';
+            zyfra_debug::print_set('MQL['.$this->__uid__.']:', $txt);
         }
         $sql = 'SELECT '.$this->parse_mql_fields($mql);
         if(!array_key_exists('order by',$query_datas)){
@@ -177,7 +191,25 @@ class SqlQuery{
         }
         $sql .= ' '.$this->get_table_sql().$sql_words;
         if(!$no_init) $this->init();
-        if ($debug) echo 'sql: '.htmlentities($sql)."<br>\n";
+        if ($debug) {
+            $mss = multispecialsplit($sql, array('LIMIT ', 'ORDER BY ', 'HAVING ', 'GROUP BY ', 'WHERE ','SELECT ', 'FROM ', 'LEFT JOIN', 'JOIN'), true);
+            $txt = '';
+            for($i=1;$i<count($mss);$i+=2){
+                $key = $mss[$i];
+                $ss = $mss[$i+1];
+                if (trim($ss) == '') continue;
+                $txt .= '<b>'.$key.'</b><br>';
+                if ($key == 'SELECT '){
+                    $s = multispecialsplit($ss, ',');
+                    $s = array_map('htmlentities', $s);
+                    $txt .= implode($s,",<br>");
+                    $txt .= "<br>";
+                }else{
+                    $txt .= htmlentities($ss).'<br>';
+                }
+            }
+            zyfra_debug::print_set('SQL['.$this->__uid__.']:', $txt);
+        }
         return $sql;
     }
     
