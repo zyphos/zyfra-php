@@ -73,5 +73,8 @@ class zyfra_debug{
         echo '</pre>';
     }
     
+    static function print_set($title, $content){
+        echo '<fieldset style=\'background:#EEE\';><legend style=\'background:#CCC\'><b>'.$title.'</b></legend>'.$content.'</fieldset>';
+    }
 }
 ?>
