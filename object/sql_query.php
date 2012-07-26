@@ -229,12 +229,14 @@ class SqlQuery{
     function get_array($mql, $context = array()){
         $sql = $this->mql2sql($mql, $context, true);
         $key = array_get($context, 'key', '');
+        if ($key != $this->object->_key && !in_array($key, $this->object->_columns)) $key = '';
         $datas = $this->pool->db->get_array_object($sql, $key);
         $field_alias_ids = array();
         $row_field_alias_ids = array();
         if (count($datas)>0){
             foreach($this->sub_queries as $sub_query){
                 list($robject, $rfield, $sub_mql, $field_alias, $parameter) = $sub_query;
+                $is_fx = $sub_mql == '!function!';
                 if(array_key_exists($field_alias, $field_alias_ids)){
                     $ids = $field_alias_ids[$field_alias];
                     $row_alias_ids = $row_field_alias_ids[$field_alias];
@@ -244,36 +246,48 @@ class SqlQuery{
                     $row_alias_ids = array();
                     foreach($datas as $row_id=>$row){
                         $ids[$row->{$field_alias}] = true;
-                        $row_alias_ids[$row->$field_alias] = $row_id;
-                        $row->$field_alias = array();
+                        //$row_alias_ids[$row_id] = $row->$field_alias;
+                        if(!isset($row_alias_ids[$row->$field_alias])) $row_alias_ids[$field_alias] = array();
+                        $row_alias_ids[$row->$field_alias][] = $row_id;
+                        if (!$is_fx) $row->$field_alias = array();
                     }
                     $ids = array_keys($ids);
                     foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                     $field_alias_ids[$field_alias] = $ids;
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
-                if ($sub_mql == '!function!'){
+                if ($is_fx){
                     if(count($parameter)>0){
                         $fx_data = array();
                         foreach ($ids as $id){
                             $obj = new stdClass;
                             foreach($parameter as $key=>$field){
-                                $obj->$key = $datas[$row_alias_ids[$id]]->{$this->sql_field_alias[$field]};
+                                foreach($row_alias_ids[$id] as $row_id){
+                                    $obj->$key = $datas[$row_id]->{$this->sql_field_alias[$field]};
+                                }
                             }
                             $fx_data[$id] = $obj;
                         }
                     }
                     $sub_datas = $robject->$rfield->get($ids, $context, $fx_data);
-                    foreach($row_alias_ids as $id=>$row_id){
-                        $datas[$row_id]->{$field_alias}= $sub_datas[$id];
+                    foreach($row_alias_ids as $id=>$row_ids){
+                        foreach($row_ids as $row_id){
+                            $datas[$row_id]->{$field_alias}= $sub_datas[$id];
+                        }
                     }
                 }else{
-                    if ($parameter!='') $parameter .= ' AND ';
-                    $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')')));
-                    foreach($row_alias_ids as $id=>$row_id){
+                    if ($parameter!='') $parameter = '('.$parameter.') AND ';
+                    $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')'));
+                    /*echo 'context:<br><pre>';
+                    print_r($nctx);
+                    echo '</pre>';*/
+                    $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
+                    foreach($row_alias_ids as $id=>$row_ids){
                         foreach($sub_datas as $sub_row){
                             if ($sub_row->_subid == $id){
-                                $datas[$row_id]->{$field_alias}[] = $sub_row;
+                                foreach($row_ids as $row_id){
+                                    $datas[$row_id]->{$field_alias}[] = $sub_row;
+                                }
                             }
                         }
                     }
@@ -343,7 +357,7 @@ class SqlQuery{
         }
         $rqi = 0;
         foreach($this->required_fields as $field){
-            if (isset($this->sql_field_alias[$field])) continue;
+            if (!$recursive && isset($this->sql_field_alias[$field])) continue;
             $alias = '_rq'.++$rqi;
             $this->sql_select_fields[] = $field.' AS '.$alias;
             $this->sql_field_alias[$field] = $alias;
