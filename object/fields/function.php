@@ -4,6 +4,7 @@ class FunctionField extends Field{
     // FunctionField('Label', array($my_obj, 'my_fx'));
     var $get_fx=null;
     var $set_fx=null;
+    var $parameters=null;
     var $stored=false;
     var $required_fields;
 
@@ -33,12 +34,12 @@ class FunctionField extends Field{
     function get($ids, $context, $datas){
         //should return an array of object with array[id] = result
         if (is_null($this->get_fx)) return array();
-        return call_user_func($this->get_fx, $ids, $context, $datas);
+        return call_user_func($this->get_fx, $this, $ids, $context, $datas);
     }
 
     function set($ids, $value, $context){
         if (is_null($this->set_fx)) return array();
-        return call_user_func($this->set_fx, $ids, $value, $context);
+        return call_user_func($this->set_fx, $ids, $value, $context, $parameters);
     }
 }
 ?>

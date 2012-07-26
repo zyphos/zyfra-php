@@ -357,7 +357,7 @@ class SqlQuery{
         }
         $rqi = 0;
         foreach($this->required_fields as $field){
-            if (!$recursive && isset($this->sql_field_alias[$field])) continue;
+            if ($recursive || isset($this->sql_field_alias[$field])) continue;
             $alias = '_rq'.++$rqi;
             $this->sql_select_fields[] = $field.' AS '.$alias;
             $this->sql_field_alias[$field] = $alias;
