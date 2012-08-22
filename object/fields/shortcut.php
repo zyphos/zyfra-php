@@ -10,7 +10,7 @@ class ShortcutField extends Field{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
-        return $sql_query->field2sql($this->relation, $this->object, $parent_alias);
+        return $sql_query->field2sql($this->relation, $this->object, $parent_alias, $context['field_alias']);
     }
 }
 ?>
