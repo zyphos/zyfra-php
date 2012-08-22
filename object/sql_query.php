@@ -247,7 +247,7 @@ class SqlQuery{
                     foreach($datas as $row_id=>$row){
                         $ids[$row->{$field_alias}] = true;
                         //$row_alias_ids[$row_id] = $row->$field_alias;
-                        if(!isset($row_alias_ids[$row->$field_alias])) $row_alias_ids[$field_alias] = array();
+                        if(!isset($row_alias_ids[$row->$field_alias])) $row_alias_ids[$row->$field_alias] = array();
                         $row_alias_ids[$row->$field_alias][] = $row_id;
                         if (!$is_fx) $row->$field_alias = array();
                     }
@@ -352,7 +352,7 @@ class SqlQuery{
                 $last_field = array_pop($fields);
                 $no_alias = $recursive || $auto_alias && ($last_field==$alias);
                 $this->sql_select_fields[] = $sql_field.($no_alias?'':' AS '.$alias);
-                $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
+                if (!$recursive) $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
             }
         }
         $rqi = 0;
