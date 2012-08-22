@@ -111,7 +111,8 @@ class zyfra_language{
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
             $accept_languages = explode(",",$_SERVER['HTTP_ACCEPT_LANGUAGE']);
             foreach($accept_languages as $accept_language){
-                $language = array_shift(explode(';',$accept_language));
+                $all_languages = explode(';',$accept_language);
+                $language = array_shift($all_languages);
                 preg_match('/([A-Za-z]*)-/', $accept_language, $match, 0, 0);
                 if (isset($match[1])){
                     $abv = $match[1];
