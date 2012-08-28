@@ -367,7 +367,7 @@ class SqlQuery{
 
     function parse_mql_where($mql_where){
         if (count($this->where)){
-            $where = implode(' AND ', $this->where);
+            $where = '('.implode(')AND(', $this->where).')';
             if ($mql_where != ''){
                 $mql_where = $where.' AND('.$mql_where.')';
             }else{
@@ -376,7 +376,7 @@ class SqlQuery{
         }
         $where = $this->mql_where->parse($mql_where);
         if (count($this->where_no_parse)){
-            $where_np = implode(' AND ', $this->where_no_parse);
+            $where_np = '('.implode(')AND(', $this->where_no_parse).')';
             if ($where != ''){
                 $where = $where_np.' AND('.$where.')';
             }else{
