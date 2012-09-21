@@ -97,11 +97,16 @@ class Many2ManyField extends One2ManyField{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+        $nb_fields = count($fields);
         $new_fields = $fields; //copy
         $new_ctx = $context; //copy
-        if (count($fields)){
-            $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].')');
-            unset($new_ctx['parameter']);
+        if ($nb_fields){
+            if ($nb_fields == 1 && $fields[0] == $this->m2m_relation_object->_key){
+                $new_fields = array($this->rt_foreign_field);
+            }else{
+                $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].')');
+                unset($new_ctx['parameter']);
+            }
         }
         return parent::get_sql($parent_alias, $new_fields, $sql_query, $new_ctx);
     }
