@@ -109,6 +109,7 @@ class zyfra_template{
     
     function set_template_path($template_path){
         $this->template_path = $template_path;
+        return $this;
     }
        
     function get_template_file(){
@@ -121,6 +122,7 @@ class zyfra_template{
         }else{
             $this->vars[$var_name] = $value;
         }
+        return $this;
     }
     
     function fetch(){
