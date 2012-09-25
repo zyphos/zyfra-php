@@ -320,6 +320,29 @@ class ObjectModel{
     function get_tree_view(){
         return $this->get_form_view();
     }
+    
+    function get_full_diagram($lvl=0, $done=null){
+        if (is_null($done)) {
+            $done = array($this->_name);
+        }else{
+            if (in_array($this->_name, $done)){
+                return str_repeat(' ', $lvl*2).'-recursive-'."\n";
+            }else{
+                $done[] = $this->_name;
+            }
+        }
+        $txt = '';
+        foreach($this->_columns as $col){
+            $txt .= str_repeat(' ', $lvl*2).'+'.$col->name.'['.get_class($col).']';
+            if ($col->relational){
+                $robj = $col->get_relation_object();
+                $txt .= '['.$robj->_name."]\n".$robj->get_full_diagram($lvl + 1, $done);
+            }else{
+                $txt .= "\n";
+            }
+        }
+        return $txt;
+    }
 }
 
 require_once('object/objects/meta.php');
