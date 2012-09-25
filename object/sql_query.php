@@ -34,6 +34,8 @@ class MqlWhere{
     }
 
     function parse($mql_where, $obj=null, $ta=null){
+        $language_id = array_get($this->sql_query->context, 'language_id', 0);
+        $mql_where = str_replace('%language_id%', $language_id, $mql_where);
         $this->obj = $obj;
         $this->ta = $ta;
         $mql_where = trim_inside($mql_where);
