@@ -303,7 +303,14 @@ class ObjectModel{
     }
 
     function select($mql='*', $context = array(), $datas = array()){
-        $mql = $this->_pool->db->safe_sql($mql, $datas);
+        try{
+            $mql = $this->_pool->db->safe_sql($mql, $datas);
+        }catch(Exception $e){
+            if(in_array('debug', $datas) && $datas[debug]){
+                throw $e;
+            }
+            return array();
+        }
         $sql_query = new SqlQuery($this);
         return $sql_query->get_array($mql, $context);
     }
