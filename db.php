@@ -33,7 +33,7 @@ switch($config->db_type){
     $MySQL->user = $config->db_user;
     $MySQL->password = $config->db_password;
     $MySQL->default_db = $config->db_name;
-    if(!isset($db)) $db = $MySQL;
+    if(!isset($db) || !is_subclass_of($db, 'Cdb_common')) $db = $MySQL;
     break;
 }
 ?>

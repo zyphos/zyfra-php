@@ -52,7 +52,7 @@
  * 
  */
 
-require_once("../include/Cdb.php");
+require_once 'db.php';
 include_once 'rpc_big.php';
 include_once 'debug.php';
 
