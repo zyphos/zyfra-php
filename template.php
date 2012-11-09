@@ -63,6 +63,7 @@ function text2url($txt){
     $txt = strtolower($txt);
     $txt = str_replace(array('(',')','"',chr(153),chr(174)),'', $txt);
     $txt = str_replace('%','pc', $txt);
+    $txt = str_replace(chr(176),'deg', $txt);
     return str_replace(array(' ',',',"'"),'-', $txt);
 }
 
