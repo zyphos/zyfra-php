@@ -50,13 +50,13 @@ class zyfra_debug{
         flush();
     }
     
-    static function print_backtrace(){
+    static function print_backtrace($table=true){
         $bt = debug_backtrace();
         array_shift($bt);
-        echo '<pre>';
+        echo $table?"Backtrace<br/><table bgcolor='grey'>":'<pre>';
         $nbt = count($bt);
         foreach($bt as $t){
-            echo $nbt--.'. '.$t['function'].'(';
+            echo ($table?"<tr bgcolor='#FFDDBB'><td>":'').$nbt--.'. '.($table?'</td><td>':'').$t['function'].'(';
             if (isset($t['args'])){
                 $args = $t['args'];
                 foreach($args as $key=>$value){
@@ -68,11 +68,11 @@ class zyfra_debug{
                     if ($key < count($args)-1) echo ',';
                 }
             }
-            echo ') in '.$t['file'].' line '.$t['line']."\n";
+            echo ')'.($table?'</td><td>':'').' in '.$t['file'].' line '.$t['line'].($table?'</td></tr>':"\n");
         }
-        echo '</pre>';
+        echo $table?'</table>':'</pre>';
     }
-    
+
     static function print_set($title, $content){
         echo '<fieldset style=\'background:#EEE\';><legend style=\'background:#CCC\'><b>'.$title.'</b></legend>'.$content.'</fieldset>';
     }
