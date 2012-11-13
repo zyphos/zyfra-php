@@ -1,21 +1,40 @@
 <?php
 class ActiveRecord{
-    protected $object;
-    protected $params;
-    protected $modified_columns;
+    protected $__object;
+    protected $__context;
+    protected $__data;
+    protected $__params;
+    protected $__modified_columns;
 
-    public function __construct($object, $params = array()){
-        $this->object = $object;
-        $this->params = $params;
-        $this->modified_columns = array();
+    public function __construct($object, $params = array(), $context = array()){
+        $this->__object = $object;
+        $this->__context = $context;
+        $this->__data = null;
+        $this->__params = $params;
+        $this->__modified_columns = array();
+    }
+    
+    private function __get_data(){
+        $obj = $this->__object;
+        $key = $obj->_key;
+        if(!is_null($this->__data) || !array_key_exists($key, $this->__params)) return;
+        $id = $this->__params[$key];
+        $result = $obj->select('* WHERE '.$key.'=%s', $this->__context, array($id));
+        if (count($result)) $this->__data = $result[0];
     }
 
     public function __get($name){
-        if (array_key_exists($name, $this->params)) return $this->params[$name];
-        if (array_key_exists($name, $this->object->_columns)){
-            return $this->object->_columns[$name]->get_default();
+        if (array_key_exists($name, $this->__params)) return $this->__params[$name];
+        $obj = $this->__object;
+        if (array_key_exists($name, $obj->_columns)){
+            $this->__get_data();
+            if (is_null($this->__data)){
+                return $obj->_columns[$name]->get_default();
+            }else{
+                return $this->__data->{$name};
+            }
         }
-        throw new Exception('Column '.$name.' not found in '.$this->object->_name);
+        throw new Exception('Column '.$name.' not found in '.$obj->_name);
     }
 
     public function __set($name, $value){
@@ -25,26 +44,28 @@ class ActiveRecord{
             case 'write_date':
                 throw new Exception('Column '.$name.' can\'t be modified');
         }
-        if (array_key_exists($name, $this->object->_columns)){
-            if (!array_key_exists($name, $this->params) || $this->params[$name] != $value){
-                $this->modified_columns[$name] = true;
+        if (array_key_exists($name, $this->__object->_columns)){
+            if (!array_key_exists($name, $this->__params) || $this->__params[$name] != $value){
+                $this->__modified_columns[$name] = true;
             }
-            $this->params[$name] = $value;
+            $this->__params[$name] = $value;
         }
-        throw new Exception('Column '.$name.' not found in '.$this->object->_name);
+        throw new Exception('Column '.$name.' not found in '.$this->__object->_name);
     }
 
     public function save(){
+        $obj = $this->object;
+        $key = $this->__object->_key;
         $values = array();
-        foreach($this->modified_columns as $col_name=>$t){
-            $values[$col_name] = $this->params[$col_name];
+        foreach($this->__modified_columns as $col_name=>$t){
+            $values[$col_name] = $this->__params[$col_name];
         }
         if (count($values) == 0) return; //Nothing to save
-        if (array_key_exists('id', $this->params)){
-            $values['id'] = $this->params['id'];
-            $this->object->write($values);
+        if (array_key_exists($key, $this->__params)){
+            $values[$key] = $this->__params[$key];
+            $obj->write($values);
         }else{
-            $this->object->create($values);
+            $obj->create($values);
         }
     }
 }

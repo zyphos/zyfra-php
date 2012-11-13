@@ -173,8 +173,8 @@ class ObjectModel{
         //Contains fields definitions
     }
 
-    function active_record(){
-        return new ActiveRecord($this);
+    function active_record($param = array(), $context = array()){
+        return new ActiveRecord($this, $param, $context);
     }
 
     function update_sql(){
@@ -296,7 +296,6 @@ class ObjectModel{
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
-        $sql_query = new SqlQuery($this);
         if (trim($where) != '') $where .= ' WHERE'.$where;
         $mql = implode(',', $fields).$where.' ORDER BY '.$this->_order_by;
         return $this->select($mql);
