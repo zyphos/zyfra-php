@@ -52,8 +52,9 @@ class zyfra_debug{
     
     static function print_backtrace($table=true){
         $bt = debug_backtrace();
-        array_shift($bt);
-        echo $table?"Backtrace<br/><table bgcolor='grey'>":'<pre>';
+        $src = array_shift($bt);
+        echo 'Backtrace in '.$src['file'].' line '.$src['line'];
+        echo $table?"<br/><table bgcolor='grey'>":'<pre>';
         $nbt = count($bt);
         foreach($bt as $t){
             echo ($table?"<tr bgcolor='#FFDDBB'><td>":'').$nbt--.'. '.($table?'</td><td>':'').$t['function'].'(';
