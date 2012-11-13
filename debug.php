@@ -50,7 +50,7 @@ class zyfra_debug{
         flush();
     }
     
-    function print_backtrace(){
+    static function print_backtrace(){
         $bt = debug_backtrace();
         array_shift($bt);
         echo '<pre>';
