@@ -273,6 +273,7 @@ class SqlQuery{
                     }
                     $sub_datas = $robject->$rfield->get($ids, $context, $fx_data);
                     foreach($row_alias_ids as $id=>$row_ids){
+                        if ($id=='') continue;
                         foreach($row_ids as $row_id){
                             $datas[$row_id]->{$field_alias}= $sub_datas[$id];
                         }
