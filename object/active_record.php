@@ -41,7 +41,7 @@ class ActiveRecord{
 
     public function __set($name, $value){
         switch($name){
-            case 'id':
+            case $obj->_key:
             case 'create_date':
             case 'write_date':
                 throw new Exception('Column '.$name.' can\'t be modified');
