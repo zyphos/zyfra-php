@@ -50,9 +50,15 @@ class zyfra_debug{
         flush();
     }
     
-    static function print_backtrace($table=true){
+    static function print_backtrace($table=true, $avoid_from_self=false){
         $bt = debug_backtrace();
         $src = array_shift($bt);
+        if($avoid_from_self){
+            $src_file = $src['file'];
+            foreach($bt as $t){
+                if ($t['file'] == $src_file) return;
+            }
+        }
         echo 'Backtrace in '.$src['file'].' line '.$src['line'];
         echo $table?"<br/><table bgcolor='grey'>":'<pre>';
         $nbt = count($bt);
