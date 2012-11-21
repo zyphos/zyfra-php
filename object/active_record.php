@@ -17,9 +17,11 @@ class ActiveRecord{
     private function __get_data(){
         $obj = $this->__object;
         $key = $obj->_key;
-        if(!is_null($this->__data) || !array_key_exists($key, $this->__params)) return;
-        $id = $this->__params[$key];
-        $result = $obj->select('* WHERE '.$key.'=%s', $this->__context, array($id));
+        if(!is_null($this->__data) || (!array_key_exists($key, $this->__params) && !array_key_exists('mql_where', $this->__params))) return;
+        $id = array_key_exists($key, $this->__params)?$this->__params[$key]:0;
+        $mql_fields = array_key_exists('mql_fields', $this->__context)?$this->__context['mql_fields']:'*';
+        $mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
+        $result = $obj->select($mql_fields.' WHERE '.$mql_where, $this->__context, array($id));
         if (count($result)) $this->__data = $result[0];
     }
 
