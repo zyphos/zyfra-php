@@ -282,11 +282,12 @@ class zyfra_send_data{
         $physical = $this->file2send->is_physic();
         if($this->file2send->is_physic()){
             $filename = $this->file2send->get_filename();
+            $is_tmp_file = $this->file2send->tmp_file();
             $this->file2send->__destruct();
             $this->file2send = NULL;
             $this->has_content = FALSE;
             $rdata = $this->post($this->current_url, true, $filename);
-            if ($this->file2send->tmp_file()){
+            if ($is_tmp_file){
                 unlink($filename); //Delete file if temporary file             
             }else{
                 $fh = fopen($filename, 'wb'); //Reset file size to 0
