@@ -144,6 +144,7 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
     private $fhandle = NULL;
     
     function __construct($filename, $mode, $max_mem_size = 1048576){
+        if (!is_string($filename)) print_r($filename);
         $this->max_mem_size = $max_mem_size;
         if (trim($filename) == "") $this->is_tmp_file = true; 
         $this->filename = $filename;
