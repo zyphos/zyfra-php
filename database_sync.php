@@ -210,12 +210,6 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
         $this->log(count($local_indexes).' localindex: '.$this->var_size($local_indexes).' - '.$this->mem().'<br>');
-        print_r(key($local_indexes));
-        $this->log($this->var_size(key($local_indexes)));
-        print_r(current($local_indexes));
-        $this->log($this->var_size(current($local_indexes)));
-        
-        $t = unserialize(serialize($local_indexes));
         $this->log(count($local_indexes).$this->mem().'<br>');
         $this->log('Getting remote table indexes... ');
         $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
@@ -435,7 +429,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
    
     function rpc_get_table_indexes($table_name, $key_names, $start_ts){
-        // Return all keys with create timestamp and modified unix timestamp
+        // Return all keys with modified unix timestamp
         //$this->log('Getting keys from '.$src->table_name.'...');
         //$sql = 'SELECT '.implode(',',$key_names).','.$this->create_field.','.$this->update_field.'
         //	FROM '.$table_name. ' WHERE ('.$this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts).')';
@@ -444,12 +438,12 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $all_index = array();
         while($row = $this->db->get_row_object($sql)){
             $the_index = $this->make_index($key_names, $row);
-            $create = strtotime($row->{$this->create_field}.' UTC');
+            //$create = strtotime($row->{$this->create_field}.' UTC');
             if ($row->{$this->update_field} < $row->{$this->create_field}){
                 $row->{$this->update_field} = $row->{$this->create_field};
             }
             $update = strtotime($row->{$this->update_field}.' UTC');
-            $all_index[$the_index] = array($create, $update);
+            $all_index[$the_index] = $update;
         }
         return $all_index;
     }
@@ -479,8 +473,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if ($sync_flags->src_dst_can_delete()){
             //$remote2del
             foreach($remote_indexes as $key=>$dates){
-                if ((!isset($local_indexes[$key])&&($dates[1]<$sync_start_ts)&&
-                  ($dates[1]<($last_start_ts + $this->delta_time)))){
+                if ((!isset($local_indexes[$key])&&($dates<$sync_start_ts)&&
+                  ($dates<($last_start_ts + $this->delta_time)))){
                     $remote2del[] = $key;
                 }
             }
@@ -488,8 +482,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if ($sync_flags->dst_src_can_delete()){
             //$local2del
             foreach($local_indexes as $key=>$dates){
-                if ((!isset($remote_indexes[$key])&&($dates[1]<$sync_start_ts)&&
-                  ($dates[1]<$last_start_ts))){
+                if ((!isset($remote_indexes[$key])&&($dates<$sync_start_ts)&&
+                  ($dates<$last_start_ts))){
                     $local2del[] = $key;
                 }
             }
@@ -505,13 +499,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
             if(isset($remote_datas[$index])){
                 //Join dates
                 if ($sync_flags->src_dst_can_update()){
-                    if (($local_indexes[$index][1] > $remote_indexes[$index][1])||($sync_flags->src_dst_forced()&&($local_data != $remote_datas[$index]))){
+                    if (($local_indexes[$index] > $remote_indexes[$index])||($sync_flags->src_dst_forced()&&($local_data != $remote_datas[$index]))){
                         $remote2update[$index] = $local_data.$fs.implode($fs,$this->get_gmdate($local_indexes[$index]));
                         continue; //Skip update in the other way                    
                     }
                 }
                 if ($sync_flags->dst_src_can_update()){
-                    if (($local_indexes[$index][1] < $remote_indexes[$index][1])||($sync_flags->dst_src_forced()&&($local_data != $remote_datas[$index]))){
+                    if (($local_indexes[$index] < $remote_indexes[$index])||($sync_flags->dst_src_forced()&&($local_data != $remote_datas[$index]))){
                         $local2update[$index] = $remote_datas[$index].$fs.implode($fs,$this->get_gmdate($remote_indexes[$index]));
                     }
                 }        
