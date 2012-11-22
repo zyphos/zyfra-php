@@ -263,7 +263,7 @@ class zyfra_send_data{
                 if (is_null($fh)) throw new Exception('Can\'t open file '.$fname_data.'.');
                 while (!feof($fh)){
                     set_time_limit(0);
-                    print(fread($fp, 1024*8));
+                    print(fread($fh, 1024*8));
                     flush();
                     ob_flush();
                 }
