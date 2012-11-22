@@ -260,6 +260,7 @@ class zyfra_send_data{
             if ($is_file){
                 header("Content-Length: " . filesize($fname_data) ."; ");
                 $fh = fopen($fname_data, 'rb');
+                if (is_null($fh)) throw new Exception('Can\'t open file '.$fname_data.'.');
                 while (!feof($fh)){
                     set_time_limit(0);
                     print(fread($fp, 1024*8));
