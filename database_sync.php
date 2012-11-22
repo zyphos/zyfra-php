@@ -210,11 +210,11 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //Get indexes
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
-        $this->log(count($local_indexes).' localindex: '.$this->var_size($local_indexes).' - '.$this->mem().'<br>');
-        $this->log(count($local_indexes).$this->mem().'<br>');
+        $this->log(count($local_indexes).'<br>');
+        $this->log(count($local_indexes).'<br>');
         $this->log('Getting remote table indexes... ');
         $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
-        $this->log(count($remote_indexes).$this->mem().'<br>');
+        $this->log(count($remote_indexes).'<br>');
         
         //Delete
         if($sync_flags->delete()){
@@ -235,10 +235,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if ($this->read_data_needed($sync_flags)){
             $this->log('Getting local table datas... ');
             $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
-            $this->log(count($local_datas).$this->mem().'<br>');
+            $this->log(count($local_datas).'<br>');
             $this->log('Getting remote table datas... ');
             $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
-            $this->log(count($remote_datas).$this->mem().'<br>');
+            $this->log(count($remote_datas).'<br>');
         
             //Update
             if($sync_flags->update()){
@@ -277,6 +277,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Stop time: '.date('Y-m-d H:i:s',$sync_stop_ts).'<br>');
         $this->log('Duration: '.($sync_stop_ts - $sync_start_ts).' seconds<hr>');
         $this->set_last_sync_for_table($sync_id,$table_name,$sync_start_ts,$sync_stop_ts);
+        $this->log($this->mem().'<br>');
         unset($table_name,$key_names,$col_names,$sync_flags);
         unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
     }
