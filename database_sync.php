@@ -186,6 +186,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log($this->mem().'<br>');
         $key_names = explode(',',$key_names);
         $col_names = explode(',',$col_names);
+        $col_names[] = $this->create_field;
         $sync_flags = new zyfra_synch_flag($sync_flags);
         $this->log('Flags: '.$sync_flags->get_txt().'<br>');
         if(!$sync_flags->sync_needed()) {
@@ -500,13 +501,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 //Join dates
                 if ($sync_flags->src_dst_can_update()){
                     if (($local_indexes[$index] > $remote_indexes[$index])||($sync_flags->src_dst_forced()&&($local_data != $remote_datas[$index]))){
-                        $remote2update[$index] = $local_data.$fs.implode($fs,$this->get_gmdate($local_indexes[$index]));
+                        $remote2update[$index] = $local_data.$fs.$this->get_gmdate($local_indexes[$index]);
                         continue; //Skip update in the other way                    
                     }
                 }
                 if ($sync_flags->dst_src_can_update()){
                     if (($local_indexes[$index] < $remote_indexes[$index])||($sync_flags->dst_src_forced()&&($local_data != $remote_datas[$index]))){
-                        $local2update[$index] = $remote_datas[$index].$fs.implode($fs,$this->get_gmdate($remote_indexes[$index]));
+                        $local2update[$index] = $remote_datas[$index].$fs.$this->get_gmdate($remote_indexes[$index]);
                     }
                 }        
             }
@@ -521,26 +522,22 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if ($sync_flags->src_dst_can_add()){
             foreach($local_datas as $index=>$local_data){
                 if(!isset($remote_datas[$index])){
-                    $remote2add[$index] = $local_data.$fs.implode($fs,$this->get_gmdate($local_indexes[$index]));
+                    $remote2add[$index] = $local_data.$fs.$this->get_gmdate($local_indexes[$index]);
                 }
             }
         }
         if ($sync_flags->dst_src_can_add()){
             foreach($remote_datas as $index=>$remote_data){
                 if(!isset($local_datas[$index])){
-                    $local2add[$index] = $remote_data.$fs.implode($fs,$this->get_gmdate($remote_indexes[$index]));
+                    $local2add[$index] = $remote_data.$fs.$this->get_gmdate($remote_indexes[$index]);
                 }
             }
         }
         return array($local2add,$remote2add);
     }
     
-    function get_gmdate($array){
-        $r = array();
-        foreach($array as $key=>$row){
-            $r[$key] = gmdate('Y-m-d H:i:s', $row);
-        }
-        return $r;
+    function get_gmdate($date){
+        return gmdate('Y-m-d H:i:s', $date);
     }
     
     function rpc_delete($table_name, $key_names, $row2del){
@@ -563,7 +560,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $db = $this->db;
         if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = $col_names;
-        array_push($col_names_sql, $this->create_field, $this->update_field);
+        array_push($col_names_sql, $this->update_field);
         foreach($row2update as $index2update=>$data2update){
             $keys_sql = $this->get_fields_sql($key_names, $index2update);
             $datas_sql = $this->get_fields_sql($col_names_sql, $data2update);
@@ -581,7 +578,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $db = $this->db;
         if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = array_merge($key_names, $col_names);
-        array_push($col_names_sql, $this->create_field, $this->update_field);
+        array_push($col_names_sql, $this->update_field);
         $col_names_sql = $this->do_sql_escape($col_names_sql);
         $sql_common = 'INSERT INTO '.$table_name.' ('.implode(',',$col_names_sql).') VALUES (\'';
         foreach($row2add as $index2add=>$data2add){
