@@ -169,8 +169,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
         zyfra_debug::_print($msg);
     }
     
+    function mem(){
+        return ' Mem: '.number_format(memory_get_usage()).' ';
+    }
+    
     function sync_table($table_name, $key_names, $col_names, $sync_flags,$sync_id,$url,$incremental){
         $this->log('<h2>Doing table "'.$table_name.'"</h2>');
+        $this->log($this->mem().'<br>');
         $key_names = explode(',',$key_names);
         $col_names = explode(',',$col_names);
         $sync_flags = new zyfra_synch_flag($sync_flags);
@@ -196,10 +201,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //Get indexes
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
-        $this->log(count($local_indexes).'<br>');
+        $this->log(count($local_indexes).$this->mem().'<br>');
         $this->log('Getting remote table indexes... ');
         $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
-        $this->log(count($remote_indexes).'<br>');
+        $this->log(count($remote_indexes).$this->mem().'<br>');
         
         //Delete
         if($sync_flags->delete()){
@@ -220,10 +225,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if ($this->read_data_needed($sync_flags)){
             $this->log('Getting local table datas... ');
             $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
-            $this->log(count($local_datas).'<br>');
+            $this->log(count($local_datas).$this->mem().'<br>');
             $this->log('Getting remote table datas... ');
             $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
-            $this->log(count($remote_datas).'<br>');
+            $this->log(count($remote_datas).$this->mem().'<br>');
         
             //Update
             if($sync_flags->update()){
