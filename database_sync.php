@@ -173,6 +173,14 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return ' Mem: '.number_format(memory_get_usage()).' ';
     }
     
+    function var_size($var){
+        $mem = memory_get_usage();
+        $t = unserialize(serialize($var));
+        $mem_tot = memory_get_usage() - $mem;
+        unset($t);
+        return ' Mem: '.number_format($mem_tot).' ';
+    }
+    
     function sync_table($table_name, $key_names, $col_names, $sync_flags,$sync_id,$url,$incremental){
         $this->log('<h2>Doing table "'.$table_name.'"</h2>');
         $this->log($this->mem().'<br>');
@@ -201,6 +209,9 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //Get indexes
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
+        $this->log(count($local_indexes).' localindex: '.$this->var_size($local_indexes).' - '.$this->mem().'<br>');
+        
+        $t = unserialize(serialize($local_indexes));
         $this->log(count($local_indexes).$this->mem().'<br>');
         $this->log('Getting remote table indexes... ');
         $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
