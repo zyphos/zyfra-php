@@ -211,7 +211,6 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
         $this->log(count($local_indexes).'<br>');
-        $this->log(count($local_indexes).'<br>');
         $this->log('Getting remote table indexes... ');
         $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
         $this->log(count($remote_indexes).'<br>');
@@ -275,9 +274,9 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //Mark table has updated
         $sync_stop_ts = time()- abs($this->delta_time * 2);
         $this->log('Stop time: '.date('Y-m-d H:i:s',$sync_stop_ts).'<br>');
-        $this->log('Duration: '.($sync_stop_ts - $sync_start_ts).' seconds<hr>');
+        $this->log('Duration: '.($sync_stop_ts - $sync_start_ts).' seconds<br>'.$this->mem().'<hr>');
         $this->set_last_sync_for_table($sync_id,$table_name,$sync_start_ts,$sync_stop_ts);
-        $this->log($this->mem().'<br>');
+        
         unset($table_name,$key_names,$col_names,$sync_flags);
         unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
     }
