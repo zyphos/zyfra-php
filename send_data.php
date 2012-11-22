@@ -110,7 +110,7 @@ class zyfra_send_data{
             $ff = new zyfra_fake_file_memory($data);    
         }else if(isset($_FILES[$post_field_file])){
             $ff = new zyfra_fake_file(
-                $_FILES[$post_field_file],'rb');
+                $_FILES[$post_field_file]['tmp_name'],'rb');
         }else{
             return NULL;
         }
