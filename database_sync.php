@@ -210,6 +210,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Getting local table indexes... ');
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
         $this->log(count($local_indexes).' localindex: '.$this->var_size($local_indexes).' - '.$this->mem().'<br>');
+        print_r(key($local_indexes));
+        print_r(current($local_indexes));
         
         $t = unserialize(serialize($local_indexes));
         $this->log(count($local_indexes).$this->mem().'<br>');
