@@ -307,7 +307,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                     $this->sync_table($table_name,$key_names,$col_names,$sync_flags,$sync_id,$url,$incremental);
                     break;
                 } catch (Exception $e) {
-                    if ($nb_try > 0) throw $e;
+                    if ($nb_try > 4) throw $e;
                 }
             }
         }
