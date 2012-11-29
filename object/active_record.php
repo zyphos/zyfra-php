@@ -5,6 +5,8 @@ class ActiveRecord{
     protected $__data;
     protected $__params;
     protected $__modified_columns;
+    protected $__mql_where;
+    protected $__id;
 
     public function __construct($object, $params = array(), $context = array()){
         $this->__object = $object;
@@ -18,25 +20,33 @@ class ActiveRecord{
         $obj = $this->__object;
         $key = $obj->_key;
         if(!is_null($this->__data) || (!array_key_exists($key, $this->__params) && !array_key_exists('mql_where', $this->__params))) return;
-        $id = array_key_exists($key, $this->__params)?$this->__params[$key]:0;
+        $this->__id = array_key_exists($key, $this->__params)?$this->__params[$key]:0;
         $mql_fields = array_key_exists('mql_fields', $this->__context)?$this->__context['mql_fields']:'*';
-        $mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
-        $result = $obj->select($mql_fields.' WHERE '.$mql_where, $this->__context, array($id));
+        $this->__mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
+        $result = $obj->select($mql_fields.' WHERE '.$this->__mql_where, $this->__context, array($this->__id));
         if (count($result)) $this->__data = $result[0];
     }
-
+    
+    private function __add_data($mql_fields){
+        if(is_null($this->__data)) return;
+        $obj = $this->__object;
+        $result = $obj->select($mql_fields.' WHERE '.$this->__mql_where, $this->__context, array($this->__id));
+        if (count($result)) {
+            foreach ($result[0] as $key=>$value){
+                $this->__data->$key = $value;
+            }
+        }
+    }
+    
     public function __get($name){
         if (array_key_exists($name, $this->__params)) return $this->__params[$name];
         $obj = $this->__object;
-        if (array_key_exists($name, $obj->_columns)){
-            $this->__get_data();
-            if (is_null($this->__data)){
-                return $obj->_columns[$name]->get_default();
-            }else{
-                return $this->__data->{$name};
-            }
-        }
-        throw new Exception('Column '.$name.' not found in '.$obj->_name);
+        if (!array_key_exists($name, $obj->_columns)) throw new Exception('Column '.$name.' not found in '.$obj->_name);
+        $this->__get_data();
+        if (is_null($this->__data)) return $obj->_columns[$name]->get_default();
+        if (isset($this->__data->$name)) return $this->__data->$name;
+        $this->__add_data($name);
+        return $this->__data->$name;
     }
 
     public function __set($name, $value){
