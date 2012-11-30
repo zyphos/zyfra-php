@@ -75,6 +75,10 @@ abstract class Field{
     function set($ids, $value, $context){
         
     }
+    
+    function get_default(){
+        return $this->default_value;
+    }
 
     //abstract function after_create_trigger(&$values);
     //abstract function after_write_trigger(&$values);
