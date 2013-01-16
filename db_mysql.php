@@ -61,6 +61,7 @@ class zyfra_mysql extends zyfra_db_common {
     }
 
     function query($the_query,$nb_row_per_page=0)	{
+        parent::query($the_query);
         $start_query = microtime(true);
         if (!$this->pre_query()) return false;
         if ($nb_row_per_page!=0){
@@ -79,8 +80,6 @@ class zyfra_mysql extends zyfra_db_common {
             $this->nb_pages = $nb_pages;
         }
         $result = mysql_query($the_query);
-        //$this->log_query();
-        $this->nb_query++;
         if(!$result){
             $this->show_error($the_query,mysql_errno(),mysql_error());
         }

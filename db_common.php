@@ -40,9 +40,11 @@ class zyfra_db_common {
     var $result;
     var $errors2mail='';
     var $log=false;
+    var $queries=null;
 
     function __construct(){
         $last_query_datas = array();
+        $this->queries = array();
     }
 
     function IsConnected(){
@@ -56,6 +58,8 @@ class zyfra_db_common {
     }
 
     function query($sql){
+        $this->queries[] = $sql;
+        $this->nb_query++;
         if ($this->log) echo $sql."<br>\n";
     }
 
