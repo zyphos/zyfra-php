@@ -53,7 +53,7 @@ class Many2OneField extends RelationalField{
             //Todo: create local fields for storage
             $robj_name = $this->get_relation_object()->_name;
             foreach($this->local_keys as $field_name){
-                if(isset($this->$field_name)) continue;
+                if(isset($object->$field_name)) continue;
                 $object->add_column($field_name, new Many2OneField($field_name, $robj_name)); //Warning, those columns should not be used, it's only for table update.
             }
             $this->relation_object_key = $this->local_keys[0];
