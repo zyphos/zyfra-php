@@ -5,11 +5,18 @@ class One2ManyField extends RelationalField{
     var $widget='one2many';
     var $relation_object_field;
     var $stored=false;
+    var $local_key;
 
     function __construct($label, $relation_object_name, $relation_object_field, $args = array()){
+        $this->local_key = '';
         parent::__construct($label, $relation_object_name, $args);
         $this->left_right = true;
         $this->relation_object_field = $relation_object_field;
+    }
+    
+    function set_instance($object, $name){
+        parent::set_instance($object, $name);
+        if ($this->local_key == '') $this->local_key = $object->_key;
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
@@ -18,7 +25,7 @@ class One2ManyField extends RelationalField{
         }else{
             $parameter = '';
         }
-        $key_field = $parent_alias->alias.'.'.$this->object->_key;
+        $key_field = $parent_alias->alias.'.'.$this->local_key;
         $robject = $this->get_relation_object();
         $sql = 'LEFT JOIN '.$robject->_table.' AS %ta% ON %ta%.'.$this->relation_object_field.'='.$key_field;
         $field_link = $parent_alias->alias.'.'.$this->name.$parameter;

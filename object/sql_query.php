@@ -280,7 +280,8 @@ class SqlQuery{
                     }
                 }else{
                     if ($parameter!='') $parameter = '('.$parameter.') AND ';
-                    $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN('.implode(',', $ids).')'));
+                    $ids = $this->object->_pool->db->var2sql($ids, true);
+                    $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
                     /*echo 'context:<br><pre>';
                     print_r($nctx);
                     echo '</pre>';*/

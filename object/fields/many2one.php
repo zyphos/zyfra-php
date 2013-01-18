@@ -84,7 +84,7 @@ class Many2OneField extends RelationalField{
                 $sql_query->order_by[] = $pa.'.'.$this->pleft;
                 return $sql;
             }else{
-                $field_link = $parent_alias->alias.'.'.$this->name;
+                $field_link = $parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
                 $parent_alias->set_used();
                 return $field_link;
             }
@@ -101,7 +101,7 @@ class Many2OneField extends RelationalField{
             }
             $sql_on = implode(' and ', $relations);
         }else{
-            $sql_on = '%ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.$this->name;
+            $sql_on = '%ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
         }
         
         $sql = ($this->required?'':'LEFT ').'JOIN '.$robj->_table.' AS %ta% ON '.$sql_on;

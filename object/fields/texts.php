@@ -91,10 +91,12 @@ class TextField extends Field{
 
                 $pool->add_object($tr_name, $tr_obj);
             }
-            $this->translate = array('object'=>$tr_name, 'column'=>$name, 'key'=>'source_id', 'language_id'=>'language_id');
+            $this->translate = array('object'=>$tr_name, 'column'=>$name, 'key'=>'source_id', 'language_id'=>'language_id', 'local_key'=>'');
         }
         if (!array_key_exists('_translation', $object)){
-            $object->add_column('_translation', new One2ManyField('Translation', $this->translate['object'], $this->translate['key']));
+            $args = array();
+            if (isset($this->translate['local_key'])) $args['local_key'] = $this->translate['local_key'];
+            $object->add_column('_translation', new One2ManyField('Translation', $this->translate['object'], $this->translate['key'], $args));
         }
     }
 
