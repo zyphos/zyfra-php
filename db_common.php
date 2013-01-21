@@ -195,7 +195,7 @@ class zyfra_db_common {
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
         if (isset($security)){
-            if($security->is_admin()) echo $the_html_error;
+            if($security->is_dev()) echo $the_html_error;
         }else{
             echo $the_html_error;
         }
