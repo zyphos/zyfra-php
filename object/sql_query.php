@@ -259,8 +259,8 @@ class SqlQuery{
                     $row_field_alias_ids[$field_alias] = $row_alias_ids;
                 }
                 if ($is_fx){
+                    $fx_data = array();
                     if(count($parameter)>0){
-                        $fx_data = array();
                         foreach ($ids as $id){
                             $obj = new stdClass;
                             foreach($parameter as $key=>$field){

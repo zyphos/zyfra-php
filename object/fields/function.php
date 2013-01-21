@@ -20,8 +20,8 @@ class FunctionField extends Field{
         }else{
             $field_alias = '';
         }
+        $reqf = array();
         if (count($this->required_fields)){
-            $reqf = array();
             foreach($this->required_fields as $rf){
                 $reqf[$rf] = $sql_query->field2sql($rf, $this->object, $parent_alias);
             }
