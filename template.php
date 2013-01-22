@@ -59,6 +59,7 @@ function remove_accent($str){
 }
 
 function text2url($txt){
+    if (strlen($txt)==0) return '';
     $txt = remove_accent($txt);
     $txt = strtolower($txt);
     $txt = str_replace(array('(',')','"',chr(153),chr(174)),'', $txt);
