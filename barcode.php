@@ -42,7 +42,12 @@ class zyfra_barcode{
         $r = '';
         try{
             for ($i=0; $i< strlen($barcode);$i++){
-                $r .= $c[ord($barcode[$i])];
+                $char = $barcode[$i];
+                $key = ord($char);
+                if (!array_key_exists($key, $c)) {
+                    throw new Exception($char.' ['.$key.'] not recognize as barcode');
+                }
+                $r .= $c[$key];
             }
         }catch (Exception $e) {
             $r = '';
