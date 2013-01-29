@@ -280,24 +280,28 @@ class SqlQuery{
                     }
                 }else{
                     if ($parameter!='') $parameter = '('.$parameter.') AND ';
-                    $ids = $this->object->_pool->db->var2sql($ids, true);
-                    $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
-                    /*echo 'context:<br><pre>';
-                    print_r($nctx);
-                    echo '</pre>';*/
-                    $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
-                    foreach($row_alias_ids as $id=>$row_ids){
-                        foreach($sub_datas as $sub_row){
-                            if ($sub_row->_subid == $id){
-                                foreach($row_ids as $row_id){
-                                    $datas[$row_id]->{$field_alias}[] = $sub_row;
+                    if (count($ids)){
+                        $ids = $this->object->_pool->db->var2sql($ids, true);
+                        $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
+                        /*echo 'context:<br><pre>';
+                         print_r($nctx);
+                        echo '</pre>';*/
+                        $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
+                        foreach($row_alias_ids as $id=>$row_ids){
+                            foreach($sub_datas as $sub_row){
+                                if ($sub_row->_subid == $id){
+                                    foreach($row_ids as $row_id){
+                                        $datas[$row_id]->{$field_alias}[] = $sub_row;
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                foreach($sub_datas as $sub_row){
-                    unset($sub_row->_subid);
+                if (isset($sub_datas)){
+                    foreach($sub_datas as $sub_row){
+                        unset($sub_row->_subid);
+                    }
                 }
             }
         }
