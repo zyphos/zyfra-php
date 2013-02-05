@@ -83,6 +83,7 @@ class zyfra_mysql extends zyfra_db_common {
         if(!$result){
             $this->show_error($the_query,mysql_errno(),mysql_error());
         }
+        $this->queries[count($this->queries)-1]->stop();
         $this->query_time += microtime(true)-$start_query;
         return $result;
     }

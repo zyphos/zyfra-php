@@ -26,6 +26,21 @@
  *****************************************************************************/
 #require_once("htmlMimeMail5/htmlMimeMail5.php");
 
+class zyfra_db_query{
+    var $sql;
+    var $start;
+    var $duration=false;
+    
+    function __construct($sql){
+        $this->sql = $sql;
+        $this->start = microtime(true);
+    }
+    
+    function stop(){
+        if ($this->duration === false) $this->duration = microtime(true) - $this->start;
+    }
+}
+
 class zyfra_db_common {
     var $link=false;
     var $db_selected=false;
@@ -58,7 +73,9 @@ class zyfra_db_common {
     }
 
     function query($sql){
-        $this->queries[] = $sql;
+        $nb_queries = count($this->queries);
+        if ($nb_queries) $this->queries[$nb_queries-1]->stop();
+        $this->queries[] = new zyfra_db_query($sql);
         $this->nb_query++;
         if ($this->log) echo $sql."<br>\n";
     }
