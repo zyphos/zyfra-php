@@ -30,7 +30,7 @@ class zyfra_language{
     protected $languages;
     
     protected function get_all_languages(){
-        //Need to be override by your one method.
+        //Need to be override by your own method.
         $this->languages = array();
         $i = 1;
         $this->languages['en'] = (object)array('id'=>$i++, 'name'=>'english');
