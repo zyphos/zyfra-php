@@ -33,16 +33,25 @@ class zyfra_language{
         //Need to be override by your own method.
         $this->languages = array();
         $i = 1;
-        $this->languages['en'] = (object)array('id'=>$i++, 'name'=>'english');
-        $this->languages['fr'] = (object)array('id'=>$i++, 'name'=>'francais');
+        $this->languages['en'] = (object)array('id'=>$i++, 'name'=>'english', url=>'/en/');
+        $this->languages['fr'] = (object)array('id'=>$i++, 'name'=>'francais', url=>'/fr/');
         $this->languages['nl'] = 
-            (object)array('id'=>$i++, 'name'=>'nederlands');
-        $this->languages['de'] = (object)array('id'=>$i++, 'name'=>'deutsch');
+            (object)array('id'=>$i++, 'name'=>'nederlands', url=>'/nl/');
+        $this->languages['de'] = (object)array('id'=>$i++, 'name'=>'deutsch', url=>'/de/');
     }
     
     protected function get_cookie(){
         //To be override
         return '';
+    }
+    
+    public function redirect_if_found(){
+        $this->default = false;
+        $lang = $this->auto_detect();
+        if ($lang === false) return $lang;
+        if (!isset($this->languages[$lang]->url)) return $lang;
+        header("location:".$this->languages[$lang]->url);
+        exit();
     }
     
     public function auto_detect(){
