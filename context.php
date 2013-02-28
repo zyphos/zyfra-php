@@ -54,14 +54,20 @@ $a = $context->transaction_id; // return 1
 $a = $context->visible(false); // return true
 $a = $context->color(4); // return 4
 $a = $context->color; // return false
+
+//Context support multiple inheritance of other context or array
+$context2 = new MyContext($context, array('property'=>4));
 */
 
 namespace zyfra;
 
 class Context{
-    public function __construct($defaults = null){
-        if (is_array($defaults)){
-            foreach ($default as $name=>$value) $this->name = $value;
+    public function __construct(){
+        foreach(func_get_args() as $defaults){
+            if (is_object($defaults)) $default = get_object_vars($default);
+            if (is_array($defaults)){
+                foreach ($default as $name=>$value) $this->name = $value;
+            }
         }
     }
 
