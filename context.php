@@ -63,9 +63,9 @@ namespace zyfra;
 
 class Context{
     public function __construct(){
-        foreach(func_get_args() as $defaults){
-            if (is_object($defaults)) $default = get_object_vars($default);
-            if (is_array($defaults)){
+        foreach(func_get_args() as $default){
+            if (is_object($default)) $default = get_object_vars($default);
+            if (is_array($default)){
                 foreach ($default as $name=>$value) $this->name = $value;
             }
         }
