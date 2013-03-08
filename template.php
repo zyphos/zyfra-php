@@ -65,7 +65,7 @@ function text2url($txt){
     $txt = str_replace(array('(',')','"',chr(153),chr(174)),'', $txt);
     $txt = str_replace('%','pc', $txt);
     $txt = str_replace(chr(176),'deg', $txt);
-    $txt = str_replace(array(' ',',',"'",'/'),'-', $txt);
+    $txt = str_replace(array(' ',',',"'",'/',':'),'-', $txt);
     $txt = preg_replace('/-+/', '-', $txt);
     return $txt[strlen($txt)-1]=='-'?substr($txt, 0, strlen($txt)-1):$txt;
 }
