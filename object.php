@@ -261,6 +261,7 @@ class ObjectModel{
         if (is_int($where)) $where = $this->_key.'='.$where;
         if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
         $sql_write = new SQLWrite($this, $values, $where, $where_datas, $context);
+        return $sql_write->result;
     }
 
     function unlink($where, $datas = array(), $context = array()){
