@@ -95,6 +95,14 @@ class Many2ManyField extends One2ManyField{
             }
         }
     }
+    
+    function join_key_words($keywords){
+        $r = '';
+        foreach($keywords as $keyword=>$value){
+            $r .= ' '.$keyword.' '.$value;
+        }
+        return $r;
+    }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
         $nb_fields = count($fields);
@@ -104,7 +112,15 @@ class Many2ManyField extends One2ManyField{
             if ($nb_fields == 1 && $fields[0] == $this->m2m_relation_object->_key){
                 $new_fields = array($this->rt_foreign_field);
             }else{
-                $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].')');
+                $field_name = $fields[0];
+                if($field_name[0] == '(' && $field_name[strlen($field_name)-1] == ')'){
+                    $sub_mql = substr($field_name, 1, -1);
+                    list($mql, $keywords) = $sql_query->split_keywords($sub_mql);
+                    $fields[0] = '('.$mql.')';
+                }else{
+                    $keywords = array();
+                }
+                $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].$this->join_key_words($keywords).')');
                 unset($new_ctx['parameter']);
             }
         }

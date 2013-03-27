@@ -79,6 +79,7 @@ class SqlQuery{
 
     function __construct($object, $ta_prefix = ''){
         global $sql_query_id;
+        $this->keywords = array('limit', 'order by', 'having', 'group by', 'where');
         $this->table_alias_prefix = $ta_prefix;
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
@@ -139,20 +140,24 @@ class SqlQuery{
         }
         return $tables;
     }
-
-    function mql2sql($mql, $context = array(), $no_init=false){
-        $debug = array_get($context, 'debug', false);
-        $this->context = $context;
-        $mql = strtolower($mql);
-        $keywords = array('limit', 'order by', 'having', 'group by', 'where');
+    
+    function split_keywords($mql){
         $query_datas = array();
-        foreach($keywords as $keyword){
+        foreach($this->keywords as $keyword){
             $datas = multispecialsplit($mql, $keyword.' ');
             if (count($datas)> 1){
                 $query_datas[$keyword] = trim($datas[1]);
             }
             $mql = $datas[0];
         }
+        return array($mql, $query_datas);
+    }
+
+    function mql2sql($mql, $context = array(), $no_init=false){
+        $debug = array_get($context, 'debug', false);
+        $this->context = $context;
+        $mql = strtolower($mql);
+        list($mql, $query_datas) = $this->split_keywords($mql);
         if ($debug) {
             $s = multispecialsplit($mql, ',');
             $s = array_map('htmlentities', $s);
@@ -172,7 +177,7 @@ class SqlQuery{
         if (count($this->group_by)>0 && !array_key_exists('group by',$query_datas)){
             $query_datas['group by'] = '';
         }
-        $keywords = array_reverse($keywords);
+        $keywords = array_reverse($this->keywords);
         $sql_words = '';
         if (array_get($this->context, 'domain')){
             $this->where[] = $this->context['domain'];
@@ -285,7 +290,7 @@ class SqlQuery{
                         $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
                         /*echo 'context:<br><pre>';
                          print_r($nctx);
-                        echo '</pre>';*/
+                        echo '</pre>';//*/
                         $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
                         foreach($row_alias_ids as $id=>$row_ids){
                             foreach($sub_datas as $sub_row){
