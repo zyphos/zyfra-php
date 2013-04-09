@@ -207,6 +207,7 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
         $split_varts[$sv] = strlen($sv);
     }
     $str_len = strlen($string);
+    $ret_cur = &$ret[$cur];
     for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
         if ((($char == '"') || ($char == "'")) && ($level == 0)){
@@ -215,22 +216,22 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
             }elseif($ignore == ''){
                 $ignore = $char;
             }
-            $ret[$cur] .= $char;
+            $ret_cur .= $char;
             continue;
         }elseif ($ignore != ''){
-            $ret[$cur] .= $char;
+            $ret_cur .= $char;
             continue;
         }
         switch ($char) {
             case '(':
             case '[':
                 $level++;
-                $ret[$cur] .= $char;
+                $ret_cur .= $char;
                 break;
             case ')':
             case ']':
                 $level--;
-                $ret[$cur] .= $char;
+                $ret_cur .= $char;
                 break;
             default:
                 if ($level == 0){
@@ -238,17 +239,19 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
                         if($string[$i]==$sv[0] && substr($string, $i, $split_length)==$sv){
                             if($key_index){
                                 $cur = $sv;
-                                $ret[$cur] = '';
+                                $ret_cur = &$ret[$cur]; 
+                                $ret_cur = '';
                             }else{
                                 if ($return_key) $ret[++$cur] = $sv;
-                                $ret[++$cur] = '';
+                                $ret_cur = &$ret[++$cur];
+                                $ret_cur = '';
                             }
                             $i += $split_length-1;
                             break 2;
                         }
                     }
                 }
-                $ret[$cur] .= $char;
+                $ret_cur .= $char;
         }
     }
     return $ret;
