@@ -45,8 +45,9 @@ function specialsplitparam($string) {
     $param = '';
     $cur = &$field;
     $levelb = 0;
+    $str_len = strlen($string);
 
-    for ($i = 0; $i < strlen($string); $i++) {
+    for ($i = 0; $i < $str_len; $i++) {
         switch ($string[$i]) {
             case '(':
                 $level++;
@@ -84,8 +85,10 @@ function specialsplit($string, $split_var = ',') {
     $ret = array(''); // array to return
     $cur = 0;         // current index in the array to return, for convenience
     $ignore = '';
+    $str_len = strlen($string);
+    $split_is_array = is_array($split_var);
 
-    for ($i = 0; $i < strlen($string); $i++) {
+    for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
         if ((($char == '"') || ($char == "'")) && ($level == 0)){
             if ($char == $ignore){
@@ -119,7 +122,7 @@ function specialsplit($string, $split_var = ',') {
                 // else fallthrough
             default:
                 if ($level == 0) {
-                    if (is_array($split_var) && in_array($char, $split_var)){
+                    if ($split_is_array && in_array($char, $split_var)){
                         $ret[++$cur] = $char;
                         $ret[++$cur] = '';
                         break;
@@ -199,7 +202,12 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
     
     $ignore = '';
     if(!is_array($split_var)) $split_var = array($split_var);
-    for ($i = 0; $i < strlen($string); $i++) {
+    $split_vars = array();
+    foreach ($split_var as $sv){
+        $split_varts[$sv] = strlen($sv);
+    }
+    $str_len = strlen($string);
+    for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
         if ((($char == '"') || ($char == "'")) && ($level == 0)){
             if ($char == $ignore){
@@ -226,9 +234,8 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
                 break;
             default:
                 if ($level == 0){
-                    foreach ($split_var as $sv){
-                        $split_length = strlen($sv);
-                        if(substr($string, $i, strlen($sv))==$sv){
+                    foreach ($split_varts as $sv=>$split_length){
+                        if($string[$i]==$sv[0] && substr($string, $i, $split_length)==$sv){
                             if($key_index){
                                 $cur = $sv;
                                 $ret[$cur] = '';
