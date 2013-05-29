@@ -76,9 +76,11 @@ class Many2OneField extends RelationalField{
                 switch($operator){
                     case 'parent_of':
                         $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
+                        $parent_alias->set_used();
                         break;
                     case 'child_of':
                         $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
+                        $parent_alias->set_used();
                         break;
                 }
                 $sql_query->order_by[] = $pa.'.'.$this->pleft;
