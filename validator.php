@@ -95,7 +95,7 @@ class zyfra_v_string extends zyfra_validator_type{
          * return true if spam
          * return false if safe
          */
-        if (preg_match('/[a-z][A-Z]/', $data, $matches) > 0) return true;
+        //if (preg_match('/[a-z][A-Z]/', $data, $matches) > 0) return true;
         $value = strtolower($data);
         foreach($this->spam_words as $word){
             if (strpos($value,$word) !== false) return true;
