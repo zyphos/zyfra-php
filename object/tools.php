@@ -31,7 +31,6 @@ function trim_inside($string){
                 }elseif($quote == ''){
                     $quote = $c;
                 }
-                $r .= $c;
             default:
                 $last = false;
                 $r .= $c;
