@@ -105,6 +105,7 @@ class Many2ManyField extends One2ManyField{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+        if ($sql_query->debug > 1) echo 'M2M['.$this->name.']: '.print_r($fields, true).'<br>';
         $nb_fields = count($fields);
         $new_fields = $fields; //copy
         $new_ctx = $context; //copy
@@ -121,6 +122,7 @@ class Many2ManyField extends One2ManyField{
                     $keywords = array();
                 }
                 $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].$this->join_key_words($keywords).')');
+                if ($sql_query->debug > 1) echo 'M2M New field: '.print_r($new_fields, true).'<br>';
                 unset($new_ctx['parameter']);
             }
         }

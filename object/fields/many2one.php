@@ -65,6 +65,7 @@ class Many2OneField extends RelationalField{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+        if ($sql_query->debug > 1) 'M2O['.$this->name.']: '.print_r($fields, true).'<br>';
         $robj = $this->get_relation_object();
         if ((count($fields) == 0)||($fields[0] == $this->relation_object_key)){
             if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){

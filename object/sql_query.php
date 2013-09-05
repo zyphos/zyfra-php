@@ -76,6 +76,7 @@ class SqlQuery{
     var $sql_field_alias;
     var $required_fields;
     var $remove_from_result;
+    var $debug = false;
 
     function __construct($object, $ta_prefix = ''){
         global $sql_query_id;
@@ -154,11 +155,11 @@ class SqlQuery{
     }
 
     function mql2sql($mql, $context = array(), $no_init=false){
-        $debug = array_get($context, 'debug', false);
+        $this->debug = array_get($context, 'debug', false);
         $this->context = $context;
         $mql = strtolower($mql);
         list($mql, $query_datas) = $this->split_keywords($mql);
-        if ($debug) {
+        if ($this->debug) {
             $s = multispecialsplit($mql, ',');
             $s = array_map('htmlentities', $s);
             $txt = implode($s,",<br>");
@@ -198,7 +199,7 @@ class SqlQuery{
         }
         $sql .= ' '.$this->get_table_sql().$sql_words;
         if(!$no_init) $this->init();
-        if ($debug) {
+        if ($this->debug) {
             $mss = multispecialsplit($sql, array('LIMIT ', 'ORDER BY ', 'HAVING ', 'GROUP BY ', 'WHERE ','SELECT ', 'FROM ', 'LEFT JOIN', 'JOIN'), true);
             $txt = '';
             for($i=1;$i<count($mss);$i+=2){
@@ -443,8 +444,9 @@ class SqlQuery{
     }
 
     function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
-        if (is_numeric($field_name)) return $field_name;
         if ($obj === null) $obj = $this->object;
+        if ($this->debug > 1) echo 'Field2sql['.$obj->_name.'->'.$field_name.']<br>';
+        if (is_numeric($field_name)) return $field_name;
         if ($ta === null) $ta = $this->table_alias[''];
         $fx_regex = '/^([a-z_]+)\((.*)\)$/';
         if (preg_match($fx_regex, $field_name, $matches)){
