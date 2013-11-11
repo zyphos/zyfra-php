@@ -97,7 +97,7 @@ class zyfra_db_common {
         return true;
     }
 
-    function get_array($sql,$key,$value='', $datas=array()){
+    function get_array($sql,$key='',$value='', $datas=array()){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
@@ -105,9 +105,15 @@ class zyfra_db_common {
         }
         $temp = array();
         if ($value == ''){
+          if ($key == ''){
+            while($row = $this->fetch_array($result)){
+              $temp[]=$row[0];
+            }
+          }else{
             while($row = $this->fetch_object($result)){
                 $temp[]=$row->{$key};
             }
+          }
         }else{
             while($row = $this->fetch_object($result)){
                 $temp[$row->{$key}]=$row->{$value};
