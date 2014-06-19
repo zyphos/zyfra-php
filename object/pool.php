@@ -59,5 +59,9 @@ class Pool{
     function get_auto_create(){
         return $this->auto_create;
     }
+    
+    function get_available_objects(){
+    	return array();
+    }
 }
 ?>
