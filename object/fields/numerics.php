@@ -5,6 +5,10 @@ class IntField extends Field{
     var $size = 11;
     var $default_value=null;
     var $widget='integer';
+    
+    function sql2php($value){
+    	return (int)$value;
+    }
 
     function sql_format($value){
         return (int)$value;
@@ -26,6 +30,10 @@ class IntField extends Field{
 class FloatField extends Field{
     var $default_value=0;
     var $widget='float';
+    
+    function sql2php($value){
+    	return (float)$value;
+    }
 
     function sql_format($value){
         return (float)$value;
@@ -38,6 +46,10 @@ class FloatField extends Field{
 class DoubleField extends Field{
     var $default_value=0;
     var $widget='double';
+    
+    function sql2php($value){
+    	return (double)$value;
+    }
 
     function sql_format($value){
         return (double)$value;
@@ -50,6 +62,10 @@ class DoubleField extends Field{
 class BooleanField extends Field{
     var $default_value=0;
     var $widget='boolean';
+    
+    function sql2php($value){
+    	return $value?true:false;
+    }
 
     function sql_format($value){
         return $value?1:0;

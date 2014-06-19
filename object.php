@@ -299,9 +299,15 @@ class ObjectModel{
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
-        if (trim($where) != '') $where .= ' WHERE'.$where;
-        $mql = implode(',', $fields).$where.' ORDER BY '.$this->_order_by;
-        return $this->select($mql);
+        if (trim($where) != '') $where = ' WHERE '.$where;
+        $mql = implode(',', $fields).$where;
+        $res = $this->select($mql);
+        foreach($res as &$row){
+        	foreach($row as $col_name=>&$value){
+        		if (isset($this->_columns[$col_name])) $value = $this->_columns[$col_name]->sql2php($value); 
+        	}
+        }
+        return $res;
     }
 
     function select($mql='*', $context = array(), $datas = array()){

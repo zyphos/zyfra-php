@@ -32,6 +32,10 @@ abstract class Field{
         if ($this->read_only) return;
         $sql_write->add_assign($this->name.'='.$this->sql_format($value));
     }
+    
+    function sql2php($value){
+    	return $value;
+    }
 
     function sql_format($value){
         return "'".$value."'"; //!! injection !!! mysql_real_escape_string
