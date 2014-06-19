@@ -91,6 +91,8 @@ class ObjectModel{
     var $_visible_condition;
     var $_read_only = false;
     var $_instanciated = false;
+    var $_form_view_fields = null;
+    var $_tree_view_fields = null;
 
     function __construct($pool, $args = null){
         if(is_array($args)){
@@ -314,18 +316,32 @@ class ObjectModel{
         $sql_query = new SqlQuery($this);
         return $sql_query->get_array($mql, $context);
     }
+    
+    function get_view($fields_list = null){
+    	if (is_null($fields_list)) $fields_list = array_keys($this->_columns);
+    	$view = array();
+    	foreach($fields_list as $name){
+    		$column = $this->_columns[$name];
+    		$col = array('name'=>$name,
+    				'widget'=>$column->widget,
+    				'required'=>$column->required,
+    				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
+    				'is_key'=>($name==$this->_key));
+    		if (isset($column->relation_object_name)){
+    			$col['relation_object_name'] = $column->relation_object_name;
+    			$col['relation_object_key'] = $column->relation_object_key;
+    		}
+    		$view[] = $col;
+    	}
+    	return $view;
+    }
 
     function get_form_view(){
-        $view = array();
-        foreach($this->_columns as $name=>$column){
-            $col = array('name'=>$name, 'widget'=>$column->widget, 'required'=>$column->required);
-            $view[] = $col;
-        }
-        return $view;
+    	return $this->get_view($this->_form_view_fields);
     }
 
     function get_tree_view(){
-        return $this->get_form_view();
+    	return $this->get_view($this->_tree_view_fields);
     }
     
     function get_full_diagram($max_depth = 0, $lvl=0, $done=null){
