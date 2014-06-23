@@ -209,15 +209,16 @@ class Many2OneField extends RelationalField{
         $right = $left+1;
 
         if ($id==null || $id==0){
-            $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0');
+            $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0', array('visible'=>false));
         }else{
-            $rows = $this->object->select($key.' AS id WHERE '.$this->name.'=%s', array(), array($id));
+            $rows = $this->object->select($key.' AS id WHERE '.$this->name.'=%s', array('visible'=>false), array($id));
         }
         foreach ($rows as $row){
             $right = $this->rebuild_tree($row->id, $right, $key, $table);
         }
         if ($id!=0 && $id!=null){
             $db = $this->object->_pool->db;
+            echo sprintf('id[%s] pleft[%s] pright[%s]<br>', $id, $left, $right);
             $db->safe_query('UPDATE '.$table.' SET '.$this->pleft.'='.$left.', '.$this->pright.'='.$right.' WHERE '.$key.'=%s', array($id));
         }
         return $right+1;
