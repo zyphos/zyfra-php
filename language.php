@@ -45,6 +45,11 @@ class zyfra_language{
         return '';
     }
     
+    public function get_languages(){
+    	if (!is_array($this->languages)) $this->get_all_languages();
+    	return $this->languages;
+    }
+    
     public function redirect_if_found(){
         $this->default = false;
         $lang = $this->auto_detect();
