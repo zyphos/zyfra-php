@@ -82,6 +82,18 @@ function htmlquotes($var){
     return htmlentities($var,ENT_QUOTES);
 }
 
+function accent2html($str){
+	//return strtr($chaine,
+	//   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
+	//   'aaaaaaaaaaaaaacceeeeeeeeiiiiiiiinnoooooooooouuuuuuuuy');
+	$str = htmlentities($str);
+	$str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde|cedil);/', '&amp;$1$2;',$str);
+	//$var = str_replace(chr(153),'<sup>TM</sup>', $var);
+	$str = str_replace(chr(153),'&amp;trade;', $str);
+	$str = str_replace('&reg;', '&amp;reg;', $str);
+	return html_entity_decode($str);
+}
+
 $_cycle_datas = array();
 function cycle(){
     global $_cycle_datas;
