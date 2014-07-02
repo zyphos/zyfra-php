@@ -81,6 +81,7 @@ class zyfra_mysql extends zyfra_db_common {
         }
         $result = mysql_query($the_query);
         if(!$result){
+        	//throw new Exception(mysql_errno().mysql_error());
             $this->show_error($the_query,mysql_errno(),mysql_error());
         }
         $this->queries[count($this->queries)-1]->stop();
