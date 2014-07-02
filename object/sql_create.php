@@ -17,8 +17,15 @@ class OM_SQLcreate extends OM_SQLinterface{
             if($col_obj->stored) $sql_columns[] = $field_name;
             $columns[] = array($col_obj, $field_name, $ctx, $fields);
         }
-        $sql_columns[] = $obj->_create_date;
-        $sql_columns[] = $obj->_write_date;
+        $added_time = array();
+        if (!in_array($obj->_create_date, $sql_columns)){
+        	$sql_columns[] = $obj->_create_date;
+        	$added_time[] = $obj->_create_date;
+        }
+        if (!in_array($obj->_write_date, $sql_columns)) {
+        	$sql_columns[] = $obj->_write_date;
+        	$added_time[] = $obj->_write_date;
+        }
         $date = gmdate("'Y-m-d H:i:s'");
         $sql_values = array();
         foreach($values_array as $values){
@@ -44,8 +51,8 @@ class OM_SQLcreate extends OM_SQLinterface{
                 }
             }
             foreach($sql_values_array as $row){
-                $row[] = $date;
-                $row[] = $date;
+                if (!in_array($obj->_create_date, $added_time)) $row[] = $date;
+                if (!in_array($obj->_write_date, $added_time)) $row[] = $date;
                 $sql_values[] = '('.implode(',', $row).')';
             }
         }
