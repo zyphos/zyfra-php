@@ -38,7 +38,7 @@ abstract class Field{
     }
 
     function sql_format($value){
-        return "'".$value."'"; //!! injection !!! mysql_real_escape_string
+        return "'".str_replace("'", "\'", $value)."'"; //!! injection !!! mysql_real_escape_string
     }
 
     function set_instance($object, $name){
