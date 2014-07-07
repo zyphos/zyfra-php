@@ -37,7 +37,10 @@ class OM_SQLcreate extends OM_SQLinterface{
                     if(!is_array($value)) $value = array($value);
                     foreach($value as $val){
                         $new_value = $col_obj->sql_create($this, $val, $fields, $ctx);
-                        if ($new_value == null) continue;
+                        /*if ($new_value == null) {
+                        	$column2del[] = $field_name;
+                        	continue;
+                        }*/
                         $new_sql_value_array = array();
                         foreach($sql_values_array as &$row){
                             $new_row = $row; //copy
@@ -59,11 +62,15 @@ class OM_SQLcreate extends OM_SQLinterface{
         unset($sql_values_array);
         $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', $sql_columns).') VALUES '.implode(',',$sql_values);
         //echo $sql.'<br>';
-        $obj->_pool->db->query($sql);
+        $res = $obj->_pool->db->query($sql);
+        if ($res === false){
+        	throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+        }
 
         // $db->safe safe_var
         $context = $this->context;
         $id = $obj->_pool->db->insert_id();
+        
         foreach($this->callbacks as $callback){
             call_user_func($callback, $this, $values[$col_name], $id, $context);
         }
