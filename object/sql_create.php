@@ -54,13 +54,14 @@ class OM_SQLcreate extends OM_SQLinterface{
                 }
             }
             foreach($sql_values_array as $row){
-                if (!in_array($obj->_create_date, $added_time)) $row[] = $date;
-                if (!in_array($obj->_write_date, $added_time)) $row[] = $date;
+                if (in_array($obj->_create_date, $added_time)) $row[] = $date;
+                if (in_array($obj->_write_date, $added_time)) $row[] = $date;
                 $sql_values[] = '('.implode(',', $row).')';
             }
         }
         unset($sql_values_array);
         $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', $sql_columns).') VALUES '.implode(',',$sql_values);
+        //throw new Exception($sql);
         //echo $sql.'<br>';
         $res = $obj->_pool->db->query($sql);
         if ($res === false){
