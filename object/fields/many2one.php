@@ -132,7 +132,9 @@ class Many2OneField extends RelationalField{
 
     function sql_create($sql_create, $value, $fields, $context){
         if (count($fields)==0){
-            return parent::sql_create($sql_create, $value, $fields, $context);
+        	$remote_column = $this->get_relation_object()->_columns[$this->relation_object_key];
+        	return $remote_column->sql_create($sql_create, $value, $fields, $context);
+            //return parent::sql_create($sql_create, $value, $fields, $context);
         }
         //Handle subfield (meanfull ?)
         return null;
