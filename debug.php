@@ -69,6 +69,18 @@ class zyfra_debug{
                 foreach($args as $key=>$value){
                     if (is_object($value)){
                         echo '-obj-';
+                    }elseif(is_array($value)){
+                    	echo '{';
+                    	$first = true;
+                    	foreach($value as $k=>$v){
+                    		if (!$first) echo ', ';
+                    		$first=false;
+                    		if (is_string($k)) $k = "'".$k."'";
+                    		if (is_string($v)) $v = "'".$v."'";
+                    		if (is_object($v)) $v = '-obj-';
+                    		echo $k.': '.$v;
+                    	}
+                    	echo '}';
                     }else{
                         echo $value;
                     }
