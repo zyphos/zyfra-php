@@ -321,6 +321,15 @@ class SqlQuery{
         $this->init();
         return $datas;
     }
+    
+    function get_scalar_array($value_field, $key_field=null, $where = '', $context = array()){
+    	$mql = $value_field.(is_null($key_field)?'':','.$key_field).' '.$where;
+    	$sql = $this->mql2sql($mql, $context, true);
+    	if (is_null($key_field)){
+    		$key_field = '';
+    	}
+    	return $this->pool->db->get_array($sql, $key_field, $value_field);
+    }
 
     function parse_mql_fields($field_defs, $recursive=false){
         if ($recursive) $saved_fields = $this->sql_select_fields;

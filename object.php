@@ -323,6 +323,11 @@ class ObjectModel{
         return $sql_query->get_array($mql, $context);
     }
     
+    function get_scalar_array($value_field, $key_field=null, $where = '', $context = array()){
+    	$sql_query = new SqlQuery($this);
+    	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
+    }
+    
     function get_view($fields_list = null){
     	if (is_null($fields_list)) $fields_list = array_keys($this->_columns);
     	$view = array();
