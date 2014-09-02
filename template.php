@@ -44,7 +44,7 @@
 * ?><br>
 * b=<?=$b?><br>
 * d=<?=$d?>
-* <? require($_tpl_path.'subtemplate.php');?>
+* <?php require($_tpl_path.'subtemplate.php');?>
 * 
 *****************************************************************************/
 
