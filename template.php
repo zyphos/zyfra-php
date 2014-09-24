@@ -73,7 +73,7 @@ function text2url($txt){
 }
 
 function html($var){
-    $var = htmlentities($var);
+    $var = htmlentities($var, ENT_COMPAT, 'UTF-8');
     $var = str_replace(chr(153),'<sup>TM</sup>', $var);
     return $var;
 }

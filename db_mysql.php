@@ -167,6 +167,7 @@ class zyfra_mysql extends zyfra_db_common {
                 echo "Error : Can't connect to database.<br>";
                 return false;
             }
+            mysql_set_charset('utf8', $this->link);
         }
         return true;
     }
