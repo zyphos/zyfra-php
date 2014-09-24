@@ -1,7 +1,8 @@
 <?php
 
 abstract class Field{
-    var $name;
+    var $name=null;
+    var $object=null;
     var $unique=false;
     var $primary_key=false;
     var $key=false;
@@ -13,6 +14,7 @@ abstract class Field{
     var $required=false;
     var $read_only=false;
     var $instanciated=false;
+    var $sql_escape_fx=null;
 
     function __construct($label, $args = null){
         $this->label = $label;
@@ -38,7 +40,13 @@ abstract class Field{
     }
 
     function sql_format($value){
-        return "'".str_replace("'", "\'", $value)."'"; //!! injection !!! mysql_real_escape_string
+    	if (is_null($this->sql_escape_fx)){
+    		return "'".str_replace("'", "\'", $value)."'"; // Warning sql injection !!!
+    	}
+    	if (is_null($this->sql_escape_fx)){
+    		$this->sql_escape_fx = array($this->object->_pool->db, 'safe_var');
+    	}
+    	return call_user_func($this->sql_escape_fx, $value);
     }
 
     function set_instance($object, $name){

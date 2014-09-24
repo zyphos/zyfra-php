@@ -325,7 +325,7 @@ class zyfra_mysql extends zyfra_db_common {
             }
             return $res;
         }
-        if(is_string($data)) return addslashes($data);
+        if(is_string($data)) return mysql_real_escape_string($data);
         return $data;
     }
 
