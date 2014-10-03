@@ -52,7 +52,7 @@ function remove_accent($str){
     //return strtr($chaine,
     //   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
     //   'aaaaaaaaaaaaaacceeeeeeeeiiiiiiiinnoooooooooouuuuuuuuy');
-    $str = htmlentities($str);
+    $str = htmlentities($str, ENT_COMPAT, 'UTF-8');
     $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde|cedil);/', '$1',$str);
     $str = str_replace("&amp;"," and ",$str);
     return html_entity_decode($str);
@@ -79,14 +79,14 @@ function html($var){
 }
 
 function htmlquotes($var){
-    return htmlentities($var,ENT_QUOTES);
+    return htmlentities($var,ENT_QUOTES, 'UTF-8');
 }
 
 function accent2html($str){
 	//return strtr($chaine,
 	//   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
 	//   'aaaaaaaaaaaaaacceeeeeeeeiiiiiiiinnoooooooooouuuuuuuuy');
-	$str = htmlentities($str);
+	$str = htmlentities($str, ENT_QUOTES, 'UTF-8');
 	$str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde|cedil);/', '&amp;$1$2;',$str);
 	//$var = str_replace(chr(153),'<sup>TM</sup>', $var);
 	$str = str_replace(chr(153),'&amp;trade;', $str);
@@ -146,9 +146,7 @@ class zyfra_template{
     
     function fetch(){
         ob_start();
-        foreach($this->vars as $var_name=>$value){
-            $$var_name = $value;
-        }
+        extract($this->vars);
         $_tpl_path = $this->template_path;
         require $this->get_template_file();
         $content = ob_get_contents();
