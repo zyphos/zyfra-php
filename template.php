@@ -55,10 +55,11 @@ function remove_accent($str){
     $str = htmlentities($str, ENT_COMPAT, 'UTF-8');
     $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde|cedil);/', '$1',$str);
     $str = str_replace("&amp;"," and ",$str);
-    $str = str_replace("&trade;"," tm ",$str);
+    $str = str_replace("&trade;","",$str);
     $str = str_replace("&deg;","d",$str);
     $str = str_replace("&oslash;","d",$str);
     $str = str_replace("&sup2;","2",$str);
+    $str = str_replace("&reg;","",$str);
     return html_entity_decode($str, ENT_COMPAT, 'UTF-8');
 }
 
@@ -66,7 +67,7 @@ function text2url($txt){
     if (strlen($txt)==0) return '';
     $txt = remove_accent($txt);
     $txt = strtolower($txt);
-    /*echo $txt."\n";
+    /*echo htmlentities(htmlentities($txt, ENT_COMPAT, 'UTF-8'))."\n";
     for ($i=0; $i < strlen($txt);$i++){
     	$c = $txt[$i];
     	echo '['.$c.'] '.ord($c)."\n";
