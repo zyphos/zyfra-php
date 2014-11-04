@@ -142,13 +142,21 @@ class zyfra_template{
         return $this->template_path.$this->template.'.php';
     }
     
-    function assign($var_name, $value=''){
+    function get_template_filename(){
+        return $this->template.'.php';
+    }
+    
+    function set($var_name, $value=''){
         if(is_array($var_name)){
             $this->vars = array_merge($this->vars, $var_name);
         }else{
             $this->vars[$var_name] = $value;
         }
         return $this;
+    }
+    
+    function assign($var_name, $value=''){ // Used for backward compatibility
+        return $this->set($var_name, $value);
     }
     
     function fetch(){
