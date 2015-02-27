@@ -217,10 +217,8 @@ class zyfra_db_common {
         $the_html_error= "<table border='1' cellspacing='0'><tr bgcolor='#FF0000'><td>MySQL Error</td></tr>
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
-        if (isset($security)){
-            if($security->is_dev()) echo $the_html_error;
-        }else{
-            echo $the_html_error;
+        if (!isset($security) || $security->is_dev()){
+            throw new Exception($the_html_error);
         }
         $this->errors2mail .= $the_html_error;
     }
