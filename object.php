@@ -379,6 +379,48 @@ class ObjectModel{
         }
         return $txt;
     }
+    
+    function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null){
+        if ($relations==null) $relations = array();
+        $name_under = str_replace('.','_', $this->_name);
+        if ($done == null){
+            $done = array($this->_name);
+        }elseif (in_array($this->_name, $done)){
+            return '';
+        }else{
+            $done[] = $this->_name;
+        }
+        $other_txt = '';
+        $columns = array();
+        foreach($this->_columns as $col){
+            $columns[] = '+ '.$col->name.'['.get_class($col).']'.$col->label;
+            if ($col->relational){
+                $robj = $col->get_relation_object();
+                if ($max_depth == 0 || $lvl+1 < $max_depth || in_array($robj->_name, $done)){
+                    $rname_under = str_replace('.','_', $robj->_name);
+                    $relation_name = $name_under.' -> '.$rname_under;
+                    $rrelation_name = $rname_under.' -> '.$name_under;
+                    if (!in_array($relation_name, $relations) && !in_array($rrelation_name, $relations)) $relations[] = $relation_name;
+                }
+
+                if ($max_depth == 0 || $lvl+1 < $max_depth){
+                    $other_txt .= $robj->get_dot_full_diagram($max_depth, $lvl + 1, $done, $relations, $name_under);
+                }
+            }
+        }
+        $txt = $name_under.' [label = "{'.$this->_name.'|'.implode('\l', $columns)."}\"]\n".$other_txt;
+        if ($lvl == 0){
+            $txt = 'digraph G {
+             edge [dir="both"]
+             node [
+                fontname = "Bitstream Vera Sans"
+                fontsize = 8
+                shape = "record"
+            ]'."\n".$txt.implode("\n", $relations)."\n}";
+        }
+        return $txt;
+    }
+
 }
 
 require_once('object/objects/meta.php');
