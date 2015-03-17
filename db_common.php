@@ -250,6 +250,7 @@ class zyfra_db_common {
     }
 
     function var2sql($var, $safe=false){
+        if ($var === null) return 'null';
         if (is_array($var)){
             if(count($var) == 0) throw new Exception('Array parameter is empty !');
             if(!$safe) $var = $this->safe_var($var);
