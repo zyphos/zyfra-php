@@ -380,7 +380,7 @@ class ObjectModel{
         return $txt;
     }
     
-    function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null){
+    function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
         if ($relations==null) $relations = array();
         $name_under = str_replace('.','_', $this->_name);
         if ($done == null){
@@ -390,28 +390,38 @@ class ObjectModel{
         }else{
             $done[] = $this->_name;
         }
+        if ($column2skip == null) $column2skip = array();
         $other_txt = '';
         $columns = array();
         foreach($this->_columns as $col){
-            $columns[] = '+ '.$col->name.'['.get_class($col).']'.$col->label;
+            if (in_array($col->name, $column2skip)) continue;
+            if ($col instanceof One2Many){
+                $params = '('.$col->relation_object_name.','.col.relation_object_field.')';
+            }elseif($col instanceof Relational){
+                $params = '('.$col->relation_object_name.')';
+            }else{
+                $params = '';
+            }
+            $columns[] = '+ '.$col->name.'['.get_class($col).$params.']'.str_replace('>', '', $col->label);
             if ($col->relational){
                 $robj = $col->get_relation_object();
                 if ($max_depth == 0 || $lvl+1 < $max_depth || in_array($robj->_name, $done)){
                     $rname_under = str_replace('.','_', $robj->_name);
-                    $relation_name = $name_under.' -> '.$rname_under;
-                    $rrelation_name = $rname_under.' -> '.$name_under;
-                    if (!in_array($relation_name, $relations) && !in_array($rrelation_name, $relations)) $relations[] = $relation_name;
+                    $relation_name = $name_under.' -> '.$rname_under.' [label="'.$col->name.'['.get_class($col).']",fontname="Bitstream Vera Sans",fontsize=8]';
+                    //$rrelation_name = $rname_under.' -> '.$name_under;
+                    //if (!in_array($relation_name, $relations) && !in_array($rrelation_name, $relations)) $relations[] = $relation_name;
+                    if (!in_array($relation_name, $relations)) $relations[] = $relation_name;
                 }
 
                 if ($max_depth == 0 || $lvl+1 < $max_depth){
-                    $other_txt .= $robj->get_dot_full_diagram($max_depth, $lvl + 1, $done, $relations, $name_under);
+                    $other_txt .= $robj->get_dot_full_diagram($max_depth, $lvl + 1, $done, $relations, $name_under, $column2skip);
                 }
             }
         }
         $txt = $name_under.' [label = "{'.$this->_name.'|'.implode('\l', $columns)."}\"]\n".$other_txt;
         if ($lvl == 0){
+            //edge [dir="both"]
             $txt = 'digraph G {
-             edge [dir="both"]
              node [
                 fontname = "Bitstream Vera Sans"
                 fontsize = 8
