@@ -10,6 +10,8 @@ class Many2ManyField extends One2ManyField{
     var $rt_local_field=null;
     var $rt_foreign_field=null;
     var $equal2equal = false;
+    var $foreign_key;
+    var $model_class='ObjectModel';
 
     function __construct($label, $relation_object_name, $args = array()){
         parent::__construct($label, $relation_object_name, '', $args);
@@ -48,15 +50,20 @@ class Many2ManyField extends One2ManyField{
                                 $object->_name,
                                 array('relation_table'=>$this->relation_table,
                                         'rt_foreign_field'=>$this->rt_local_field,
-                                        'rt_local_field'=>$this->rt_foreign_field)));
+                                        'rt_local_field'=>$this->rt_foreign_field,
+                                        'foreign_key'=>$this->local_key,
+                                        'local_key'=>$this->foreign_key,
+                                        'model_class'=>$this->model_class,
+                                        )));
             }
         }
         $pool = $object->_pool;
         if (!$pool->object_in_pool($this->relation_table)){
-            $rel_table_object = new ObjectModel($pool, array(
+            echo $this->model_class;
+            $rel_table_object = new $this->model_class($pool, array(
                     '_name'=>$this->relation_table,
-                    '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name),
-                            $this->rt_foreign_field=>new Many2OneField(null, $robj->_name)
+                    '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key)),
+                            $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, array('relation_object_key'=>$this->foreign_key))
                     )));
             $pool->add_object($this->relation_table, $rel_table_object);
         }else{
