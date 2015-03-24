@@ -115,8 +115,14 @@ class zyfra_db_common {
             }
           }
         }else{
-            while($row = $this->fetch_object($result)){
-                $temp[$row->{$key}]=$row->{$value};
+            if ($key == ''){
+                while($row = $this->fetch_object($result)){
+                    $temp[]=$row->{$value};
+                }
+            }else{
+                while($row = $this->fetch_object($result)){
+                    $temp[$row->{$key}]=$row->{$value};
+                }
             }
         }
         $this->free_result($result);
