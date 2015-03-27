@@ -59,7 +59,6 @@ class Many2ManyField extends One2ManyField{
         }
         $pool = $object->_pool;
         if (!$pool->object_in_pool($this->relation_table)){
-            echo $this->model_class;
             $rel_table_object = new $this->model_class($pool, array(
                     '_name'=>$this->relation_table,
                     '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key)),
