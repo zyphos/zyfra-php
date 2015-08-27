@@ -14,6 +14,9 @@ class OM_SQLcreate extends OM_SQLinterface{
             $ctx = $this->context;
             $ctx['parameter'] = $field_data;
             $col_obj = $obj->_columns[$field_name];
+            if (!is_object($col_obj)){
+                throw new Exception('Column '.$field_name.' do not exists in object['.$obj->name.']');
+            }
             if($col_obj->stored) $sql_columns[] = $field_name;
             $columns[] = array($col_obj, $field_name, $ctx, $fields);
         }
