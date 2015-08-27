@@ -113,7 +113,7 @@ class zyfra_v_phone extends zyfra_validator_type{
 
 class zyfra_v_email extends zyfra_validator_type{
     function is_valid($data, $spam_check){
-        $regex = '/^[a-z0-9._%-]+[a-z0-9_%-]+@[a-z0-9._%-]+.[a-z]{2,6}$/';
+        $regex = '/^[a-zA-Z0-9._%-]+[a-zA-Z0-9_%-]+@[a-z0-9._%-]+.[a-z]{2,6}$/';
         return $this->is_regex_valid($regex, $data);
     }
 }
