@@ -237,7 +237,7 @@ class SqlQuery{
     function get_array($mql, $context = array()){
         $sql = $this->mql2sql($mql, $context, true);
         $key = array_get($context, 'key', '');
-        if (!isset($this->object->_columns[$key])) $key = ''; //$key != $this->object->_key &&
+        //if (!isset($this->object->_columns[$key])) $key = ''; //$key != $this->object->_key &&
         $datas = $this->pool->db->get_array_object($sql, $key);
         $field_alias_ids = array();
         $row_field_alias_ids = array();
