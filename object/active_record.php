@@ -9,6 +9,9 @@ class ActiveRecord{
     protected $__id;
 
     public function __construct($object, $params = array(), $context = array()){
+        /* $params is an array:
+         * it contains predefined attribute. Ie: $params = array('uid'=>4,'name'=>'test');
+         */
         $this->__object = $object;
         $this->__context = $context;
         $this->__data = null;
@@ -19,7 +22,7 @@ class ActiveRecord{
     private function __get_data(){
         $obj = $this->__object;
         $key = $obj->_key;
-        if(!is_null($this->__data) || (!array_key_exists($key, $this->__params) && !array_key_exists('mql_where', $this->__params))) return;
+        if(!is_null($this->__data) || (!array_key_exists($key, $this->__params) && !array_key_exists('mql_where', $this->__context))) return;
         $this->__id = array_key_exists($key, $this->__params)?$this->__params[$key]:0;
         $mql_fields = array_key_exists('mql_fields', $this->__context)?$this->__context['mql_fields']:'*';
         $this->__mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
