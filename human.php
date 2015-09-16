@@ -64,5 +64,11 @@ class zyfra_human{
         }
         return $size;
     }
+    
+    static function date($the_date){
+        $date_array = explode('-', $the_date);
+        $date_array = array_reverse($date_array);
+        return implode('/', $date_array);
+    }
 }
 ?>
