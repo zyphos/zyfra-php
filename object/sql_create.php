@@ -3,7 +3,7 @@ require_once('tools.php');
 require_once('sql_interface.php');
 
 class OM_SQLcreate extends OM_SQLinterface{
-    function create($values_array){
+    function create($values_array, $require_ids){
         $obj = $this->object;
         $columns = array();
         $sql_columns = array();
@@ -11,7 +11,7 @@ class OM_SQLcreate extends OM_SQLinterface{
             $fields = specialsplit($col_name, '.');
             $field = array_shift($fields);
             list($field_name, $field_data) = specialsplitparam($field);
-            $ctx = $this->context;
+            $ctx = $this->context; // Copy context
             $ctx['parameter'] = $field_data;
             $col_obj = $obj->_columns[$field_name];
             if (!is_object($col_obj)){
@@ -63,17 +63,35 @@ class OM_SQLcreate extends OM_SQLinterface{
             }
         }
         unset($sql_values_array);
-        $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', $sql_columns).') VALUES '.implode(',',$sql_values);
-        //throw new Exception($sql);
-        //echo $sql.'<br>';
-        $res = $obj->_pool->db->query($sql);
-        if ($res === false){
-        	throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+        
+        if ($require_ids){
+            $ids = array();
+            foreach($sql_values as $sql_vals){
+                $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', $sql_columns).') VALUES '.$sql_vals;
+                //throw new Exception($sql);
+                //echo $sql.'<br>';
+                $res = $obj->_pool->db->query($sql);
+                if ($res === false){
+                throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+                }
+                $id = $obj->_pool->db->insert_id();
+                $ids[] = $id;
+            }
+        }else{
+            $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', $sql_columns).') VALUES '.implode(',',$sql_values);
+            //throw new Exception($sql);
+            //echo $sql.'<br>';
+            $res = $obj->_pool->db->query($sql);
+            if ($res === false){
+            throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+            }
+            $id = $obj->_pool->db->insert_id();
         }
+        
+        
 
         // $db->safe safe_var
-        $context = $this->context;
-        $id = $obj->_pool->db->insert_id();
+        $context = $this->context; // copy context
         
         foreach($this->callbacks as $callback){
             call_user_func($callback, $this, $values[$col_name], $id, $context);
@@ -85,6 +103,9 @@ class OM_SQLcreate extends OM_SQLinterface{
                 $value = $obj->_columns[$column]->default_value;
             }
             $obj->_columns[$column]->after_create_trigger($id, $value, $context);
+        }
+        if ($require_ids){
+            return $ids;
         }
         return $id;
     }

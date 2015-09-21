@@ -237,6 +237,7 @@ class ObjectModel{
         * $values = array[](column: value, col2: value2);
         */
         if ($this->_read_only || count($values) == 0) return null;
+        $require_ids = isset($context['require_ids'])?$context['require_ids']:false;
         $values2add = array();
         if(is_int(key($values))){
             $multi_values=true;
@@ -250,11 +251,16 @@ class ObjectModel{
             $values2add[implode(',',array_keys($values))][] = $values;
         }
         if (count($values2add) == 0) return;
-
+        
+        $ids = array();
         foreach($values2add as $values){
             $sql_create = new OM_SQLcreate($this, $context);
-            $id = $sql_create->create($values);
+            $id = $sql_create->create($values, $require_ids);
+            if ($require_ids){
+                $ids = array_merge($ids, $id);
+            }
         }
+        if ($require_ids) return $ids;
         return $id;
     }
 
