@@ -122,6 +122,15 @@ function cycle(){
     return $args[$id];
 }
 
+function html_select($name, $values, $selected=null, $attribute=null){
+    $res = '<select name="'.$name.'">';
+    foreach($values as $key=>$value){
+        if (!is_null($attribute)) $value = $value->{$attribute};
+        $res .= '<option value="'.$key.'"'.($key==$selected?' selected':'').'>'.html($value).'</option>';
+    }
+    return $res.'</select>';
+}
+
 class zyfra_template{
     private $template;
     protected $template_path;
