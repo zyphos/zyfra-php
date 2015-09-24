@@ -236,7 +236,12 @@ class SqlQuery{
 
     function get_array($mql, $context = array()){
         $sql = $this->mql2sql($mql, $context, true);
-        $key = array_get($context, 'key', '');
+        if(isset($context['key'])){
+            $key = $context['key'];
+            unset($context['key']);
+        }else{
+            $key = '';
+        }
         //if (!isset($this->object->_columns[$key])) $key = ''; //$key != $this->object->_key &&
         $datas = $this->pool->db->get_array_object($sql, $key);
         $field_alias_ids = array();
@@ -289,6 +294,7 @@ class SqlQuery{
                     if (count($ids)){
                         $ids = $this->object->_pool->db->var2sql($ids, true);
                         $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
+                        if (array_key_exists('key', $nctx)) unset($nctx['key']); 
                         /*echo 'context:<br><pre>';
                          print_r($nctx);
                         echo '</pre>';//*/
