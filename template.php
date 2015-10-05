@@ -79,9 +79,12 @@ function text2url($txt){
     return $txt[strlen($txt)-1]=='-'?substr($txt, 0, strlen($txt)-1):$txt;
 }
 
-function html($var){
+function html($var, $nl2br=false){
     $var = htmlentities($var, ENT_COMPAT, 'UTF-8');
     $var = str_replace(chr(153),'<sup>TM</sup>', $var);
+    if ($nl2br){
+        $var = str_replace(chr(10), '<br>', $var);
+    }
     return $var;
 }
 
