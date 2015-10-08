@@ -51,11 +51,13 @@ class zyfra_csv{
         $this->count_columns();
     }
     
-    private function parse($txt, $text_delimiter = '"', $field_delimiter = ','){
+    private function parse($txt){
         /* This function return an array of the CSV without any threatment
          * The parse method is described at:
          * http://en.wikipedia.org/wiki/Comma-separated_values
          */
+        $text_delimiter = $this->text_delimiter;
+        $field_delimiter = $this->field_delimiter;
         $txt = str_replace("\r\n","\n",$txt); //Remove Windows double returns
         $rows = array();
         $cols = array();
