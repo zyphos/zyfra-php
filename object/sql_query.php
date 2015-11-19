@@ -77,6 +77,7 @@ class SqlQuery{
     var $required_fields;
     var $remove_from_result;
     var $debug = false;
+    private $rqi = 0; 
 
     function __construct($object, $ta_prefix = ''){
         global $sql_query_id;
@@ -384,10 +385,9 @@ class SqlQuery{
                 if (!$recursive) $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
             }
         }
-        $rqi = 0;
         foreach($this->required_fields as $field){
             if ($recursive || isset($this->sql_field_alias[$field])) continue;
-            $alias = '_rq'.++$rqi;
+            $alias = '_rq'.++$this->rqi;
             $this->sql_select_fields[] = $field.' AS '.$alias;
             $this->sql_field_alias[$field] = $alias;
             $this->remove_from_result[] = $alias;
