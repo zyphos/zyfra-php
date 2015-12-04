@@ -106,7 +106,7 @@ class zyfra_v_string extends zyfra_validator_type{
 
 class zyfra_v_phone extends zyfra_validator_type{
     function is_valid($data, $spam_check){
-        $regex = '/[()0-9.\-\/\+]*/';
+        $regex = '/[()0-9.\-\/\+ ]*/';
         return $this->is_regex_valid($regex, $data);
     }
 }
