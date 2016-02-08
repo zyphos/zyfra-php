@@ -39,13 +39,11 @@ class zyfra_mysql extends zyfra_db_common {
     }
 
     function IsConnected(){
-        if($this->link==false) return false;
-        return true;
+        return $this->link != false;
     }
 
     function IsDBSelected(){
-        if($this->db_selected==false) return false;
-        return true;
+        return $this->db_selected != false;
     }
 
     function TableExists($tablename) {
@@ -56,8 +54,7 @@ class zyfra_mysql extends zyfra_db_common {
             }
         }
         $result = $this->query("SHOW TABLES LIKE '".$tablename."'");
-        if(mysql_num_rows($result)==1) return true;
-        else return false;
+        return $result->num_rows==1;
     }
 
     function query($the_query,$nb_row_per_page=0)	{
@@ -79,10 +76,10 @@ class zyfra_mysql extends zyfra_db_common {
             $nb_pages = ceil($nb_rows / $nb_row_per_page);
             $this->nb_pages = $nb_pages;
         }
-        $result = mysql_query($the_query);
+        $result = $this->link->query($the_query);
         if(!$result){
         	//throw new Exception(mysql_errno().mysql_error());
-            $this->show_error($the_query,mysql_errno(),mysql_error());
+            $this->show_error($the_query,$this->link->errno, $this->link->error);
         }
         $this->queries[count($this->queries)-1]->stop();
         $this->query_time += microtime(true)-$start_query;
@@ -114,11 +111,11 @@ class zyfra_mysql extends zyfra_db_common {
             $nb_pages = ceil($nb_rows / $nb_row_per_page);
             $this->nb_pages = $nb_pages;
         }
-        $result = mysql_query($the_query);
+        $result = $this->link->query($the_query);
         //$this->log_query();
         $this->nb_query++;
         if(!$result){
-            $this->show_error($the_query,mysql_errno(),mysql_error());
+            $this->show_error($the_query,$this->link->errno, $this->link->error);
         }
         $this->query_time += microtime(true)-$start_query;
         return $result;
@@ -162,29 +159,29 @@ class zyfra_mysql extends zyfra_db_common {
             if ($user=="") $user = $this->user;
             if ($password=="") $password = $this->password;
             //echo $host." ".$user." ".$password;
-            $this->link = mysql_connect($host,$user,$password);
+            $this->link = new mysqli($host, $user, $password);
             if (!$this->IsConnected()){
                 echo "Error : Can't connect to database.<br>";
                 return false;
             }
-            mysql_set_charset('utf8', $this->link);
+            $this->link->set_charset('utf8');
         }
         return true;
     }
 
     function fetch_object($result){
         if (!$result) return false;
-        return mysql_fetch_object($result);
+        return $result->fetch_object();
     }
 
     function fetch_array($result){
         if (!$result) return false;
-        return mysql_fetch_array($result);
+        return $result->fetch_array();
     }
 
     function close(){
         if ($this->IsConnected()){
-            mysql_close($this->link);
+            $this->link->close();
             $this->link = false;
         }
     }
@@ -192,13 +189,12 @@ class zyfra_mysql extends zyfra_db_common {
     function result_all($result) {
         if (!$result) return false;
         echo '<table>';
-        $nb_fields = mysql_num_fields($result);
-        for($i = 0; $i < $nb_fields; $i++) {
-            echo '<th>';
-            echo mysql_field_name($result,$i);
-            echo '</th>';
+        $nb_fields = $result->num_fields;
+        $fields = $result->fetch_fields();
+        foreach ($fields as $field){
+            echo '<th>'.$field->name.'</th>';
         }
-        while($row = mysql_fetch_array($result)) {
+        while($row = $result->fetch_array($result)) {
             echo '<tr>';
             for($i = 0; $i < $nb_fields; $i++) {
                 echo '<td>'.$row[$i].'</td>';
@@ -210,52 +206,30 @@ class zyfra_mysql extends zyfra_db_common {
 
     function select_db($db=""){
         if ($db=="") $db = $this->default_db;
-        return mysql_select_db($db);
+        return $this->link->select_db($db);
         //or die("Impossible de choisir la db ".$db."!");
     }
 
     function num_rows($result){
         if (!$result) return 0;
-        return mysql_num_rows($result);
+        return $result->num_rows;
     }
 
     function free_result($result){
         if (!$result) return 0;
-        return mysql_free_result($result);
+        return $result->free();
     }
 
     function insert_id(){
-        if ($this->link) return mysql_insert_id($this->link);
+        if ($this->link) return $this->link->insert_id;
         return false;
     }
 
 
 
     function get_nb_row_query($sql){
-        /*$tag = "/select|from|where|left join|into|group by|having|order by|limit|procedure/i";
-         $unusable_tag = "/straight_join|sql_small_result|sql_big_result|sql_buffer_result|sql_cache|sql_no_cache|sql_calc_found_rows|high_priority_distinct|distinctrow|all|for update|lock in share mode/i";
-         $sql_a = preg_replace($unusable_tag,"",$sql);
-         $data = preg_split($tag,$sql_a);
-         preg_match_all ($tag, $sql_a,$data2);
-         $sql_e = "SELECT count(*) as nb_row ";
-         foreach($data2[0] as $key=>$the_tag){
-         switch(strtolower($the_tag)){
-         case  "from":
-         case  "group by":
-         case  "where":
-         $sql_e .= $the_tag." ".$data[$key+1];
-         break;
-         }
-         }
-         echo "<pre>";
-         print_r($sql_e);
-         echo "</pre>";
-         $result = $this->query($sql_e);
-         $row = $this->fetch_object($result);
-         $this->free_result($result);*/
         $result = $this->query($sql);
-        return mysql_num_rows($result);
-        //return $row->nb_row;
+        return $result->num_rows;
     }
 
     function get_pages_link($url,$separator="&nbsp;&nbsp;",$next_prev=true){
@@ -300,7 +274,7 @@ class zyfra_mysql extends zyfra_db_common {
 
     function __destruct(){
         if($this->IsConnected()){
-            mysql_close($this->link);
+            $this->link->close();
         }
     }
 
@@ -326,13 +300,13 @@ class zyfra_mysql extends zyfra_db_common {
             }
             return $res;
         }
-        if(is_string($data)) return mysql_real_escape_string($data);
+        if(is_string($data)) return $this->link->real_escape_string($data);
         return $data;
     }
 
     function safeVar($data){
         //Counter-injection function
-        return mysql_real_escape_string($data);
+        return $this->link->real_escape_string($data);
     }
 }
 $MySQL = new zyfra_mysql;
