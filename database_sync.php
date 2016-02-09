@@ -579,13 +579,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
         if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = array_merge($key_names, $col_names);
         array_push($col_names_sql, $this->update_field);
-        $col_names_sql = $this->do_sql_escape($col_names_sql);
+        $col_names_sql = $db->safe_var($col_names_sql);
         $sql_common = 'INSERT INTO '.$table_name.' ('.implode(',',$col_names_sql).') VALUES (\'';
         foreach($row2add as $index2add=>$data2add){
             $keys = explode($this->field_separator,$index2add);
             $datas_sql = explode($this->field_separator, $data2add);
             $datas_sql = array_merge($keys, $datas_sql);
-            $datas_sql = $this->do_sql_escape($datas_sql);
+            $datas_sql = $db->safe_var($datas_sql);
             $sql = $sql_common.implode('\',\'',$datas_sql).'\');';
             $out .= '. ';
             //$out .= $sql.'<br>';
@@ -595,14 +595,14 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return $out;
     }
     
-    function do_sql_escape($array){
+    /*function do_sql_escape($array){
         $db = $this->db;
         if(!$db->IsConnected()) $db->connect();
         foreach($array as &$row){
-            $row = mysql_real_escape_string($row);
+            $row = $db->safe_var($row);
         }
         return $array;
-    }
+    }*/
     
     function get_fields_sql($col_names, $col_datas){
         $db = $this->db;
@@ -610,7 +610,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $fields_sql = array();
         $datas = explode($this->field_separator, $col_datas);
         foreach($datas as $id=>$data){
-            $fields_sql[] = mysql_real_escape_string($col_names[$id]).'=\''.mysql_real_escape_string($data).'\'';
+            $fields_sql[] = $db->safe_var($col_names[$id]).'=\''.$db->safe_var($data).'\'';
         }
         return $fields_sql;
     }
