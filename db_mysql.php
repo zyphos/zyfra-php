@@ -37,6 +37,12 @@ class zyfra_mysql extends zyfra_db_common {
     function ver(){
         return "0.01";
     }
+    
+    function check_connection(){
+        if ($this->link == false){
+            $this->connect();
+        }
+    }
 
     function IsConnected(){
         return $this->link != false;
@@ -300,7 +306,10 @@ class zyfra_mysql extends zyfra_db_common {
             }
             return $res;
         }
-        if(is_string($data)) return $this->link->real_escape_string($data);
+        if(is_string($data)) {
+            $this->check_connection();
+            return $this->link->real_escape_string($data);
+        }
         return $data;
     }
 
