@@ -371,7 +371,7 @@ class SqlQuery{
                 $alias = $field_name;
                 $pos = strpos($alias, '.(');
                 if ($pos !== false) $alias = substr($alias, 0, $pos);
-                $alias = str_replace(array('.', '[', ']','='), '_', $alias);
+                $alias = str_replace(array('.', '[', ']','=','<','>'), '_', $alias);
             }
             if ($pre_alias != ''){
                 $alias = $pre_alias.'_'.$alias;
