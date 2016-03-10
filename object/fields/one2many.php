@@ -61,6 +61,9 @@ class One2ManyField extends RelationalField{
                 }
                 list($field_name, $field_param) = specialsplitparam($field_name);
                 $context['parameter'] = $field_param;
+                if (!isset($robject->_columns[$field_name])){
+                    throw new Exception('Column ['.$field_name.'] not found in object ['.$robject->_name.']');
+                }
                 return $robject->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
             }
         }
