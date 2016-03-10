@@ -301,7 +301,7 @@ class ObjectModel{
         }
     }
 
-    function read($where='', $fields=array()){
+    function read($where='', array $fields=array()){
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
@@ -316,7 +316,7 @@ class ObjectModel{
         return $res;
     }
 
-    function select($mql='*', $context = array(), $datas = array()){
+    function select($mql='*', array $context = array(), array $datas = array()){
         try{
             $mql = $this->_pool->db->safe_sql($mql, $datas);
         }catch(Exception $e){
@@ -329,7 +329,7 @@ class ObjectModel{
         return $sql_query->get_array($mql, $context);
     }
     
-    function get_scalar_array($value_field, $key_field=null, $where = '', $context = array()){
+    function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
     	$sql_query = new SqlQuery($this);
     	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
     }
