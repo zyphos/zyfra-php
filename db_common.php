@@ -224,6 +224,7 @@ class zyfra_db_common {
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
         if (!isset($security) || $security->is_dev()){
+            echo $the_html_error;
             throw new Exception($the_html_error);
         }
         $this->errors2mail .= $the_html_error;
