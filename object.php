@@ -329,7 +329,15 @@ class ObjectModel{
         return $sql_query->get_array($mql, $context);
     }
     
-    function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
+    function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array(), array $datas = array()){
+        try{
+            $where = $this->_pool->db->safe_sql($where, $datas);
+        }catch(Exception $e){
+            if(in_array('debug', $datas) && $datas[debug]){
+                throw $e;
+            }
+            return array();
+        }
     	$sql_query = new SqlQuery($this);
     	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
     }
