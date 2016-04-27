@@ -30,7 +30,7 @@ class MqlWhere{
         $this->sql_query = $sql_query;
         $this->operators = array('parent_of', 'child_of');
         $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or', 'in');
-        $this->basic_operators = array('+','-','=',' ','/','*','(',')',',','<','>','!');
+        $this->basic_operators = array('+','-','=',' ','/','*',',','<','>','!','(',')'); 
     }
 
     function parse($mql_where, $obj=null, $ta=null){
@@ -40,6 +40,12 @@ class MqlWhere{
         $this->ta = $ta;
         $mql_where = trim_inside($mql_where);
         $fields = specialsplitnotpar($mql_where, $this->basic_operators);
+        if ($this->sql_query->debug > 3){
+            echo '<pre>Where fields:';
+            print_r($fields);
+            echo '</pre>';
+        }
+        
         foreach($fields as $key=>&$field){
             $lfield = strtolower($field);
             if($key % 2 == 1) continue;
@@ -49,9 +55,36 @@ class MqlWhere{
             }elseif (in_array($lfield, $this->reserved_words)){
                 continue;
             }elseif (isset($fields[$key+4]) && (in_array(strtolower($fields[$key+2]), $this->operators))){
-                $op_data = $this->sql_query->field2sql($fields[$key+4], $this->obj, $this->ta);
+                $i = 4;
+                $parenthesis_lvl = 0;
+                $op_data = '';
+                while(isset($fields[$key+$i])){
+                    $val = trim($fields[$key+$i]);
+                    if ($val == ''){
+                        // Do nothing skip
+                    }elseif ($val == '('){
+                        $op_data .= $val;
+                        $parenthesis_lvl++;
+                    }elseif ($parenthesis_lvl){
+                        if ($val == ')'){
+                            $op_data .= $val;
+                            $parenthesis_lvl--;
+                            if ($parenthesis_lvl == 0) break;
+                        }else{
+                            $op_data .= $this->sql_query->field2sql($val, $this->obj, $this->ta);;
+                        }
+                    }else{
+                        $op_data .= $this->sql_query->field2sql($val, $this->obj, $this->ta);;
+                        break;
+                    }
+                    $i++;
+                }
+                // Rebuild 
                 $field = $this->sql_query->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+2]), $op_data);
-                $fields[$key+4] = $fields[$key+2] = '';
+                for ($j = 4; $j <= $i; $j++){
+                    $fields[$key+$j] = '';
+                }
+                $fields[$key+2] = '';
             }else{
                 $field = $this->sql_query->field2sql($field, $this->obj, $this->ta);
             }

@@ -65,22 +65,29 @@ class Many2OneField extends RelationalField{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
-        if ($sql_query->debug > 1) 'M2O['.$this->name.']: '.print_r($fields, true).'<br>';
+        if ($sql_query->debug > 1) echo 'M2O['.$this->name.']: '.print_r($fields, true).'<br>';
         $robj = $this->get_relation_object();
         if ((count($fields) == 0)||($fields[0] == $this->relation_object_key)){
             if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){
                 $obj = $this->object;
                 $pa = $parent_alias->alias;
                 $operator = $context['operator'];
-                $op_data = $context['op_data'];
+                $op_data = trim($context['op_data']);
+                if (strlen($op_data) && $op_data[0] == '('){
+                    $cmp_operator = ' IN ';
+                }else{
+                    $cmp_operator = '=';
+                }
+                
+                
                 $ta = $sql_query->get_new_table_alias();
                 switch($operator){
                     case 'parent_of':
-                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
+                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
                         $parent_alias->set_used();
                         break;
                     case 'child_of':
-                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.'='.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
+                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
                         $parent_alias->set_used();
                         break;
                 }
