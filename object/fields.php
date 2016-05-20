@@ -5,6 +5,7 @@ abstract class Field{
     var $object=null;
     var $unique=false;
     var $primary_key=false;
+    var $index=false;
     var $key=false;
     var $stored=true;
     var $relational = false;
@@ -73,7 +74,7 @@ abstract class Field{
     }
 
     function get_sql_def_flags(){
-        return ($this->primary_key?' PRIMARY KEY':'');
+        return ($this->primary_key?' PRIMARY KEY':($this->index?' INDEX':''));
     }
 
     function get_sql_extra(){
