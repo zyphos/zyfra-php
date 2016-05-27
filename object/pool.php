@@ -4,6 +4,7 @@ class Pool{
     protected $pool = array();
     protected static $instance;
     protected $auto_create = false;
+    protected $language_object_name = 'language';
 
     private function __construct(){
         // private = Avoid construct this object
@@ -63,5 +64,8 @@ class Pool{
     function get_available_objects(){
     	return array();
     }
+    
+    public function get_language_object_name(){
+        return $this->language_object_name;
+    }
 }
-?>

@@ -21,14 +21,25 @@ class TextField extends Field{
 
     function sql_write($sql_write, $value, $fields, $context){
         if ($this->read_only) return;
-        $ctx = $sql_write->context;
-        $language_id = array_get($ctx, 'language_id');
-        if (!$this->translate || !$language_id){
+        if (!$this->translate){
+            return parent::sql_write($sql_write, $value, $fields, $context);
+        }
+        $language_id = array_get($sql_write->context, 'language_id');
+        $parameter = array_get($context, 'parameter');
+        $t = &$this->translate;
+        $object_tr = $this->object->_pool->{$t['object']};
+        if (is_numeric($parameter)){
+            $language_id = (int)$parameter;
+        }elseif($parameter){
+            $language_ids = $object_tr->name_search($parameter);
+            if (count($language_ids) == 1) $language_id = $language_ids[0];
+        }
+        
+        if (!$language_id){
             parent::sql_write($sql_write, $value, $fields, $context);
             return;
         }
-        $t = $this->translate;
-        $object_tr = $this->object->_pool->{$t['object']};
+        
         //'column'=>$name, 'key'=>'source_id', 'language_id'=>'language_id'
         $where = $t['key'].' IN %s AND '.$t['language_id'].'=%s';
         $where_values = array($sql_write->ids, $language_id);
@@ -76,16 +87,17 @@ class TextField extends Field{
                 //Add field
                 $pool->{$tr_name}->add_column($name, $this->__get_translate_col_instance());
             }else{
-                if (!$pool->object_in_pool('language')){
+                $language_object_name = $pool->get_language_object_name();
+                if (!$pool->object_in_pool($language_object_name)){
                     $lg_obj = new ObjectModel($pool, array(
-                            '_name'=>'language',
+                            '_name'=>$language_object_name,
                         '_columns'=>array('name'=>new CharField('Name', 30))));
-                    $pool->add_object('language', $lg_obj);
+                    $pool->add_object($language_object_name, $lg_obj);
                 }
                 $tr_obj = new ObjectModel($pool, array(
                             '_name'=>$tr_name,
                       '_columns'=>array(
-                        'language_id'=>new Many2OneField('Language', 'language'), 
+                        'language_id'=>new Many2OneField('Language', $language_object_name), 
                         'source_id'=>new Many2OneField('Source row id', $object->_name),
                 $name=>$this->__get_translate_col_instance())));
 
