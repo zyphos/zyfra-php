@@ -93,6 +93,7 @@ class ObjectModel{
     var $_instanciated = false;
     var $_form_view_fields = null;
     var $_tree_view_fields = null;
+    protected $_name_search_fieldname = 'name';
 
     function __construct($pool, $args = null){
         if(is_array($args)){
@@ -450,8 +451,12 @@ class ObjectModel{
         }
         return $txt;
     }
-
+    
+    public function name_search($txt, $context=array(), $operator='='){
+        // Return ids corresponding to search on name
+        $where = 'WHERE '.$this->_pool->db->safe_sql($this->_name_search_fieldname.' '.$operator.' %s', array($txt));
+        return $this->get_scalar_array($this->_key, null, $where, $context);
+    } 
 }
 
 require_once('object/objects/meta.php');
-?>
