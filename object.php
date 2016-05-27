@@ -190,9 +190,11 @@ class ObjectModel{
             foreach($this->_columns as $name=>$column){
                 if (!$column->stored) continue;
                 $columns_def[] = $name.' '.$column->get_sql_def().$column->get_sql_def_flags();
+                if ($column->index) $columns_def[] = 'INDEX ('.$name.')';
             }
             $sql = 'CREATE TABLE '.$this->_table.' ('.implode(',', $columns_def).')';
             $db->query($sql);
+            $this->after_table_creation();
         }else{
             $sql = 'SHOW COLUMNS FROM '.$this->_table;
             $fields = $db->get_array_object($sql, 'Field');
@@ -217,6 +219,10 @@ class ObjectModel{
             }
         }
         $this->__update_sql_done = true;
+    }
+    
+    protected function after_table_creation(){
+        //Can be overrided
     }
 
     function __add_default_values($values, $default = false){

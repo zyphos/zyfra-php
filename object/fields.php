@@ -74,7 +74,7 @@ abstract class Field{
     }
 
     function get_sql_def_flags(){
-        return ($this->primary_key?' PRIMARY KEY':($this->index?' INDEX':''));
+        return ($this->primary_key?' PRIMARY KEY':'');
     }
 
     function get_sql_extra(){
