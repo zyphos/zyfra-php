@@ -4,6 +4,9 @@ require_once('sql_interface.php');
 
 class OM_SQLcreate extends OM_SQLinterface{
     function create($values_array, $require_ids){
+        if (count($obj->__after_create_fields)){
+            $require_ids = true;
+        }
         $obj = $this->object;
         $columns = array();
         $sql_columns = array();
@@ -86,6 +89,7 @@ class OM_SQLcreate extends OM_SQLinterface{
             throw new Exception('Insert error: '.$sql.' - '.mysql_error());
             }
             $id = $obj->_pool->db->insert_id();
+            $ids = array($id);
         }
         
         
@@ -102,7 +106,10 @@ class OM_SQLcreate extends OM_SQLinterface{
             }else{
                 $value = $obj->_columns[$column]->default_value;
             }
-            $obj->_columns[$column]->after_create_trigger($id, $value, $context);
+            
+            foreach($ids as $id){
+                $obj->_columns[$column]->after_create_trigger($id, $value, $context);
+            }
         }
         if ($require_ids){
             return $ids;
