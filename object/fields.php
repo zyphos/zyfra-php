@@ -26,6 +26,10 @@ abstract class Field{
         }
         $this->needed_columns = array();
     }
+    
+    public function is_stored(&$context){
+        return $this->stored;
+    }
 
     function sql_create($sql_create, $value, $fields, $context){
         return $this->sql_format($value);

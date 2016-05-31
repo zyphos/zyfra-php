@@ -244,7 +244,7 @@ class ObjectModel{
         * $values = array[](column: value, col2: value2);
         */
         if ($this->_read_only || count($values) == 0) return null;
-        $require_ids = isset($context['require_ids'])?$context['require_ids']:false;
+        /*$require_ids = isset($context['require_ids'])?$context['require_ids']:false;
         $values2add = array();
         if(is_int(key($values))){
             $multi_values=true;
@@ -261,21 +261,31 @@ class ObjectModel{
         
         $ids = array();
         foreach($values2add as $values){
-            $sql_create = new OM_SQLcreate($this, $context);
+            $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
             $id = $sql_create->create($values, $require_ids);
             if ($require_ids){
                 $ids = array_merge($ids, $id);
             }
         }
-        if ($require_ids) return $ids;
-        return $id;
+        if ($require_ids) return $ids;*/
+        if(is_int(key($values))){
+            $ids = array();
+            foreach($values as $values_data){
+                $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
+                $ids[] = $sql_create->create($values_data);
+            }
+            return $ids;
+        }else{
+            $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
+            return $sql_create->create($values);
+        }
     }
 
     function write($values, $where, $where_datas = array(), $context = array()){
         if ($this->_read_only) return null;
         if (is_int($where)) $where = $this->_key.'='.$where;
         if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
-        $sql_write = new SQLWrite($this, $values, $where, $where_datas, $context);
+        $sql_write = new zyfra\orm\SQLWrite($this, $values, $where, $where_datas, $context);
         return $sql_write->result;
     }
 

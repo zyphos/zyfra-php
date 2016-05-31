@@ -1,4 +1,16 @@
 <?
+namespace zyfra\orm; 
+
+class Callback{
+    public $function_name;
+    public $return_value;
+
+    public function __construct($function_name, $return_value){
+        $this->function_name = $function_name;
+        $this->return_value = $return_value;
+    }
+}
+
 class OM_SQLinterface{
     var $callbacks;
     var $object;
@@ -9,8 +21,7 @@ class OM_SQLinterface{
         $this->context = $context;
     }
 
-    function add_callback($field_object, $callback_name){
-        $this->callbacks[] = array($field_object, $callback_name);
+    function add_callback($field_object, $callback_name, $parameters=array()){
+        $this->callbacks[] = array(array($field_object, $callback_name), $parameters);
     }
 }
-?>

@@ -1,4 +1,6 @@
 <?
+namespace zyfra\orm;
+
 class SQLWrite extends OM_SQLinterface{
     function __construct($object, $values, $where, $where_datas, $context){
         parent::__construct($object, $context);
@@ -59,4 +61,3 @@ class SQLWrite extends OM_SQLinterface{
         $this->col_assign_data[] = $data;
     }
 }
-?>

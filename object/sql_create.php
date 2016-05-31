@@ -1,13 +1,95 @@
 <?
+namespace zyfra\orm;
+
 require_once('tools.php');
 require_once('sql_interface.php');
 
 class OM_SQLcreate extends OM_SQLinterface{
-    function create($values_array, $require_ids){
+    function create($values){
+        $obj = &$this->object;
+        $this->debug = array_get($this->context, 'debug', false);
+        $treated_columns = array(); 
+        $sql_values = array();
+        // Parse all values and fieldname
+        foreach($values as $col_name=>$value){
+            $fields = specialsplit($col_name, '.');
+            $field = array_shift($fields);
+            list($field_name, $field_data) = specialsplitparam($field);
+            $ctx = $this->context; // Copy context
+            $ctx['parameter'] = $field_data;
+            if (!isset($obj->_columns[$field_name])){
+                throw new \Exception('Column '.$field_name.' does not exist in object['.$obj->name.']');
+            }
+            $col_obj = $obj->_columns[$field_name];
+            if (!is_object($col_obj)){
+                throw new \Exception('Column '.$field_name.' does not exist in object['.$obj->name.']');
+            }
+            $sql_value = $col_obj->sql_create($this, $value, $fields, $ctx);
+            if ($sql_value instanceof \zyfra\orm\Callback){
+                $this->add_callback($col_obj, $sql_value->function_name, array($this, $value, $fields, $ctx));
+                $sql_value = $sql_value->return_value;
+            }
+            if($col_obj->is_stored($ctx)) $sql_values[$field_name] = $sql_value;
+            $treated_columns[] = $field;
+        }
+        
+        // Add datetimes
+        $date = gmdate("'Y-m-d H:i:s'");
+        if (!is_null($obj->_create_date) && !in_array($obj->_create_date, $treated_columns)){
+            $sql_values[$obj->_create_date] = $date;
+            $treated_columns[] = $obj->_create_date;
+        }
+        if (!is_null($obj->_write_date) && !in_array($obj->_write_date, $treated_columns)){
+            $sql_values[$obj->_write_date] = $date;
+            $treated_columns[] = $obj->_write_date;
+        }
+        
+        // Do default values
+        foreach($obj->_columns as $field_name=>$column){
+            if (in_array($field_name, $treated_columns)) continue;
+            $default_value = $column->get_default();
+            if (!is_null($default_value)) $sql_values[$field_name] = $default_value; 
+        }
+        
+        // Do the insert SQL
+        $sql = 'INSERT INTO '.$obj->_table.' ('.implode(',', array_keys($sql_values)).') VALUES ('.implode(',',$sql_values).')';
+        if ($this->debug){
+            \zyfra_debug::print_set('CREATE:', $sql);
+        }
+        
+        $res = $obj->_pool->db->query($sql);
+        if ($res === false){
+            throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+        }
+        $id = $obj->_pool->db->insert_id();
+        
+        // Treat all callback and after write
+        $context = $this->context; // copy context
+        
+        foreach($this->callbacks as $callback){
+            list($function_def, $params) = $callback;
+            $params[] = $id;
+            call_user_func_array($function_def, $params);
+        }
+        
+        // TODO: check code below
+        foreach($obj->__after_create_fields as $column=>$none){
+            if (array_key_exists($column, $values)) {
+                $value = $values[$column];
+            }else{
+                $value = $obj->_columns[$column]->get_default();
+            }
+        
+            $obj->_columns[$column]->after_create_trigger($this, $id, $value, $context);
+        }
+        return $id;
+    }
+    
+    /*function create_old($values_array, $require_ids){
+        $obj = $this->object;
         if (count($obj->__after_create_fields)){
             $require_ids = true;
         }
-        $obj = $this->object;
         $columns = array();
         $sql_columns = array();
         foreach(array_keys(current($values_array)) as $col_name){
@@ -20,7 +102,7 @@ class OM_SQLcreate extends OM_SQLinterface{
             if (!is_object($col_obj)){
                 throw new Exception('Column '.$field_name.' do not exists in object['.$obj->name.']');
             }
-            if($col_obj->stored) $sql_columns[] = $field_name;
+            if($col_obj->is_stored($ctx)) $sql_columns[] = $field_name;
             $columns[] = array($col_obj, $field_name, $ctx, $fields);
         }
         $added_time = array();
@@ -39,14 +121,10 @@ class OM_SQLcreate extends OM_SQLinterface{
             foreach($columns as $col){
                 list($col_obj, $field_name, $ctx, $fields) = $col;
                 $value = $values[$field_name];
-                if($col_obj->stored){
+                if($col_obj->is_stored($ctx)){
                     if(!is_array($value)) $value = array($value);
                     foreach($value as $val){
                         $new_value = $col_obj->sql_create($this, $val, $fields, $ctx);
-                        /*if ($new_value == null) {
-                        	$column2del[] = $field_name;
-                        	continue;
-                        }*/
                         $new_sql_value_array = array();
                         foreach($sql_values_array as &$row){
                             $new_row = $row; //copy
@@ -108,13 +186,12 @@ class OM_SQLcreate extends OM_SQLinterface{
             }
             
             foreach($ids as $id){
-                $obj->_columns[$column]->after_create_trigger($id, $value, $context);
+                $obj->_columns[$column]->after_create_trigger($this, $id, $value, $context);
             }
         }
         if ($require_ids){
             return $ids;
         }
         return $id;
-    }
+    }*/
 }
-?>

@@ -256,4 +256,3 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
     }
     return $ret;
 }
-?>
