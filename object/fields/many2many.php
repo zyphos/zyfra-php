@@ -134,6 +134,16 @@ class Many2ManyField extends One2ManyField{
         }
         return parent::get_sql($parent_alias, $new_fields, $sql_query, $new_ctx);
     }
+    
+    function sql_create($sql_create, $value, $fields, $context){
+        return new zyfra\orm\Callback('sql_create_after_trigger', null);
+    }
+    
+    function sql_create_after_trigger($sql_create, $value, $fields, $context, $id){
+        $fake_sql_write = new stdClass;
+        $fake_sql_write->ids = array($id);
+        $this->sql_write($fake_sql_write, $value, $fields, $context);
+    }
 
     function sql_write($sql_write, $value, $fields, $context){
         if (!is_array($value)) return;
