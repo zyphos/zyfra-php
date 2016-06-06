@@ -68,7 +68,8 @@ class Many2OneField extends RelationalField{
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
         if ($sql_query->debug > 1) echo 'M2O['.$this->name.']: '.print_r($fields, true).'<br>';
         $robj = $this->get_relation_object();
-        if ((count($fields) == 0)||($fields[0] == $this->relation_object_key)){
+        $nb_fields = count($fields);
+        if (($nb_fields == 0)){ //||($fields[0] == $this->relation_object_key)
             if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){
                 $obj = $this->object;
                 $pa = $parent_alias->alias;
@@ -97,6 +98,7 @@ class Many2OneField extends RelationalField{
             }else{
                 $field_link = $parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
                 $parent_alias->set_used();
+                if ($nb_fields == 0) $field_link = $this->add_operator($field_link, $context);
                 return $field_link;
             }
         }
@@ -135,7 +137,10 @@ class Many2OneField extends RelationalField{
             return null;
         }
         $context['parameter'] = $field_param;
-        return $robj->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
+        $sql_result = $robj->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
+        
+        if ($nb_fields == 0) $sql_result = $this->add_operator($sql_result, $context);
+        return $sql_result;
     }
 
     function sql_create($sql_create, $value, $fields, $context){

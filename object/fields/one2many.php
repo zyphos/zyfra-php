@@ -26,6 +26,9 @@ class One2ManyField extends RelationalField{
         }else{
             $parameter = '';
         }
+        if (isset($context['is_where']) && $context['is_where'] && count($fields) == 0){
+            $fields[] = $this->relation_object_key;
+        }
         $key_field = $parent_alias->alias.'.'.$this->local_key;
         $robject = $this->get_relation_object();
         $sql = 'LEFT JOIN '.$robject->_table.' AS %ta% ON %ta%.'.$this->relation_object_field.'='.$key_field;

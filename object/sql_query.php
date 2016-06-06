@@ -29,8 +29,15 @@ class MqlWhere{
     function __construct($sql_query){
         $this->sql_query = $sql_query;
         $this->operators = array('parent_of', 'child_of');
-        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or', 'in');
-        $this->basic_operators = array('+','-','=',' ','/','*',',','<','>','!','(',')'); 
+        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in');
+        $this->basic_operators = array('+','-','=','/','*','<','>','!','in');
+        $this->parenthesis = array('(',')',' ',',');
+        $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
+        $this->all_operators = array_merge($this->basic_operators, $this->operators);
+    }
+    
+    protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
+        return $this->sql_query->field2sql($field_name, $obj, $ta, $field_alias, $operator, $op_data, true);
     }
 
     function parse($mql_where, $obj=null, $ta=null){
@@ -39,7 +46,67 @@ class MqlWhere{
         $this->obj = $obj;
         $this->ta = $ta;
         $mql_where = trim_inside($mql_where);
-        $fields = specialsplitnotpar($mql_where, $this->basic_operators);
+        $fields = specialsplitnotpar($mql_where, $this->split_char);
+        $previous_empty = false;
+        $previous_value_empty = false;
+        $previous_operator = false;
+        $previous_in = false;
+        for($i=count($fields)-1;$i>0;$i--){
+            if ($i%2==1){
+                if (in_array($fields[$i], $this->basic_operators)){
+                    if ($previous_operator && $previous_value_empty){
+                        $fields[$i] .= $fields[$i+2];
+                        unset($fields[$i+1]);
+                        unset($fields[$i+2]);
+                        $previous_operator = false;
+                        $previous_empty = false;
+                        $previous_value_empty = false;
+                        continue;
+                    }else{
+                        $previous_operator = true;
+                    }
+                }else{
+                    $previous_operator = false;
+                }
+            }else{
+                $previous_value_empty = trim($fields[$i]) == '';
+                if (in_array($fields[$i], $this->operators)){
+                    $fields[$i-1] = $fields[$i];
+                    unset($fields[$i+1]);
+                    unset($fields[$i]);
+                    $i -= 1;
+                    continue;
+                }
+            }
+                
+            if (trim($fields[$i]) == ''){
+                if ($previous_in){
+                    $fields[$i+1] = '';
+                    $fields[$i] = 'in';
+                    $previous_empty = false;
+                    $previous_value_empty = false;
+                    $previous_operator = false;
+                }elseif ($previous_empty){
+                    unset($fields[$i+1]);
+                    unset($fields[$i]);
+                    $previous_empty = false;
+                    $previous_value_empty = false;
+                    $previous_operator = false;
+                }else{
+                    $previous_empty = true;
+                }
+                continue;
+            }else{
+                $previous_empty = false;
+            }
+            if ($fields[$i] == 'in') {
+                $previous_in = true;
+            }else{
+                $previous_in = false;
+            }
+        }
+        $fields = array_merge($fields);
+        
         if ($this->sql_query->debug > 3){
             echo '<pre>Where fields:';
             print_r($fields);
@@ -54,8 +121,8 @@ class MqlWhere{
                 $field = '';
             }elseif (in_array($lfield, $this->reserved_words)){
                 continue;
-            }elseif (isset($fields[$key+4]) && (in_array(strtolower($fields[$key+2]), $this->operators))){
-                $i = 4;
+            }elseif (isset($fields[$key+2]) && (in_array(strtolower($fields[$key+1]), $this->all_operators))){
+                $i = 2;
                 $parenthesis_lvl = 0;
                 $op_data = '';
                 while(isset($fields[$key+$i])){
@@ -71,22 +138,22 @@ class MqlWhere{
                             $parenthesis_lvl--;
                             if ($parenthesis_lvl == 0) break;
                         }else{
-                            $op_data .= $this->sql_query->field2sql($val, $this->obj, $this->ta);;
+                            $op_data .= $this->field2sql($val, $this->obj, $this->ta);
                         }
                     }else{
-                        $op_data .= $this->sql_query->field2sql($val, $this->obj, $this->ta);;
+                        $op_data .= $this->field2sql($val, $this->obj, $this->ta);
                         break;
                     }
                     $i++;
                 }
-                // Rebuild 
-                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+2]), $op_data);
-                for ($j = 4; $j <= $i; $j++){
+                // Rebuild
+                $field = $this->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+1]), $op_data);
+                for ($j = 2; $j <= $i; $j++){
                     $fields[$key+$j] = '';
                 }
-                $fields[$key+2] = '';
+                $fields[$key+1] = '';
             }else{
-                $field = $this->sql_query->field2sql($field, $this->obj, $this->ta);
+                $field = $this->field2sql($field, $this->obj, $this->ta);
             }
         }
         $sql_where = implode('', $fields);
@@ -202,7 +269,7 @@ class SqlQuery{
                 $txt .= '<b>'.strtoupper($key).'</b><br>'.htmlentities($value).'<br>';
             }
             $txt .= '<b>Context:</b><pre>'.print_r($context, true).'</pre>';
-            zyfra_debug::print_set('MQL['.$this->__uid__.']:', $txt);
+            zyfra_debug::print_set('MQL['.$this->__uid__.']: Model['.$this->object->_name.']', $txt);
         }
         $sql = 'SELECT '.$this->parse_mql_fields($mql);
         if(!array_key_exists('order by',$query_datas)){
@@ -491,7 +558,7 @@ class SqlQuery{
         return specialsplitparam($field_name);
     }
 
-    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
+    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data='', $is_where=false){
         if ($obj === null) $obj = $this->object;
         if ($this->debug > 1) echo 'Field2sql['.$obj->_name.'->'.$field_name.']<br>';
         if (is_numeric($field_name)) return $field_name;
@@ -504,7 +571,7 @@ class SqlQuery{
         $field = array_shift($fields);
         list($field_name, $field_data) = specialsplitparam($field);
         if (!array_key_exists($field_name, $obj->_columns)) return $field_name;
-        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator, 'op_data'=>$op_data);
+        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator, 'op_data'=>$op_data, 'is_where'=>$is_where);
         $context = array_merge($this->context, $context);
         return $obj->_columns[$field_name]->get_sql($ta, $fields, $this, $context);
     }

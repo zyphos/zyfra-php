@@ -70,7 +70,17 @@ abstract class Field{
         }
         if ($this->name == $field_alias) $sql_query->no_alias($field_alias);
         $parent_alias->set_used();
-        return $parent_alias->alias.'.'.$this->name;
+        return $this->add_operator($parent_alias->alias.'.'.$this->name, $context);
+    }
+    
+    protected function add_operator($field_sql, &$context){
+        if (isset($context['operator'])){
+            $operator = $context['operator'];
+            if ($operator == 'in') $operator = ' in ';
+            $op_data = trim($context['op_data']);
+            return $field_sql.$operator.$op_data;
+        }
+        return $field_sql;
     }
 
     function get_sql_def(){

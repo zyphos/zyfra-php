@@ -136,20 +136,26 @@ class TextField extends Field{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
-        $this_sql = parent::get_sql($parent_alias, $fields, $sql_query, $context);
+        if (isset($context['operator'])){
+            $new_context = $context; // Copy array
+            unset($new_context['operator']);
+        }else{
+            $new_context = &$context;
+        }
+        $this_sql = parent::get_sql($parent_alias, $fields, $sql_query, $new_context);
         if (!$this->translate){
-            return $this_sql;
+            return $this->add_operator($this_sql, $context);
         }
         if (array_key_exists('parameter', $context) && $context['parameter'] != ''){
             $language_id = (int)$context['parameter'];
         }else{
             $language_id = array_get($sql_query->context, 'language_id');
         }
-        if (!$language_id) return $this_sql;
+        if (!$language_id) return $this->add_operator($this_sql, $context);
         $context = array('parameter'=>$this->translate['language_id'].'='.$language_id);
         $fields = array($this->translate['column']);
         $tr_sql = $this->object->_columns['_translation']->get_sql($parent_alias, $fields, $sql_query, $context);
-        return 'coalesce('.$tr_sql.','.$this_sql.')';
+        return $this->add_operator('coalesce('.$tr_sql.','.$this_sql.')', $context);
     }
 
     function get_sql_def(){
