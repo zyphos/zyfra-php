@@ -145,9 +145,18 @@ class Many2OneField extends RelationalField{
 
     function sql_create($sql_create, $value, $fields, $context){
         if (count($fields)==0){
-        	$remote_column = $this->get_relation_object()->_columns[$this->relation_object_key];
-        	return $remote_column->sql_create($sql_create, $value, $fields, $context);
-            //return parent::sql_create($sql_create, $value, $fields, $context);
+            $relation_object = $this->get_relation_object();
+        	$remote_column = $relation_object->_columns[$this->relation_object_key];
+        	try{
+        	    return $remote_column->sql_create($sql_create, $value, $fields, $context);
+        	}catch(UnexpectedValueException $e){
+        	}
+        	// Try to search it
+        	$ids = $relation_object->name_search($value, $context);
+        	if (count($ids) != 1){
+        	    throw new UnexpectedValueException('Can not found match for this value. ['.$value.']');
+        	}
+        	return $remote_column->sql_create($sql_create, $ids[0], $fields, $context);
         }
         //Handle subfield (meanfull ?)
         return null;

@@ -11,6 +11,7 @@ class IntField extends Field{
     }
 
     function sql_format($value){
+        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected.');
         return (int)$value;
     }
 
@@ -32,6 +33,7 @@ class FloatField extends Field{
     var $widget='float';
     
     function sql2php($value){
+        if (!is_numeric($value)) throw new UnexpectedValueException('Float value is expected.');
     	return (float)$value;
     }
 
@@ -48,6 +50,7 @@ class DoubleField extends Field{
     var $widget='double';
     
     function sql2php($value){
+        if (!is_numeric($value)) throw new UnexpectedValueException('Double value is expected.');
     	return (double)$value;
     }
 
