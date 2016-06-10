@@ -414,6 +414,22 @@ class ObjectModel{
         return $txt;
     }
     
+    function get_svg_full_diagram($max_depth=0){
+        $dot_data = $this->get_dot_full_diagram($max_depth);
+        $process = proc_open('dot -Tsvg',
+                             array(array('pipe','r'),
+                                   array('pipe','w'),
+                                   array('pipe','r')),
+                             $pipes);
+        if(!is_resource($process)) throw new Exception('Can not call dot');
+        fwrite($pipes[0], $dot_data);
+        fclose($pipes[0]);
+        $svg_data = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        $return_value = proc_close($process);
+        return $svg_data;
+    }
+    
     function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
         if ($relations==null) $relations = array();
         $name_under = str_replace('.','_', $this->_name);
