@@ -42,9 +42,9 @@ class zyfra_db_query{
 }
 
 class zyfra_db_common {
-    var $link=false;
-    var $db_selected=false;
-    var $page_nr=0;
+    protected $link=false;
+    protected $db_selected=false;
+    protected $page_nr=0;
     var $nb_rows=0;
     var $nb_pages=0;
     var $nb_row_per_page=0;
@@ -62,17 +62,17 @@ class zyfra_db_common {
         $this->queries = array();
     }
 
-    function IsConnected(){
+    protected function IsConnected(){
         if($this->link==false) return false;
         return true;
     }
 
-    function IsDBSelected(){
+    protected function IsDBSelected(){
         if($this->db_selected==false) return false;
         return true;
     }
 
-    function query($sql){
+    public function query($sql){
         $nb_queries = count($this->queries);
         if ($nb_queries) $this->queries[$nb_queries-1]->stop();
         $this->queries[] = new zyfra_db_query($sql);
@@ -80,7 +80,7 @@ class zyfra_db_common {
         if ($this->log) echo $sql."<br>\n";
     }
 
-    function pre_query(){
+    protected function pre_query(){
         if (!$this->IsConnected()){
             if (!$this->connect()){
                 echo "Can't connect to database";
@@ -97,7 +97,7 @@ class zyfra_db_common {
         return true;
     }
 
-    function get_array($sql,$key='',$value='', $datas=array()){
+    public function get_array($sql,$key='',$value='', $datas=array()){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
@@ -129,7 +129,7 @@ class zyfra_db_common {
         return $temp;
     }
 
-    function get_array_object($sql,$idRow='', $datas=array()){
+    public function get_array_object($sql,$idRow='', $datas=array()){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
@@ -148,11 +148,11 @@ class zyfra_db_common {
         return $resultArray;
     }
 
-    function get_nb_query(){
+    public function get_nb_query(){
         return $this->nb_query;
     }
 
-    function get_pages_link($url,$separator="&nbsp;&nbsp;",$next_prev=true){
+    public function get_pages_link($url,$separator="&nbsp;&nbsp;",$next_prev=true){
         /*if(stripos($url,"?") === false){
          $url .= "?";
          }else{
@@ -196,7 +196,7 @@ class zyfra_db_common {
         return $content;
     }
 
-    function show_error($the_query,$err_no=0,$err=""){
+    protected function show_error($the_query,$err_no=0,$err=""){
         global $security;
 
         $sql="<table bgcolor='grey' style='color:black;'>";
@@ -230,7 +230,7 @@ class zyfra_db_common {
         $this->errors2mail .= $the_html_error;
     }
 
-    function get_object($sql, $datas = array()){
+    public function get_object($sql, $datas = array()){
         if($sql!=$this->last_query || $this->last_query_datas!=$datas){
             $this->result=$this->safe_query($sql, $datas);
             $this->last_query = $sql;
@@ -243,7 +243,7 @@ class zyfra_db_common {
         return $obj;
     }
 
-    function safe_var($data){
+    public function safe_var($data){
         //Counter-injection function
         if (is_array($data)){
             $res = array();
@@ -256,7 +256,7 @@ class zyfra_db_common {
         return $data;
     }
 
-    function var2sql($var, $safe=false){
+    public function var2sql($var, $safe=false){
         if ($var === null) return 'null';
         if (is_array($var)){
             if(count($var) == 0) throw new Exception('Array parameter is empty !');
@@ -272,7 +272,7 @@ class zyfra_db_common {
         return $var;
     }
 
-    function safe_sql($sql, $datas = array()){
+    public function safe_sql($sql, $datas = array()){
         /*
          * Safe sql against Database (avoid SQL injection)
          * @param $sql: SQL statement
@@ -296,7 +296,7 @@ class zyfra_db_common {
         return $new_sql;
     }
 
-    function safe_query($sql, $datas = array()){
+    public function safe_query($sql, $datas = array()){
         /*
          * Safe query against Database (avoid SQL injection)
          * @param $sql: SQL statement
@@ -311,7 +311,7 @@ class zyfra_db_common {
         return $this->query($new_sql);
     }
      
-    function __destruct(){
+    public function __destruct(){
         /*if (strlen($this->errors2mail)>0){
          //Email the error to webmaster@matedex.be
          $mailError = new htmlMimeMail5();
@@ -323,16 +323,16 @@ class zyfra_db_common {
     }
 
     //Compatibility
-    function get_row_object($sql){
+    public function get_row_object($sql){
         return $this->get_object($sql);
     }
 
-    function getArrayObject($sql,$idRow=""){
+    public function getArrayObject($sql,$idRow=""){
         //Compatibility
         return $this->get_array_object($sql, $idRow);
     }
 
-    function safeVar($data){
+    public function safeVar($data){
         return $this->safe_var($data);
     }
 }
