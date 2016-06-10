@@ -364,14 +364,16 @@ class ObjectModel{
     	$view = array();
     	foreach($fields_list as $name){
     		$column = $this->_columns[$name];
-    		$col = array('name'=>$name,
+    		$col = (object)array('name'=>$name,
+    		        'label'=>$column->label,
+    		        'default_value'=>$column->default_value,
     				'widget'=>$column->widget,
     				'required'=>$column->required,
     				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
     				'is_key'=>($name==$this->_key));
     		if (isset($column->relation_object_name)){
-    			$col['relation_object_name'] = $column->relation_object_name;
-    			$col['relation_object_key'] = $column->relation_object_key;
+    			$col->relation_object_name = $column->relation_object_name;
+    			$col->relation_object_key = $column->relation_object_key;
     		}
     		$view[] = $col;
     	}
