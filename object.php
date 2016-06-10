@@ -369,6 +369,7 @@ class ObjectModel{
     		        'default_value'=>$column->default_value,
     				'widget'=>$column->widget,
     				'required'=>$column->required,
+    		        'help'=>$column->help,
     				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
     				'is_key'=>($name==$this->_key));
     		if (isset($column->relation_object_name)){

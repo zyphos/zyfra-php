@@ -16,6 +16,7 @@ abstract class Field{
     var $read_only=false;
     var $instanciated=false;
     var $sql_escape_fx=null;
+    var $help='';
 
     function __construct($label, $args = null){
         $this->label = $label;
