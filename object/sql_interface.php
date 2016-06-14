@@ -14,11 +14,13 @@ class Callback{
 class OM_SQLinterface{
     var $callbacks;
     var $object;
+    var $debug;
 
     function __construct($object, $context){
         $this->object = $object;
         $this->callbacks = array();
         $this->context = $context;
+        $this->debug = array_get($context, 'debug', false);
     }
 
     function add_callback($field_object, $callback_name, $parameters=array()){

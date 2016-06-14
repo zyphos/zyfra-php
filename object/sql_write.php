@@ -1,5 +1,6 @@
 <?
 namespace zyfra\orm;
+require_once(dirname(__FILE__).'/../debug.php');
 
 class SQLWrite extends OM_SQLinterface{
     function __construct($object, $values, $where, $where_datas, $context){
@@ -19,6 +20,9 @@ class SQLWrite extends OM_SQLinterface{
         $old_values = array();
         $db = $object->_pool->db;
         $sql = 'SELECT '.$object->_key.' FROM '.$object->_table.' WHERE '.$where;
+        if ($this->debug){
+            zyfra_debug::print_set('WRITE SQL: Model['.$this->object->_name.']', htmlentities($sql));
+        }
         $this->ids = $db->get_array($sql, $object->_key, '', $where_datas);
         if (count($this->ids) == 0) return true;
         foreach($values as $column=>$value){
@@ -43,6 +47,9 @@ class SQLWrite extends OM_SQLinterface{
         }
         if (count($this->col_assign) == 0) return true;
         $sql = 'UPDATE '.$object->_table.' AS t0 SET '.implode(',', $this->col_assign).' WHERE '.$where;
+        if ($this->debug){
+            zyfra_debug::print_set('WRITE SQL: Model['.$this->object->_name.']', htmlentities($sql));
+        }
         $r = $db->safe_query($sql, array_merge($this->col_assign_data, $where_datas));
         /*foreach($this->callbacks as $callback){
          call_user_func($callback, $this, $values[$col_name], $this->ids, $context);
