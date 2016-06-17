@@ -95,5 +95,13 @@ class zyfra_debug{
     static function print_set($title, $content){
         echo '<fieldset style=\'background:#EEE\';><legend style=\'background:#CCC\'><b>'.$title.'</b></legend>'.$content.'</fieldset>';
     }
+    
+    static function depreciated_function(){
+        if (E_WARNING & error_reporting()){
+            $back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+            //print_r($back_trace);
+            echo '<b>Warning:</b> <b>'.$back_trace['function'].'</b> is a obsolete function. in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
+        }
+    }
 }
 ?>

@@ -48,6 +48,8 @@
 * 
 *****************************************************************************/
 
+require_once('debug.php');
+
 function remove_accent($str){
     //return strtr($chaine,
     //   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
@@ -145,20 +147,20 @@ class zyfra_template{
         $this->template_path='';
     }
     
-    function set_template_path($template_path){
+    public function set_template_path($template_path){
         $this->template_path = $template_path;
         return $this;
     }
        
-    function get_template_file(){
+    public function get_template_file(){
         return $this->template_path.$this->template.'.php';
     }
     
-    function get_template_filename(){
+    public function get_template_filename(){
         return $this->template.'.php';
     }
     
-    function set($var_name, $value=''){
+    public function set($var_name, $value=''){
         if(is_array($var_name)){
             $this->vars = array_merge($this->vars, $var_name);
         }else{
@@ -167,11 +169,12 @@ class zyfra_template{
         return $this;
     }
     
-    function assign($var_name, $value=''){ // Used for backward compatibility
+    public function assign($var_name, $value=''){ // Used for backward compatibility
+        zyfra_debug::depreciated_function();
         return $this->set($var_name, $value);
     }
     
-    function fetch(){
+    public function fetch(){
         ob_start();
         extract($this->vars);
         $_tpl_path = $this->template_path;
