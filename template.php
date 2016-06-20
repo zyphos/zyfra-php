@@ -138,13 +138,13 @@ function html_select($name, $values, $selected=null, $attribute=null){
 
 class zyfra_template{
     private $template;
-    protected $template_path;
-    private $vars;
+    protected $template_path = '';
+    private $vars = array();
     
-    function __construct($template){
+    function __construct($template, $stack_level=1){
         $this->template = $template;
-        $this->vars = array();
-        $this->template_path='';
+        $template_file = $this->get_template_file();
+        if (!file_exists($template_file)) zyfra_debug::show_warning('Template <b>'.$template_file.'</b> not found.', $stack_level);
     }
     
     public function set_template_path($template_path){
@@ -177,7 +177,6 @@ class zyfra_template{
     public function fetch(){
         ob_start();
         extract($this->vars);
-        $_tpl_path = $this->template_path;
         require $this->get_template_file();
         $content = ob_get_contents();
         ob_end_clean();
