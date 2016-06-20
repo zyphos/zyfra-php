@@ -103,5 +103,12 @@ class zyfra_debug{
             echo '<b>Warning:</b> <b>'.$back_trace['function'].'</b> is a obsolete function. in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
         }
     }
+    
+    static function show_warning($text='', $stack_level=1){
+        if (E_WARNING & error_reporting()){
+            $back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stack_level+1)[$stack_level];
+            //print_r($back_trace);
+            echo '<b>Warning:</b> '.$text.' in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
+        }
+    }
 }
-?>
