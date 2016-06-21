@@ -191,6 +191,11 @@ function specialsplitnotpar($string, $split_var = ',') {
 }
 
 function multispecialsplit($string, $split_var = ',', $return_key=false, $key_index = false) {
+    //echo 'string:'.htmlentities($string).'<br>';
+    //print_r($split_var);
+    //echo '<br>';
+    //$back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0];
+    //echo '<b>Warning:</b>  in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
     //Specialsplit with multi character $split_var
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
@@ -203,10 +208,17 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
     $ignore = '';
     if(!is_array($split_var)) $split_var = array($split_var);
     $split_vars = array();
-    foreach ($split_var as $sv){
-        $split_varts[$sv] = strlen($sv);
-    }
+    $one_key_found = false; 
+    $split_varts = array();
     $str_len = strlen($string);
+    foreach ($split_var as $sv){
+        if (strlen($sv) <= $str_len && strpos($string, $sv) !== false) $split_varts[$sv] = strlen($sv);
+    }
+    //echo 'split varts:';
+    //print_r($split_varts);
+    //echo '<br>';
+    if (!count($split_varts)) return array($string); // Stop losing time
+    //echo '---ok---<br><br>';
     $ret_cur = &$ret[$cur];
     for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
@@ -255,4 +267,74 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
         }
     }
     return $ret;
+}
+
+function r_multi_split_array($string, $split_var = array()) {
+    // Reverse multi split with associative array as result
+    // Split var only appears once.
+    
+    $string_len = strlen($string);
+    
+    $split_var_len = array();
+    foreach ($split_var as $sv){
+        $sv_len = strlen($sv);
+        if ($sv_len <= $string_len && strpos($string, $sv) !== false) {
+            $split_var_len[$sv] = strlen($sv);
+        }
+    }
+    if (!count($split_var_len)) return array(''=>$string); // Stop losing time
+    $min_len = min($split_var_len);
+    
+    $level = 0;       // number of nested sets of brackets
+    $buffer = '';
+    $ignore = '';
+    $min_len--;
+    $result = array();
+    for ($i=$string_len-1; $i >= $min_len; $i--){
+        $c = $string[$i];
+        if ((($c == '"') || ($c == "'")) && ($level == 0)){
+            if ($c == $ignore){
+                $ignore = '';
+            }elseif($ignore == ''){
+                $ignore = $c;
+            }
+            $buffer = $c . $buffer;
+            continue;
+        }elseif ($ignore != ''){
+            $buffer = $c . $buffer;
+            continue;
+        }
+        switch ($c) {
+            case '(':
+            case '[':
+                $level++;
+                $buffer = $c . $buffer;
+                break;
+            case ')':
+            case ']':
+                $level--;
+                $buffer = $c . $buffer;
+                break;
+            default:
+                if ($level == 0){
+                    foreach ($split_var_len as $sv=>$sv_len){
+                        $i_start = $i - $sv_len + 1;
+                        if ($i_start < 0) continue;
+                        if($string[$i_start]==$sv[0] && substr($string, $i_start, $sv_len)==$sv){
+                            $result[$sv] = $buffer;
+                            $buffer = '';
+                            $i -= $sv_len;
+                            unset($split_var_len[$sv]);
+                            if (!count($split_var_len)) break 3;
+                            $min_len = min($split_var_len) - 1;
+                            break 2;
+                        }
+                    }
+                }
+                $buffer = $c . $buffer;
+        }
+    }
+    
+    $result[''] = substr($string, 0, $i+1) . $buffer;
+    return $result;
 }

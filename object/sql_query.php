@@ -177,11 +177,12 @@ class SqlQuery{
     var $required_fields;
     var $remove_from_result;
     var $debug = false;
+    protected $keywords = array('limit', 'order by', 'having', 'group by', 'where');
+    protected $keywords_split = array('limit ', 'order by ', 'having ', 'group by ', 'where ');
     private $rqi = 0; 
 
     function __construct($object, $ta_prefix = ''){
         global $sql_query_id;
-        $this->keywords = array('limit', 'order by', 'having', 'group by', 'where');
         $this->table_alias_prefix = $ta_prefix;
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
@@ -243,7 +244,49 @@ class SqlQuery{
         return $tables;
     }
     
-    function split_keywords($mql){
+    /*function split_keywords_text($mql){
+        $nb_check = 1000;
+        
+        $start = microtime(true);
+        for($i=0;$i<$nb_check;$i++){
+            list($mql_old, $data_old) = $this->split_keywords_old($mql);
+        }
+        $stop = microtime(true);
+        $old_time = $stop-$start;
+        $start = microtime(true);
+        for($i=0;$i<$nb_check;$i++){
+            list($mql_new, $data_new) = $this->split_keywords_new($mql);
+        }
+        $stop = microtime(true);
+        $new_time = $stop-$start;
+        
+        $start = microtime(true);
+        for($i=0;$i<$nb_check;$i++){
+            list($mql_new, $data_new) = $this->split_keywords_new2($mql);
+        }
+        $stop = microtime(true);
+        $new2_time = $stop-$start;
+
+        list($mql_old, $data_old) = $this->split_keywords_old($mql);
+        list($mql_new, $data_new) = $this->split_keywords_new($mql);
+        list($mql_new2, $data_new2) = $this->split_keywords_new2($mql);
+        echo '<h4>old</h4>';
+        print_pre($mql_old);
+        print_pre($data_old);
+        printf("%.3f sec",$old_time);
+        echo '<h4>new</h4>';
+        print_pre($mql_new);
+        print_pre($data_new);
+        printf("%.3f sec",$new_time);
+        echo '<h4>new2</h4>';
+        print_pre($mql_new2);
+        print_pre($data_new2);
+        printf("%.3f sec",$new2_time);
+        echo '<hr>';
+        return array($mql_old, $data_old);
+    }
+    
+    function split_keywords_old($mql){
         $query_datas = array();
         foreach($this->keywords as $keyword){
             $datas = multispecialsplit($mql, $keyword.' ');
@@ -251,6 +294,28 @@ class SqlQuery{
                 $query_datas[$keyword] = trim($datas[1]);
             }
             $mql = $datas[0];
+        }
+        return array($mql, $query_datas);
+    }
+    
+    function split_keywords_new($mql){
+        $datas = multispecialsplit($mql, $this->keywords_split, true);
+        $mql = $datas[0];
+        $nb = count($datas);
+        $query_datas = array();
+        for($i=1; $i < $nb; $i+=2){
+            $query_datas[substr($datas[$i],0,-1)] = $datas[$i+1];
+        }
+        return array($mql, $query_datas);
+    }*/
+    
+    function split_keywords($mql){
+        $datas = r_multi_split_array($mql, $this->keywords_split);
+        $mql = &$datas[''];
+        $query_datas = array();
+        foreach(array_keys($datas) as &$keyword){
+            if ($keyword=='') continue;
+            $query_datas[substr($keyword,0,-1)] = &$datas[$keyword];
         }
         return array($mql, $query_datas);
     }
