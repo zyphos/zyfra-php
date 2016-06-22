@@ -95,12 +95,12 @@ class zyfra_http {
          * RewriteEngine on
          * RewriteRule ^(.*)\.[\d]{10}\.(css|js)$ $1.$2 [L]
          */
-        return preg_replace_callback("/[a-z0-9.\/\_-]*(\.css|\.js)/i", 'zyfra_http::_threat_url_force_reload', $html_content);
+        return preg_replace_callback("/[a-z0-9.\/\_-]+(?:\.css|\.js)/i", 'zyfra_http::_threat_url_force_reload', $html_content);
     }
     
     static function _threat_url_force_reload($matches){
-        $url = $matches[0];
-        if (substr($url,0,1)=='/'){
+        $url = &$matches[0];
+        if ($url[0]=='/'){
             $filename = $_SERVER['DOCUMENT_ROOT'].$url;
         }else{
             $filename = dirname($_SERVER['SCRIPT_FILENAME']).'/'.$url;
