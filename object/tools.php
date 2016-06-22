@@ -140,10 +140,17 @@ function specialsplit($string, $split_var = ',') {
 function specialsplitnotpar($string, $split_var = ',') {
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
+    $string_len = strlen($string);
     $cur = 0;         // current index in the array to return, for convenience
     $ignore = '';
+    $buffer = &$ret[$cur];
+    
+    if (is_array($split_var)){
+        $split_var = array_flip($split_var);
+        $split_var_array = true;
+    }
 
-    for ($i = 0; $i < strlen($string); $i++) {
+    for ($i = 0; $i < $string_len; $i++) {
         $char = $string[$i];
         if ((($char == '"') || ($char == "'")) && ($level == 0)){
             if ($char == $ignore){
@@ -151,40 +158,43 @@ function specialsplitnotpar($string, $split_var = ',') {
             }elseif($ignore == ''){
                 $ignore = $char;
             }
-            $ret[$cur] .= $char;
+            $buffer .= $char;
             continue;
         }elseif ($ignore != ''){
-            $ret[$cur] .= $char;
+            $buffer .= $char;
             continue;
         }
         switch ($char) {
             case '[':
                 $level++;
-                $ret[$cur] .= $string[$i];
+                $buffer .= $char;
                 break;
             case ']':
                 $level--;
-                $ret[$cur] .= $string[$i];
+                $buffer .= $char;
                 break;
             case $split_var:
                 if ($level == 0) {
                     $cur++;
                     $ret[$cur] = '';
+                    $buffer = &$ret[$cur];
                     break;
                 }
                 // else fallthrough
             default:
                 if ($level == 0) {
-                    if (is_array($split_var) && in_array($char, $split_var)){
+                    if ($split_var_array && isset($split_var[$char])){
                         $ret[++$cur] = $char;
                         $ret[++$cur] = '';
+                        $buffer = &$ret[$cur];
                         break;
                     }elseif($char == $split_var){
                         $ret[++$cur] = '';
+                        $buffer = &$ret[$cur];
                         break;
                     }
                 }
-                $ret[$cur] .= $string[$i];
+                $buffer .= $char;
         }
     }
     return $ret;
