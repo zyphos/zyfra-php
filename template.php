@@ -177,6 +177,7 @@ class zyfra_template{
     public function fetch(){
         ob_start();
         extract($this->vars);
+        $_tpl_path = $this->template_path;
         require $this->get_template_file();
         $content = ob_get_contents();
         ob_end_clean();
