@@ -98,7 +98,8 @@ class zyfra_debug{
     
     static function depreciated_function(){
         if (E_WARNING & error_reporting()){
-            $back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1];
+            $back_traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $back_trace = $back_traces[1];
             //print_r($back_trace);
             echo '<b>Warning:</b> <b>'.$back_trace['function'].'</b> is a obsolete function. in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
         }
