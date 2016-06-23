@@ -107,7 +107,8 @@ class zyfra_debug{
     
     static function show_warning($text='', $stack_level=1){
         if (E_WARNING & error_reporting()){
-            $back_trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stack_level+1)[$stack_level];
+            $back_traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stack_level+1);
+            $back_trace = $back_traces[$stack_level];
             //print_r($back_trace);
             echo '<b>Warning:</b> '.$text.' in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
         }
