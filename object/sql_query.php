@@ -313,7 +313,8 @@ class SqlQuery{
         $datas = r_multi_split_array($mql, $this->keywords_split);
         $mql = &$datas[''];
         $query_datas = array();
-        foreach(array_keys($datas) as &$keyword){
+        $keywords = array_keys($datas);
+        foreach($keywords as &$keyword){
             if ($keyword=='') continue;
             $query_datas[substr($keyword,0,-1)] = &$datas[$keyword];
         }
