@@ -37,74 +37,41 @@ class MqlWhere{
     }
     
     protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
+        if ($this->sql_query->debug > 3) {
+            $obj_name = is_null($obj)?'':$obj->_name;
+            zyfra_debug::show_msg('Where Field2sql['.$obj_name.'->'.$field_name.']');
+        }
         return $this->sql_query->field2sql($field_name, $obj, $ta, $field_alias, $operator, $op_data, true);
     }
 
-    function parse($mql_where, $obj=null, $ta=null){
+    function parse($mql_where, $obj, $ta=null){
         $language_id = array_get($this->sql_query->context, 'language_id', 0);
         $mql_where = str_replace('%language_id%', $language_id, $mql_where);
         $this->obj = $obj;
         $this->ta = $ta;
         $mql_where = trim_inside($mql_where);
         $fields = specialsplitnotpar($mql_where, $this->split_char);
-        $previous_empty = false;
-        $previous_value_empty = false;
-        $previous_operator = false;
-        $previous_in = false;
+        $previous_operator = null;
         for($i=count($fields)-1;$i>0;$i--){
-            if ($i%2==1){
-                if (in_array($fields[$i], $this->basic_operators)){
-                    if ($previous_operator && $previous_value_empty){
-                        $fields[$i] .= $fields[$i+2];
-                        unset($fields[$i+1]);
-                        unset($fields[$i+2]);
-                        $previous_operator = false;
-                        $previous_empty = false;
-                        $previous_value_empty = false;
-                        continue;
-                    }else{
-                        $previous_operator = true;
-                    }
+            if (trim($fields[$i]) == ''){
+                unset($fields[$i]);
+                continue;
+            }
+            if (in_array($fields[$i], $this->basic_operators)){
+                if (is_null($previous_operator)){
+                    $previous_operator = $i;
+                    continue;
                 }else{
-                    $previous_operator = false;
-                }
-            }else{
-                $previous_value_empty = trim($fields[$i]) == '';
-                if (in_array($fields[$i], $this->operators)){
-                    $fields[$i-1] = $fields[$i];
-                    unset($fields[$i+1]);
+                    $fields[$previous_operator] = $fields[$i].$fields[$previous_operator];
                     unset($fields[$i]);
-                    $i -= 1;
                     continue;
                 }
-            }
-                
-            if (trim($fields[$i]) == ''){
-                if ($previous_in){
-                    $fields[$i+1] = '';
-                    $fields[$i] = 'in';
-                    $previous_empty = false;
-                    $previous_value_empty = false;
-                    $previous_operator = false;
-                }elseif ($previous_empty){
-                    unset($fields[$i+1]);
-                    unset($fields[$i]);
-                    $previous_empty = false;
-                    $previous_value_empty = false;
-                    $previous_operator = false;
-                }else{
-                    $previous_empty = true;
-                }
-                continue;
             }else{
-                $previous_empty = false;
+                $previous_operator = null;
             }
-            if ($fields[$i] == 'in') {
-                $previous_in = true;
-            }else{
-                $previous_in = false;
-            }
+            if ($fields[$i] == 'in') $fields[$i] = ' in '; 
         }
+
         $fields = array_merge($fields);
         
         if ($this->sql_query->debug > 3){
@@ -115,13 +82,14 @@ class MqlWhere{
         
         foreach($fields as $key=>&$field){
             $lfield = strtolower($field);
-            if($key % 2 == 1) continue;
             if ($field == '') continue;
+            if ($field == ',') continue;
             if (in_array($lfield, $this->operators)){
                 $field = '';
             }elseif (in_array($lfield, $this->reserved_words)){
                 continue;
             }elseif (isset($fields[$key+2]) && (in_array(strtolower($fields[$key+1]), $this->all_operators))){
+                //echo 'operator:'.$fields[$key+1].'<br>';
                 $i = 2;
                 $parenthesis_lvl = 0;
                 $op_data = '';
@@ -146,6 +114,8 @@ class MqlWhere{
                     }
                     $i++;
                 }
+                //echo 'operator:'.$fields[$key+1].'<br>';
+                //echo '$op_data:<br>'.htmlentities($op_data).'<br>';
                 // Rebuild
                 $field = $this->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+1]), $op_data);
                 for ($j = 2; $j <= $i; $j++){
@@ -157,6 +127,8 @@ class MqlWhere{
             }
         }
         $sql_where = implode(' ', $fields);
+        $sql_where = str_replace(' ( ', '(', $sql_where);
+        $sql_where = str_replace(' ) ', ')', $sql_where);
         if ($this->sql_query->debug > 3){
             echo '<pre>Where sql:<br>';
             echo htmlentities($sql_where);
@@ -203,9 +175,9 @@ class SqlQuery{
         $this->table_alias = array();
         //$this->fields_alias = array();
         if ($this->table_alias_prefix != ''){
-            $this->add_table_alias('', $this->table_alias_prefix, null, '');
+            $this->ta = $this->add_table_alias('', $this->table_alias_prefix, null, '');
         }else{
-            $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');    
+            $this->ta = $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');    
         }
         $this->sub_queries = array();
         $this->group_by = array();
@@ -366,7 +338,7 @@ class SqlQuery{
                 $data = call_user_func_array(array($this, 'parse_mql_'.str_replace(' ', '_', $keyword)),array($query_datas[$keyword]));
                 if ($data != '') $sql_words .= ' '.strtoupper($keyword).' '.$data;
             }elseif ($keyword=='where' && array_get($this->context, 'domain', '') != ''){
-                $sql_words .= ' WHERE '.$this->mql_where->parse($this->context['domain']);
+                $sql_words .= ' WHERE '.$this->mql_where->parse($this->context['domain'], $this->object, $this->ta);
             }
         }
         $sql .= ' '.$this->get_table_sql().$sql_words;
@@ -574,7 +546,7 @@ class SqlQuery{
                 $mql_where = $where;
             }
         }
-        $where = $this->mql_where->parse($mql_where);
+        $where = $this->mql_where->parse($mql_where, $this->object, $this->ta);
         if (count($this->where_no_parse)){
             $where_np = '('.implode(')AND(', $this->where_no_parse).')';
             if ($where != ''){
@@ -600,7 +572,7 @@ class SqlQuery{
     }
 
     function parse_mql_having($mql_having){
-        return $this->mql_where->parse($mql_having);
+        return $this->mql_where->parse($mql_having, $this->object, $this->ta);
     }
 
     private function convert_order_by(&$array_order_parsed, $mql_order_by){
