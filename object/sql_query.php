@@ -156,7 +156,12 @@ class MqlWhere{
                 $field = $this->field2sql($field, $this->obj, $this->ta);
             }
         }
-        $sql_where = implode('', $fields);
+        $sql_where = implode(' ', $fields);
+        if ($this->sql_query->debug > 3){
+            echo '<pre>Where sql:<br>';
+            echo htmlentities($sql_where);
+            echo '</pre>';
+        }
         return $sql_where;
     }
 }
@@ -626,8 +631,10 @@ class SqlQuery{
 
     function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data='', $is_where=false){
         if ($obj === null) $obj = $this->object;
-        if ($this->debug > 1) echo 'Field2sql['.$obj->_name.'->'.$field_name.']<br>';
-        if (is_numeric($field_name)) return $field_name;
+        if ($this->debug > 1) {
+            zyfra_debug::show_msg('Field2sql['.$obj->_name.'->'.$field_name.']');
+        }
+        if (is_numeric($field_name) || $field_name == ',' || $field_name == ' ') return $field_name;
         if ($ta === null) $ta = $this->table_alias[''];
         $fx_regex = '/^([a-z_]+)\((.*)\)$/';
         if (preg_match($fx_regex, $field_name, $matches)){
