@@ -36,12 +36,17 @@ class MqlWhere{
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
     }
     
-    protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data=''){
-        if ($this->sql_query->debug > 3) {
+    protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data=''){
+        if ($this->sql_query->debug > 4) {
             $obj_name = is_null($obj)?'':$obj->_name;
             zyfra_debug::show_msg('Where Field2sql['.$obj_name.'->'.$field_name.']');
         }
-        return $this->sql_query->field2sql($field_name, $obj, $ta, $field_alias, $operator, $op_data, true);
+        $res = $this->sql_query->field2sql($field_name, $obj, $ta, $field_alias, $operator, $op_data, true);
+        if ($this->sql_query->debug > 3) {
+            $obj_name = is_null($obj)?'':$obj->_name;
+            zyfra_debug::show_msg('Where Field2sql['.$obj_name.'->'.$field_name.']=>['.$res.']');
+        }
+        return $res;
     }
 
     function parse($mql_where, $obj, $ta=null){
@@ -79,8 +84,9 @@ class MqlWhere{
             print_r($fields);
             echo '</pre>';
         }
-        
-        foreach($fields as $key=>&$field){
+        $nfields = count($fields);
+        for ($key=0;$key<$nfields;$key++){
+            $field = &$fields[$key];
             $lfield = strtolower($field);
             if ($field == '') continue;
             if ($field == ',') continue;
@@ -117,14 +123,21 @@ class MqlWhere{
                 //echo 'operator:'.$fields[$key+1].'<br>';
                 //echo '$op_data:<br>'.htmlentities($op_data).'<br>';
                 // Rebuild
-                $field = $this->field2sql($field, $this->obj, $this->ta, '', strtolower($fields[$key+1]), $op_data);
-                for ($j = 2; $j <= $i; $j++){
-                    $fields[$key+$j] = '';
+                $operator = strtolower($fields[$key+1]);
+                $field = $this->field2sql($field, $this->obj, $this->ta, '', $operator, $op_data);
+                if (is_null($operator)){ // Operator has been treated
+                    for ($j = 1; $j <= $i; $j++){
+                        unset($fields[$key+$j]);
+                    }
                 }
-                $fields[$key+1] = '';
+                $key += $i;
             }else{
                 $field = $this->field2sql($field, $this->obj, $this->ta);
             }
+        }
+        if ($this->sql_query->debug > 4){
+            echo 'Fields after where parse:';
+            zyfra_debug::printr($fields);
         }
         $sql_where = implode(' ', $fields);
         $sql_where = str_replace(' ( ', '(', $sql_where);
@@ -601,7 +614,7 @@ class SqlQuery{
         return specialsplitparam($field_name);
     }
 
-    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', $operator='', $op_data='', $is_where=false){
+    function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data='', $is_where=false){
         if ($obj === null) $obj = $this->object;
         if ($this->debug > 1) {
             zyfra_debug::show_msg('Field2sql['.$obj->_name.'->'.$field_name.']');
@@ -616,9 +629,16 @@ class SqlQuery{
         $field = array_shift($fields);
         list($field_name, $field_data) = specialsplitparam($field);
         if (!array_key_exists($field_name, $obj->_columns)) return $field_name;
-        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'operator'=>$operator, 'op_data'=>$op_data, 'is_where'=>$is_where);
+        $field_obj = &$obj->_columns[$field_name];
+        
+        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'is_where'=>$is_where);
+        if ($field_obj->handle_operator) {
+            $context['operator'] = $operator;
+            $context['op_data'] = $op_data;
+            $operator = null;
+        }
         $context = array_merge($this->context, $context);
-        return $obj->_columns[$field_name]->get_sql($ta, $fields, $this, $context);
+        return $field_obj->get_sql($ta, $fields, $this, $context);
     }
 
     function add_sub_query($robject, $rfield, $sub_mql, $field_alias, $parameter){

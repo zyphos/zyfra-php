@@ -12,6 +12,7 @@ class Many2ManyField extends One2ManyField{
     var $equal2equal = false;
     var $foreign_key;
     var $model_class='ObjectModel';
+    var $handle_operator=true;
 
     function __construct($label, $relation_object_name, $args = array()){
         parent::__construct($label, $relation_object_name, '', $args);

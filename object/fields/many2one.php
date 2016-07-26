@@ -8,6 +8,7 @@ class Many2OneField extends RelationalField{
     var $back_ref_field=null; // If set, name of the back reference (O2M) to this field in the relational object
     var $index=true;
     var $widget='many2one';
+    var $handle_operator=true;
 
     function __construct($label, $relation_object_name, $args = array()){
         $this->local_key='';
