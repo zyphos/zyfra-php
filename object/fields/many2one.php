@@ -145,6 +145,7 @@ class Many2OneField extends RelationalField{
     }
 
     function sql_create($sql_create, $value, $fields, $context){
+        if (is_null($value)) return 'null';
         if (count($fields)==0){
             $relation_object = $this->get_relation_object();
         	$remote_column = $relation_object->_columns[$this->relation_object_key];
@@ -274,7 +275,7 @@ class Many2OneField extends RelationalField{
     }
 
     function after_create_trigger($id, $value, $context){
-        if (!$this->left_right) return;
+        if (!$this->left_right || is_null($id) || trim($id) == '') return;
         $db = $this->object->_pool->db;
         $l1 = $this->_tree_get_new_left($id, $value);
         $left_col = $this->pleft;
