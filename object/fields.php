@@ -28,7 +28,7 @@ abstract class Field{
             }
         }
         $this->needed_columns = array();
-        if ($this->no_null && is_null($default_value))
+        if ($this->not_null && is_null($default_value))
             throw new UnexpectedValueException('The field ['.$this->object->_name.'.'.$this->name.'] do not accept null values, but default value is null. ['.$value.']');
     }
     
