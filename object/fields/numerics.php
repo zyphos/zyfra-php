@@ -103,5 +103,8 @@ class IntSelectField extends Field{
         if (is_numeric($value)) return (int)$value;
         return null;
     }
+    
+    function sql2php($value){
+        return $this->select_values[$value];
+    }
 }
-?>
