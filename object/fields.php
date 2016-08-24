@@ -18,6 +18,7 @@ abstract class Field{
     var $sql_escape_fx=null;
     var $help='';
     var $handle_operator=false;
+    var $not_null=false;
 
     function __construct($label, $args = null){
         $this->label = $label;
@@ -27,6 +28,8 @@ abstract class Field{
             }
         }
         $this->needed_columns = array();
+        if ($this->no_null && is_null($default_value))
+            throw new UnexpectedValueException('The field ['.$this->object->_name.'.'.$this->name.'] do not accept null values, but default value is null. ['.$value.']');
     }
     
     public function is_stored(&$context){
@@ -45,8 +48,15 @@ abstract class Field{
     function sql2php($value){
     	return $value;
     }
+    
+    function _sql_format_null(){
+        if ($this->not_null)
+            throw new UnexpectedValueException('Null value not accepted for this field ['.$this->object->_name.'.'.$this->name.']');
+        return 'null';
+    }
 
     function sql_format($value){
+        if (is_null($value)) return $this->_sql_format_null();
     	if (is_null($this->sql_escape_fx)){
     		return "'".str_replace("'", "\'", $value)."'"; // Warning sql injection !!!
     	}
