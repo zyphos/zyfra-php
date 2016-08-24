@@ -24,12 +24,16 @@ abstract class Field{
         $this->label = $label;
         if(is_array($args)){
             foreach($args as $key=>$value){
-                if(property_exists($this, $key)) $this->{$key} = $value;
+                if(property_exists($this, $key)){
+                    $this->{$key} = $value;
+                }else{
+                    throw new UnexpectedValueException('Field do not have attribute ['.$key.'].');
+                }
             }
         }
         $this->needed_columns = array();
-        if ($this->not_null && is_null($default_value))
-            throw new UnexpectedValueException('The field ['.$this->object->_name.'.'.$this->name.'] do not accept null values, but default value is null. ['.$value.']');
+        if ($this->not_null && is_null($this->default_value))
+            throw new UnexpectedValueException('Field do not accept null values, but default value is null.');
     }
     
     public function is_stored(&$context){
@@ -100,7 +104,7 @@ abstract class Field{
     }
 
     function get_sql_def_flags(){
-        return ($this->primary_key?' PRIMARY KEY':'');
+        return ($this->primary_key?' PRIMARY KEY':'').($this->not_null?' NOT NULL':'');
     }
 
     function get_sql_extra(){
@@ -133,4 +137,3 @@ require_once('fields/many2many.php');
 require_once('fields/meta.php');
 require_once('fields/function.php');
 require_once('fields/shortcut.php');
-?>
