@@ -95,7 +95,7 @@ class ObjectModel{
     var $_tree_view_fields = null;
     protected $_name_search_fieldname = 'name';
 
-    function __construct($pool, $args = null){
+    function __construct(Pool $pool, array $args = null){
         if(is_array($args)){
             foreach($args as $key=>$value){
                 if(property_exists($this, $key)) $this->{$key} = $value;
@@ -124,12 +124,12 @@ class ObjectModel{
         }
     }
 
-    function add_column($name, &$col){
+    public function add_column($name,Field &$col){
         $this->_columns[$name] = $col;
         $this->set_column_instance($name, $col);
     }
 
-    function set_column_instance($name, &$col){
+    protected function set_column_instance($name,Field &$col){
         if ($col->instanciated) return;
         $col->set_instance($this, $name);
         if ($name == $this->_visible_field && $this->_visible_condition == ''){
@@ -148,7 +148,7 @@ class ObjectModel{
         }
     }
 
-    function set_instance(){
+    public function set_instance(){
         if ($this->_instanciated) return;
         $this->_instanciated = true;
         if (!isset($this->_name)) $this->_name = get_class($this);
@@ -160,7 +160,7 @@ class ObjectModel{
         if ($this->_pool->get_auto_create()) $this->update_sql();
     }
 
-    function __set($name, $value){
+    public function __set($name, $value){
         if ($value instanceof Field){
             $this->_columns[$name] = $value;
         }else{
@@ -168,19 +168,19 @@ class ObjectModel{
         }
     }
 
-    function __get($name){
+    public function __get($name){
         return $this->_columns[$name];
     }
 
-    function init(){
+    public function init(){
         //Contains fields definitions
     }
 
-    function active_record($param = array(), $context = array()){
+    public function active_record(array $param = array(), array $context = array()){
         return new ActiveRecord($this, $param, $context);
     }
 
-    function update_sql(){
+    protected function update_sql(){
         if ($this->_read_only) return null;
         if (property_exists($this, '__update_sql_done')) return;
         #1 Check if table exists
@@ -226,7 +226,8 @@ class ObjectModel{
         //Can be overrided
     }
 
-    function __add_default_values($values, $default = false){
+    protected function __add_default_values($values, $default = false){
+        // Should be done by DB to remove in future
         foreach($this->_columns as $col_name=>$column){
             if (!array_key_exists($col_name, $values) && $default && $col_name != $this->_key){
                 if (!is_null($column->default_value)){
@@ -237,7 +238,7 @@ class ObjectModel{
         return $values;
     }
 
-    function create($values, $context = array()){
+    public function create(array $values, array $context = array()){
         /* Create new record(s)
          * $values = array (column: value, col2: value2);
         * or
@@ -272,16 +273,18 @@ class ObjectModel{
             $ids = array();
             foreach($values as $values_data){
                 $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
+                $values_data = $this->__add_default_values($values_data, true);
                 $ids[] = $sql_create->create($values_data);
             }
             return $ids;
         }else{
             $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
+            $values = $this->__add_default_values($values, true);
             return $sql_create->create($values);
         }
     }
 
-    function write($values, $where, $where_datas = array(), $context = array()){
+    public function write(array $values, $where, array $where_datas = array(), array $context = array()){
         if ($this->_read_only) return null;
         if (is_int($where)) $where = $this->_key.'='.$where;
         if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
@@ -289,7 +292,7 @@ class ObjectModel{
         return $sql_write->result;
     }
 
-    function unlink($where, $datas = array(), $context = array()){
+    public function unlink($where, array $datas = array(), array $context = array()){
         if ($this->_read_only) return null;
         if (is_int($where)) $where = $this->_key.'='.$where;
         if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
@@ -318,7 +321,7 @@ class ObjectModel{
         }
     }
 
-    function read($where='', array $fields=array()){
+    public function read($where='', array $fields=array()){
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
@@ -333,7 +336,7 @@ class ObjectModel{
         return $res;
     }
 
-    function select($mql='*', array $context = array(), array $datas = array()){
+    public function select($mql='*', array $context = array(), array $datas = array()){
         try{
             $mql = $this->_pool->db->safe_sql($mql, $datas);
         }catch(Exception $e){
@@ -346,7 +349,7 @@ class ObjectModel{
         return $sql_query->get_array($mql, $context);
     }
     
-    function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array(), array $datas = array()){
+    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array(), array $datas = array()){
         try{
             $where = $this->_pool->db->safe_sql($where, $datas);
         }catch(Exception $e){
@@ -359,7 +362,7 @@ class ObjectModel{
     	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
     }
     
-    function get_view($fields_list = null){
+    public function get_view(array $fields_list = null){
     	if (is_null($fields_list)) $fields_list = array_keys($this->_columns);
     	$view = array();
     	foreach($fields_list as $name){
@@ -381,15 +384,15 @@ class ObjectModel{
     	return $view;
     }
 
-    function get_form_view(){
+    public function get_form_view(){
     	return $this->get_view($this->_form_view_fields);
     }
 
-    function get_tree_view(){
+    public function get_tree_view(){
     	return $this->get_view($this->_tree_view_fields);
     }
     
-    function get_full_diagram($max_depth = 0, $lvl=0, $done=null){
+    public function get_full_diagram($max_depth = 0, $lvl=0, $done=null){
         if (is_null($done)) {
             $done = array($this->_name);
         }else{
@@ -414,7 +417,7 @@ class ObjectModel{
         return $txt;
     }
     
-    function get_svg_full_diagram($max_depth=0){
+    public function get_svg_full_diagram($max_depth=0){
         $dot_data = $this->get_dot_full_diagram($max_depth);
         $process = proc_open('dot -Tsvg',
                              array(array('pipe','r'),
@@ -430,7 +433,7 @@ class ObjectModel{
         return $svg_data;
     }
     
-    function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
+    public function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
         if ($relations==null) $relations = array();
         $name_under = str_replace('.','_', $this->_name);
         if ($done == null){
@@ -481,7 +484,7 @@ class ObjectModel{
         return $txt;
     }
     
-    public function name_search($txt, $context=array(), $operator='='){
+    public function name_search($txt, array $context=array(), $operator='='){
         // Return ids corresponding to search on name
         $where = 'WHERE '.$this->_pool->db->safe_sql($this->_name_search_fieldname.' '.$operator.' %s', array($txt));
         return $this->get_scalar_array($this->_key, null, $where, $context);
