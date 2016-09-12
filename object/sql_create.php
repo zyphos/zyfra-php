@@ -59,7 +59,7 @@ class OM_SQLcreate extends OM_SQLinterface{
         
         $res = $obj->_pool->db->query($sql);
         if ($res === false){
-            throw new Exception('Insert error: '.$sql.' - '.mysql_error());
+            throw new \Exception('Insert error: '.$sql.' - '.mysql_error());
         }
         $id = $obj->_pool->db->insert_id();
         
