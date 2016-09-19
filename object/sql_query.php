@@ -166,6 +166,7 @@ class SqlQuery{
     var $sql_field_alias;
     var $required_fields;
     var $remove_from_result;
+    protected $has_group_by = false;
     var $debug = false;
     protected $keywords = array('limit', 'order by', 'having', 'group by', 'where');
     protected $keywords_split = array('limit ', 'order by ', 'having ', 'group by ', 'where ');
@@ -581,6 +582,7 @@ class SqlQuery{
             $field_name = trim($field_name);
             if ($field_name != '') $sql_fields[] = $this->field2sql($field_name);
         }
+        $this->has_group_by = true;
         return implode(',', $sql_fields);
     }
 
@@ -602,7 +604,7 @@ class SqlQuery{
         $sql_order = array();
         $this->convert_order_by($sql_order, $mql_order_by);
         $sql_order = array_merge($sql_order, $this->order_by);
-        if (count($this->group_by) == 0){
+        if (!$this->has_group_by){
             $this->convert_order_by($sql_order, $this->object->_order_by);
         }
         return implode(',', $sql_order);
