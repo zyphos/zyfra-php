@@ -112,16 +112,19 @@ class TextField extends Field{
                 }catch (Exception $e) {}
                 
                 if (!$pool->object_in_pool($language_object_name)){
+                    $name_field = new CharField('Name', 30);
                     $lg_obj = new ObjectModel($pool, array(
                             '_name'=>$language_object_name,
-                        '_columns'=>array('name'=>new CharField('Name', 30))));
+                        '_columns'=>array('name'=>$name_field)));
                     $pool->add_object($language_object_name, $lg_obj);
                 }
+                $language_field = new Many2OneField('Language', $language_object_name);
+                $source_field = new Many2OneField('Source row id', $object->_name);
                 $tr_obj = new ObjectModel($pool, array(
                             '_name'=>$tr_name,
                       '_columns'=>array(
-                        'language_id'=>new Many2OneField('Language', $language_object_name), 
-                        'source_id'=>new Many2OneField('Source row id', $object->_name),
+                        'language_id'=>$language_field, 
+                        'source_id'=>$source_field,
                 $name=>$this->__get_translate_col_instance())));
 
                 $pool->add_object($tr_name, $tr_obj);
@@ -131,7 +134,8 @@ class TextField extends Field{
         if (!array_key_exists('_translation', $object)){
             $args = array();
             if (isset($this->translate['local_key'])) $args['local_key'] = $this->translate['local_key'];
-            $object->add_column('_translation', new One2ManyField('Translation', $this->translate['object'], $this->translate['key'], $args));
+            $translation_field = new One2ManyField('Translation', $this->translate['object'], $this->translate['key'], $args);
+            $object->add_column('_translation', $translation_field);
         }
     }
 

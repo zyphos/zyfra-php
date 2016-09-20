@@ -46,8 +46,7 @@ class Many2ManyField extends One2ManyField{
         if ($this->back_ref_field !== null){
             // Bug: !! The remote column won't be created if this class isn't intanciated !!
             if(!isset($robj->_columns[$br_field])){
-                $robj->add_column($br_field,
-                        new Many2ManyField($br_label,
+                $many2many_field = new Many2ManyField($br_label,
                                 $object->_name,
                                 array('relation_table'=>$this->relation_table,
                                         'rt_foreign_field'=>$this->rt_local_field,
@@ -55,7 +54,8 @@ class Many2ManyField extends One2ManyField{
                                         'foreign_key'=>$this->local_key,
                                         'local_key'=>$this->foreign_key,
                                         'model_class'=>$this->model_class,
-                                        )));
+                                        )); 
+                $robj->add_column($br_field, $many2many_field);
             }
         }
         $pool = $object->_pool;
