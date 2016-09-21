@@ -647,7 +647,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $col_names_sql = array_merge($key_names, $col_names);
         array_push($col_names_sql, $this->update_field);
         $col_names_sql = $db->safe_var($col_names_sql);
-        $sql_common = 'INSERT INTO '.$table_name.' ('.implode(',',$col_names_sql).') VALUES (\'';
+        $sql_common = 'INSERT INTO '.$table_name.' ('.implode(',',$col_names_sql).') VALUES (';
         foreach($row2add as $index2add=>$data2add){
             $keys = explode($this->field_separator,$index2add);
             $datas_array = explode($this->field_separator, $data2add);
