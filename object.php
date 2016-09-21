@@ -206,7 +206,7 @@ class ObjectModel{
                 if(array_key_exists($field_name, $fields)){
                     //Update ?
                     if (strtoupper($fields[$field_name]->Type) != $sql_def || $fields[$field_name]->Extra != $field->get_sql_extra()){
-                        $columns_def[] = 'MODIFY '.$field_name.' '.$sql_def.$field->get_sql_def_flags();
+                        $columns_def[] = 'MODIFY '.$field_name.' '.$sql_def.$field->get_sql_def_flags(true);
                     }
                 }else{
                     //Create !

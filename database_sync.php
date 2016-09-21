@@ -657,6 +657,15 @@ class zyfra_database_synch extends zyfra_rpc_big{
                         $data = (double)$data;
                     }
                     break;
+                case 'datetime':
+                    if ($data == '' || $data == '0000-00-00 00:00:00'){
+                        if ($field->null == 'NULL'){
+                            $data = 'null';
+                        }else{
+                            $data = $field->default_value;
+                        }
+                    }
+                    break;
                 default:
                     $data = '\''.$db->safe_var($data).'\'';
             }

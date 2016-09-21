@@ -5,7 +5,7 @@ class DatetimeField extends Field{
         if (is_int($value)){
             return "'".gmdate('Y-m-d H:i:s', $value)."'";
         }
-        return "'".$value."'";
+        return parent::sql_format($value);
     }
 
     function get_sql_def(){
@@ -20,7 +20,7 @@ class DateField extends Field{
         if (is_int($value)){
             return "'".gmdate('Y-m-d', $value)."'";
         }
-        return "'".$value."'";
+        return parent::sql_format($value);
     }
     
     function get_sql_def(){

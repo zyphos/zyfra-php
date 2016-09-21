@@ -103,8 +103,8 @@ abstract class Field{
         return '';
     }
 
-    function get_sql_def_flags(){
-        return ($this->primary_key?' PRIMARY KEY':'').($this->not_null?' NOT NULL':'');
+    function get_sql_def_flags($update=false){
+        return (($this->primary_key&&!$update)?' PRIMARY KEY':'').($this->not_null?' NOT NULL':' NULL').(' DEFAULT '.$this->sql_format($this->default_value));
     }
 
     function get_sql_extra(){

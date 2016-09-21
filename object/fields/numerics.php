@@ -20,8 +20,8 @@ class IntField extends Field{
         return 'INT('.$this->size.')'.($this->unsigned?' UNSIGNED ':'');
     }
 
-    function get_sql_def_flags(){
-        return ($this->auto_increment?' AUTO_INCREMENT':'').parent::get_sql_def_flags();
+    function get_sql_def_flags($update=false){
+        return ($this->auto_increment?' AUTO_INCREMENT':'').parent::get_sql_def_flags($update);
     }
 
     function get_sql_extra(){
