@@ -552,7 +552,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //echo $field_name.'['.$field->type_short.'] value['.$value.'] default['.$field->default_value.'] null['.$field->null.']<br>';
         switch($field->type_short){
             case 'int':
-                if ($value == ''){
+                if ($value === ''){
                     if ($field->null == 'NULL'){
                         $value = 'null';
                     }else{
@@ -563,7 +563,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
                 break;
             case 'float':
-                if ($value == ''){
+                if ($value === ''){
                     if ($field->null == 'NULL'){
                         $value = 'null';
                     }else{
@@ -574,7 +574,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
                 break;
             case 'double':
-                if ($value == ''){
+                if ($value === ''){
                     if ($field->null == 'NULL'){
                         $value = 'null';
                     }else{
@@ -585,7 +585,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
                 break;
             case 'datetime':
-                if ($value == '' || $value == '0000-00-00 00:00:00'){
+                if ($value === '' || $value == '0000-00-00 00:00:00'){
                     if ($field->null == 'NULL'){
                         $value = 'null';
                     }else{
@@ -598,7 +598,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             default:
                 $value = '\''.$this->db->safe_var($value).'\'';
         }
-        if ($value == '') $value = '\'\'';
+        if ($value === '') $value = '\'\'';
         return $value;
     }
     
