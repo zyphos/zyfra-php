@@ -592,11 +592,11 @@ class zyfra_database_synch extends zyfra_rpc_big{
                         $value = $field->default_value;
                     }
                 }else{
-                    $value = '\''.$db->safe_var($value).'\'';
+                    $value = '\''.$this->db->safe_var($value).'\'';
                 }
                 break;
             default:
-                $value = '\''.$db->safe_var($value).'\'';
+                $value = '\''.$this->db->safe_var($value).'\'';
         }
         return $value;
     }
