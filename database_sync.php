@@ -549,7 +549,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     
     private function escape_field($field_name, $value, &$table_structure){
         $field = $table_structure->fields[$field_name];
-        //echo $col_name.'['.$field->type_short.'] default['.$field->default_value.'] null['.$field->null.']<br>';
+        //echo $field_name.'['.$field->type_short.'] value['.$value.'] default['.$field->default_value.'] null['.$field->null.']<br>';
         switch($field->type_short){
             case 'int':
                 if ($value == ''){
