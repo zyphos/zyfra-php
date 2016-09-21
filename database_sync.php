@@ -153,6 +153,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     var $create_field = 'created_on';
     var $update_field = 'modified_on';
     var $db;
+    var $table_structure = null;
     
     function __construct(){
         global $db;
@@ -350,7 +351,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return array($sync_id, $url, $table_list);
     }
     
-    function get_tables_struct(){
+    function get_tables_struct($use_cache=false){
+        if ($use_cache && !is_null($this->table_structure)) return $this->table_structure;
         $db = $this->db;
         //Function that creates an image of the entire database structure.
         $tables = array();
@@ -368,11 +370,15 @@ class zyfra_database_synch extends zyfra_rpc_big{
             while($col = $db->fetch_object($result_cols)){
                 $the_col = new zyfra_STRUCT_table_fields;
                 $the_col->name = $col->Field;  //Get the col name
-                $the_col->type = $col->Type;  //Get the col type
+                $type = $col->Type;
+                $the_col->type = $type;  //Get the col type
+                $type = explode('(', $type);
+                $the_col->type_short = $type[0];  //Get the col type
                 $the_col->null = 'NOT NULL';
                 if($col->Null=='YES') $the_col->null = 'NULL';  //Is col type null ?
                 $the_col->extra = trim($col->Extra);
                 $the_col->default = '';
+                $the_col->default_value = $col->Default;
                 if(trim($col->Default)!=''){
                     $the_col->default = "DEFAULT '".$col->Default."'";  //Get default value
                 }
@@ -397,6 +403,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $tables[$the_table->name] = $the_table;
         }
         $db->free_result($result_table);  //Free used memory
+        if ($use_cache) $this->table_structure = &$tables;
         return $tables;
     }
         
@@ -541,11 +548,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
     
     function rpc_delete($table_name, $key_names, $row2del){
+        $table_structure = $this->get_tables_struct(true);
+        $table_structure = $table_structure[$table_name];
         $out = '';
         $db = $this->db;
         if($this->is_rpc_call()) $db->query('BEGIN');
         foreach($row2del as $index2del){
-            $keys_sql = $this->get_fields_sql($key_names, $index2del);
+            $keys_sql = $this->get_fields_sql($key_names, $index2del, $table_structure);
             $sql = 'DELETE FROM '.$table_name.' WHERE ('.implode(')AND(',$keys_sql).');';
             $out .= '. ';
             //$out .= $sql.'<br>';
@@ -556,14 +565,16 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
     
     function rpc_update($table_name, $key_names, $col_names, $row2update){
+        $table_structure = $this->get_tables_struct(true);
+        $table_structure = $table_structure[$table_name];
         $out = '';
         $db = $this->db;
         if($this->is_rpc_call()) $db->query('BEGIN');
         $col_names_sql = $col_names;
         array_push($col_names_sql, $this->update_field);
         foreach($row2update as $index2update=>$data2update){
-            $keys_sql = $this->get_fields_sql($key_names, $index2update);
-            $datas_sql = $this->get_fields_sql($col_names_sql, $data2update);
+            $keys_sql = $this->get_fields_sql($key_names, $index2update, $table_structure);
+            $datas_sql = $this->get_fields_sql($col_names_sql, $data2update, $table_structure);
             $sql = 'UPDATE '.$table_name.' SET '.implode(',',$datas_sql).' WHERE ('.implode(')AND(',$keys_sql).');';
             $out .= '. ';
             //$out .= $sql.'<br>';
@@ -604,13 +615,53 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return $array;
     }*/
     
-    function get_fields_sql($col_names, $col_datas){
+    function get_fields_sql($col_names, $col_datas, &$table_structure){
         $db = $this->db;
         if(!$db->IsConnected()) $db->connect();
         $fields_sql = array();
         $datas = explode($this->field_separator, $col_datas);
         foreach($datas as $id=>$data){
-            $fields_sql[] = $db->safe_var($col_names[$id]).'=\''.$db->safe_var($data).'\'';
+            $field_name = $col_names[$id];
+            $field = $table_structure->fields[$field_name];
+            switch($field->type_short){
+                case 'int':
+                    if ($data == ''){
+                        if ($field->null == 'NULL'){
+                            $data = 'null';
+                        }else{
+                            $data = $field->default_value;
+                        }
+                    }else{
+                        $data = (int)$data;
+                    }
+                    break;
+                case 'float':
+                    if ($data == ''){
+                        if ($field->null == 'NULL'){
+                            $data = 'null';
+                        }else{
+                            $data = $field->default_value;
+                        }
+                    }else{
+                        $data = (float)$data;
+                    }
+                    break;
+                case 'double':
+                    if ($data == ''){
+                        if ($field->null == 'NULL'){
+                            $data = 'null';
+                        }else{
+                            $data = $field->default_value;
+                        }
+                    }else{
+                        $data = (double)$data;
+                    }
+                    break;
+                default:
+                    $data = '\''.$db->safe_var($data).'\'';
+            }
+            
+            $fields_sql[] = $db->safe_var($field_name).'='.$data;
         }
         return $fields_sql;
     }
