@@ -547,6 +547,60 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return gmdate('Y-m-d H:i:s', $date);
     }
     
+    private function escape_field($field_name, $value, &$table_structure){
+        $field = $table_structure->fields[$field_name];
+        //echo $col_name.'['.$field->type_short.'] default['.$field->default_value.'] null['.$field->null.']<br>';
+        switch($field->type_short){
+            case 'int':
+                if ($value == ''){
+                    if ($field->null == 'NULL'){
+                        $value = 'null';
+                    }else{
+                        $value = $field->default_value;
+                    }
+                }else{
+                    $value = (int)$value;
+                }
+                break;
+            case 'float':
+                if ($value == ''){
+                    if ($field->null == 'NULL'){
+                        $value = 'null';
+                    }else{
+                        $value = $field->default_value;
+                    }
+                }else{
+                    $value = (float)$value;
+                }
+                break;
+            case 'double':
+                if ($value == ''){
+                    if ($field->null == 'NULL'){
+                        $value = 'null';
+                    }else{
+                        $value = $field->default_value;
+                    }
+                }else{
+                    $value = (double)$value;
+                }
+                break;
+            case 'datetime':
+                if ($value == '' || $value == '0000-00-00 00:00:00'){
+                    if ($field->null == 'NULL'){
+                        $value = 'null';
+                    }else{
+                        $value = $field->default_value;
+                    }
+                }else{
+                    $value = '\''.$db->safe_var($value).'\'';
+                }
+                break;
+            default:
+                $value = '\''.$db->safe_var($value).'\'';
+        }
+        return $value;
+    }
+    
     function rpc_delete($table_name, $key_names, $row2del){
         $table_structure = $this->get_tables_struct(true);
         $table_structure = $table_structure[$table_name];
@@ -585,6 +639,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
     
     function rpc_add($table_name, $key_names, $col_names, $row2add){
+        $table_structure = $this->get_tables_struct(true);
+        $table_structure = $table_structure[$table_name];
         $out = '';
         $db = $this->db;
         if($this->is_rpc_call()) $db->query('BEGIN');
@@ -594,10 +650,14 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $sql_common = 'INSERT INTO '.$table_name.' ('.implode(',',$col_names_sql).') VALUES (\'';
         foreach($row2add as $index2add=>$data2add){
             $keys = explode($this->field_separator,$index2add);
-            $datas_sql = explode($this->field_separator, $data2add);
-            $datas_sql = array_merge($keys, $datas_sql);
-            $datas_sql = $db->safe_var($datas_sql);
-            $sql = $sql_common.implode('\',\'',$datas_sql).'\');';
+            $datas_array = explode($this->field_separator, $data2add);
+            $datas_array = array_merge($keys, $datas_array);
+            $datas = array();
+            foreach($col_names_sql as $i=>$field_name){
+                $data = $datas_array[$i];
+                $datas[] = $this->escape_field($field_name, $data, $table_structure);
+            }
+            $sql = $sql_common.implode(',',$datas).');';
             $out .= '. ';
             //$out .= $sql.'<br>';
             $db->query($sql);
@@ -622,57 +682,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $datas = explode($this->field_separator, $col_datas);
         foreach($datas as $id=>$data){
             $field_name = $col_names[$id];
-            $field = $table_structure->fields[$field_name];
-            echo $col_name.'['.$field->type_short.'] default['.$field->default_value.'] null['.$field->null.']<br>';
-            switch($field->type_short){
-                case 'int':
-                    if ($data == ''){
-                        if ($field->null == 'NULL'){
-                            $data = 'null';
-                        }else{
-                            $data = $field->default_value;
-                        }
-                    }else{
-                        $data = (int)$data;
-                    }
-                    break;
-                case 'float':
-                    if ($data == ''){
-                        if ($field->null == 'NULL'){
-                            $data = 'null';
-                        }else{
-                            $data = $field->default_value;
-                        }
-                    }else{
-                        $data = (float)$data;
-                    }
-                    break;
-                case 'double':
-                    if ($data == ''){
-                        if ($field->null == 'NULL'){
-                            $data = 'null';
-                        }else{
-                            $data = $field->default_value;
-                        }
-                    }else{
-                        $data = (double)$data;
-                    }
-                    break;
-                case 'datetime':
-                    if ($data == '' || $data == '0000-00-00 00:00:00'){
-                        if ($field->null == 'NULL'){
-                            $data = 'null';
-                        }else{
-                            $data = $field->default_value;
-                        }
-                    }else{
-                        $data = '\''.$db->safe_var($data).'\'';
-                    }
-                    break;
-                default:
-                    $data = '\''.$db->safe_var($data).'\'';
-            }
-            
+            $data = $this->escape_field($field_name, $data, $table_structure);
             $fields_sql[] = $db->safe_var($field_name).'='.$data;
         }
         return $fields_sql;
