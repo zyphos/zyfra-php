@@ -623,6 +623,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         foreach($datas as $id=>$data){
             $field_name = $col_names[$id];
             $field = $table_structure->fields[$field_name];
+            echo $col_name.'['.$field->type_short.'] default['.$field->default_value.'] null['.$field->null.']<br>';
             switch($field->type_short){
                 case 'int':
                     if ($data == ''){
