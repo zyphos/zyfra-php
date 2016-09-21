@@ -95,7 +95,8 @@ class zyfra_rpc_big{
             $this->is_rpc=true;
             foreach($obj_array as $key=>$obj){
                 // Send back responses
-                $sd->send($this->dispatch_rpc($obj), NULL, count($obj_array)!=($key+1));
+                $result = $this->dispatch_rpc($obj);
+                $sd->send($result, NULL, count($obj_array)!=($key+1));
             }
         }else{
             $this->no_rpc();
