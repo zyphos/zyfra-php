@@ -664,6 +664,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
                         }else{
                             $data = $field->default_value;
                         }
+                    }else{
+                        $data = '\''.$db->safe_var($data).'\'';
                     }
                     break;
                 default:
