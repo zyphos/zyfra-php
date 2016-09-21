@@ -589,7 +589,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                     if ($field->null == 'NULL'){
                         $value = 'null';
                     }else{
-                        $value = $field->default_value;
+                        $value = '\''.$field->default_value.'\'';
                     }
                 }else{
                     $value = '\''.$this->db->safe_var($value).'\'';
@@ -598,6 +598,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             default:
                 $value = '\''.$this->db->safe_var($value).'\'';
         }
+        if ($value == '') $value = '\'\'';
         return $value;
     }
     
