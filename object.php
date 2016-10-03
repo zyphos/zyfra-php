@@ -311,6 +311,11 @@ class ObjectModel{
             $this->_columns[$column]->before_unlink_trigger($old_values);
         }
         $sql = 'DELETE FROM '.$this->_table.' WHERE '.$where;
+        
+        if (isset($context['dry_run']) && $context['dry_run']){
+            return $this->_pool->db->safe_sql($sql, $datas);
+        }
+        
         $this->_pool->db->safe_query($sql, $datas);
         foreach($columns_after as $column){
             $old_values = array();
