@@ -201,7 +201,7 @@ class ObjectModel{
             $fields = $db->get_array_object($sql, 'Field');
             $columns_def = array();
             foreach($this->_columns as $field_name=>$field){
-                if (!$field->stored) continue;
+                if (!$field->stored || $field->primary_key) continue;
                 $sql_def = $field->get_sql_def();
                 if(array_key_exists($field_name, $fields)){
                     //Update ?
