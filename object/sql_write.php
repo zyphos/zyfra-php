@@ -12,7 +12,7 @@ class SQLWrite extends OM_SQLinterface{
         /*foreach(array_keys($values) as $column){
             if (!array_key_exists($column, $object->_columns)) unset($values[$column]);
         }*/
-        if (count($values) == 0) return true;
+        //if (count($values) == 0) return true;
         if (!array_key_exists($object->_write_date, $values)) $values[$object->_write_date] = gmdate('Y-m-d H:i:s');
         $this->values = $values;
         $this->col_assign = array();
