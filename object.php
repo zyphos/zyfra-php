@@ -222,6 +222,51 @@ class ObjectModel{
         $this->__update_sql_done = true;
     }
     
+    public function check_table_structure(){
+        $db = $this->_pool->db;
+        $error_msgs = array();
+        if (!$db->get_object('SHOW TABLES like %s', array($this->_table))){
+            $error_msgs[] = '['.$this->_table.'] does not exist.';
+            return $error_msgs;
+        }
+        $sql = 'SHOW COLUMNS FROM '.$this->_table;
+        $fields = $db->get_array_object($sql, 'Field');
+        $checked_field_names = array();
+        foreach($this->_columns as $field_name=>$field){
+            $checked_field_names[] = $field_name;
+            if (!$field->stored) continue;
+            if(!array_key_exists($field_name, $fields)){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] does not exist in table';
+                break;
+            }
+            $db_field = $fields[$field_name];
+            
+            $sql_def = $field->get_sql_def();
+            if (strtoupper($db_field->Type) != $sql_def){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of definition DB['.strtoupper($db_field->Type).'] != ORM['.$sql_def.']';
+            }
+            if ($db_field->Extra != $field->get_sql_extra()){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of extra definition DB['.$db_field->Extra.'] != ORM['.$field->get_sql_extra().']';
+            }
+            
+            $db_is_primary = $db_field->Key == 'PRI';
+            if ($field->primary_key != $db_is_primary){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of primary definition DB['.var_export($db_is_primary, true).'] != ORM['.var_export($field->primary_key, true).']';
+            }
+            
+            $db_is_index = $db_field->Key == 'MUL';
+            if ($field->index != $db_is_index){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of index definition DB['.var_export($db_is_index, true).'] != ORM['.var_export($field->index, true).']';
+            }
+        }
+        foreach($fields as $field_name=>$field){
+            if (!in_array($field_name, $checked_field_names)){
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] is in DB but not in ORM.';
+            }
+        }
+        return $error_msgs;
+    }
+    
     protected function after_table_creation(){
         //Can be overrided
     }
