@@ -115,7 +115,7 @@ class zyfra_rpc_big{
     private static function throw_exception($msg){
         if(self::$log_error_file!=''){
             $fp = fopen(self::$log_error_file,'a');
-            fwrite($fp, gmdate('Y-m-d H:i:s - '.$msg."\n"));
+            fwrite($fp, gmdate('Y-m-d H:i:s').' - '.$msg."\n");
             fclose($fp);
         }
         throw new Exception($msg);
