@@ -85,6 +85,8 @@ class BooleanField extends Field{
 class IntSelectField extends Field{
     var $select_values;
     var $widget='intselect';
+    var $unsigned = false;
+    var $size = 11;
 
     function __construct($label, $select_values = null, $args = null){
         if (is_array($select_values)) {
@@ -106,5 +108,9 @@ class IntSelectField extends Field{
     
     function sql2php($value){
         return $this->select_values[$value];
+    }
+    
+    function get_sql_def(){
+        return 'INT('.$this->size.')'.($this->unsigned?' UNSIGNED ':'');
     }
 }
