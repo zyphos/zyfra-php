@@ -198,6 +198,7 @@ class zyfra_db_common {
 
     protected function show_error($the_query,$err_no=0,$err=""){
         global $security;
+        $log_filename = sys_get_temp_dir().DIRECTORY_SEPARATOR.'zyfra_db_log.txt';
 
         $sql="<table bgcolor='grey' style='color:black;'>";
         $sql_table = explode("\n",$the_query);
@@ -223,6 +224,10 @@ class zyfra_db_common {
         $the_html_error= "<table border='1' cellspacing='0'><tr bgcolor='#FF0000'><td>MySQL Error</td></tr>
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
+        
+        $f = fopen($log_filename, 'a');
+        $fwrite($f, $the_html_error."\n");
+        fclose($f);
         if (!isset($security) || $security->is_dev()){
             echo $the_html_error;
             throw new Exception($the_html_error);
