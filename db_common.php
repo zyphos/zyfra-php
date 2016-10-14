@@ -225,9 +225,9 @@ class zyfra_db_common {
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
         
-        $f = fopen($log_filename, 'a');
+        /*$f = fopen($log_filename, 'a');
         $fwrite($f, $the_html_error."\n");
-        fclose($f);
+        fclose($f);*/
         if (!isset($security) || $security->is_dev()){
             echo $the_html_error;
             throw new Exception($the_html_error);
