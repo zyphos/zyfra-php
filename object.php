@@ -243,20 +243,20 @@ class ObjectModel{
             
             $sql_def = $field->get_sql_def();
             if (strtoupper($db_field->Type) != $sql_def){
-                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of definition DB['.strtoupper($db_field->Type).'] != ORM['.$sql_def.']';
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of DEFINITION DB['.strtoupper($db_field->Type).'] != ORM['.$sql_def.']';
             }
             if ($db_field->Extra != $field->get_sql_extra()){
-                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of extra definition DB['.$db_field->Extra.'] != ORM['.$field->get_sql_extra().']';
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of EXTRA definition DB['.$db_field->Extra.'] != ORM['.$field->get_sql_extra().']';
             }
             
             $db_is_primary = $db_field->Key == 'PRI';
             if ($field->primary_key != $db_is_primary){
-                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of primary definition DB['.var_export($db_is_primary, true).'] != ORM['.var_export($field->primary_key, true).']';
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of PRIMARY definition DB['.var_export($db_is_primary, true).'] != ORM['.var_export($field->primary_key, true).']';
             }
             
             $db_is_index = $db_field->Key == 'MUL';
             if ($field->index != $db_is_index){
-                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of index definition DB['.var_export($db_is_index, true).'] != ORM['.var_export($field->index, true).']';
+                $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] mismatch of INDEX definition DB['.var_export($db_is_index, true).'] != ORM['.var_export($field->index, true).']';
             }
         }
         foreach($fields as $field_name=>$field){
