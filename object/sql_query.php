@@ -604,7 +604,7 @@ class SqlQuery{
         $sql_order = array();
         $this->convert_order_by($sql_order, $mql_order_by);
         $sql_order = array_merge($sql_order, $this->order_by);
-        if (!$this->has_group_by){
+        if (!$this->has_group_by && count($sql_order) == 0){
             $this->convert_order_by($sql_order, $this->object->_order_by);
         }
         return implode(',', $sql_order);
