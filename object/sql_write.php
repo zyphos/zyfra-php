@@ -13,7 +13,9 @@ class SQLWrite extends OM_SQLinterface{
             if (!array_key_exists($column, $object->_columns)) unset($values[$column]);
         }*/
         //if (count($values) == 0) return true;
-        if (!array_key_exists($object->_write_date, $values)) $values[$object->_write_date] = gmdate('Y-m-d H:i:s');
+        if (!is_null($object->_write_date) && !array_key_exists($object->_write_date, $values)) $values[$object->_write_date] = gmdate('Y-m-d H:i:s');
+        $user_id = array_get($context, 'user_id', $object->_default_user_id);
+        if (!is_null($object->_write_user_id)) $values[$object->_write_user_id] = $user_id;
         $this->values = $values;
         $this->col_assign = array();
         $this->col_assign_data = array();

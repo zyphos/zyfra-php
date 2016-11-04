@@ -2,6 +2,7 @@
 class ShortcutField extends Field{
     // ShortcutField('Label', 'field.field.field');
     var $stored=false;
+    var $select_all=false;
     var $relation;
 
     function __construct($label, $relation, $args = null){

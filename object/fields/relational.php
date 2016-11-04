@@ -4,6 +4,7 @@ abstract class RelationalField extends Field{
     var $relation_object=null;
     var $relation_object_key;
     var $relational=true;
+    var $select_all=false;
     
     function __construct($label, $relation_object_name, $args = array()){
         $this->relation_object_key='';

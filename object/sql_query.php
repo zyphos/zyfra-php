@@ -511,7 +511,7 @@ class SqlQuery{
             if (trim($field_defs[$key]) == '*'){
                 unset($field_defs[$key]);
                 foreach($obj->_columns as $name=>$column){
-                    if (!$column->relational && $column->stored) $field_defs[] = $name;
+                    if ($column->select_all) $field_defs[] = $name;
                 }
             }
         }

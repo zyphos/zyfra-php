@@ -87,12 +87,16 @@ class ObjectModel{
     var $_order_by;
     var $_create_date = 'create_date';
     var $_write_date = 'write_date';
+    var $_create_user_id = 'create_user_id';
+    var $_write_user_id = 'write_user_id';
+    var $_default_user_id = 1;
     var $_visible_field = 'visible';
     var $_visible_condition;
     var $_read_only = false;
     var $_instanciated = false;
     var $_form_view_fields = null;
     var $_tree_view_fields = null;
+    
     protected $_name_search_fieldname = 'name';
 
     function __construct(Pool $pool, array $args = null){
@@ -116,11 +120,17 @@ class ObjectModel{
             $key_col = new IntField('Id', array('primary_key'=>true, 'auto_increment'=>true));
             $this->_columns = array($this->_key=>$key_col) + $this->_columns;
         }
-        if (!array_key_exists($this->_create_date, $this->_columns)){
+        if (!is_null($this->_create_date) && !array_key_exists($this->_create_date, $this->_columns)){
             $this->_columns[$this->_create_date] = new DatetimeField('Created date');
         }
-        if (!array_key_exists($this->_write_date, $this->_columns)){
+        if (!is_null($this->_write_date) && !array_key_exists($this->_write_date, $this->_columns)){
             $this->_columns[$this->_write_date] = new DatetimeField('Writed date');
+        }
+        if (!is_null($this->_create_user_id) && !array_key_exists($this->_create_user_id, $this->_columns)){
+            $this->_columns[$this->_create_user_id] = new IntField('Create user', array('default_value'=>$this->_default_user_id));
+        }
+        if (!is_null($this->_write_user_id) && !array_key_exists($this->_write_user_id, $this->_columns)){
+            $this->_columns[$this->_write_user_id] = new IntField('Write user', array('default_value'=>$this->_default_user_id));
         }
     }
 
@@ -139,6 +149,7 @@ class ObjectModel{
                 'after_write', 'before_unlink', 'after_unlink');
         foreach($methods as $method){
             if (method_exists($col, $method.'_trigger')){
+                //echo '__'.$method.'_fields['.$name.']';
                 $this->{'__'.$method.'_fields'}[$name] = True;
             }
         }

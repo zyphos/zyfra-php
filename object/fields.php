@@ -19,6 +19,7 @@ abstract class Field{
     var $help='';
     var $handle_operator=false;
     var $not_null=false;
+    var $select_all=true;
 
     function __construct($label, $args = null){
         $this->label = $label;
