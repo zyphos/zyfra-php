@@ -10,7 +10,6 @@ class One2ManyField extends RelationalField{
     function __construct($label, $relation_object_name, $relation_object_field, $args = array()){
         $this->local_key = '';
         parent::__construct($label, $relation_object_name, $args);
-        $this->left_right = true;
         $this->relation_object_field = $relation_object_field;
     }
     

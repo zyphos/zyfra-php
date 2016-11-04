@@ -16,7 +16,6 @@ class Many2ManyField extends One2ManyField{
 
     function __construct($label, $relation_object_name, $args = array()){
         parent::__construct($label, $relation_object_name, '', $args);
-        $this->left_right = false;
     }
 
     function set_instance($object, $name){

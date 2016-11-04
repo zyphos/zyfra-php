@@ -3,7 +3,6 @@ require_once 'relational.php';
 
 class Many2OneField extends RelationalField{
     var $local_key;
-    var $left_right=true;
     var $default_value=null;
     var $back_ref_field=null; // If set, name of the back reference (O2M) to this field in the relational object
     var $index=true;
@@ -17,16 +16,6 @@ class Many2OneField extends RelationalField{
 
     function set_instance($object, $name){
         parent::set_instance($object, $name);
-        if ($this->left_right){
-            if ($object->_name != $this->relation_object_name){
-                $this->left_right = false;
-            }else{
-                $this->pleft = $name.'_pleft';
-                $this->pright = $name.'_pright';
-                $this->needed_columns[$this->pleft] = new IntField($this->label.' left');
-                $this->needed_columns[$this->pright] = new IntField($this->label.' right');
-            }
-        }
         if ($this->back_ref_field !== null){
             if(is_array($this->back_ref_field)){
                 list($label,$field) = $this->back_ref_field;
@@ -71,37 +60,10 @@ class Many2OneField extends RelationalField{
         $robj = $this->get_relation_object();
         $nb_fields = count($fields);
         if (($nb_fields == 0)){ //||($fields[0] == $this->relation_object_key)
-            if ($this->left_right && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){
-                $obj = $this->object;
-                $pa = $parent_alias->alias;
-                $operator = $context['operator'];
-                $op_data = trim($context['op_data']);
-                if (strlen($op_data) && $op_data[0] == '('){
-                    $cmp_operator = ' IN ';
-                }else{
-                    $cmp_operator = '=';
-                }
-                
-                
-                $ta = $sql_query->get_new_table_alias();
-                switch($operator){
-                    case 'parent_of':
-                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
-                        $parent_alias->set_used();
-                        break;
-                    case 'child_of':
-                        $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
-                        $parent_alias->set_used();
-                        break;
-                }
-                $sql_query->order_by[] = $pa.'.'.$this->pleft;
-                return $sql;
-            }else{
-                $field_link = $parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
-                $parent_alias->set_used();
-                if ($nb_fields == 0) $field_link = $this->add_operator($field_link, $context);
-                return $field_link;
-            }
+            $field_link = $parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
+            $parent_alias->set_used();
+            if ($nb_fields == 0) $field_link = $this->add_operator($field_link, $context);
+            return $field_link;
         }
         $parameter = array_key_exists('param', $context)?$context['parameter']:'';
         $field_link = $parent_alias->alias.'.'.$this->name.$parameter;
@@ -171,9 +133,58 @@ class Many2OneField extends RelationalField{
         }
         //to do: handle case of subfield
     }
+}
+
+class Many2OneSelfField extends Many2OneField{
+    // Field Many2One with left and right parent optimization for recursive object
+
+    function __construct($label, $args = array()){
+        parent::__construct($label, null, $args);
+    }
+
+    function set_instance($object, $name){
+        $this->relation_object_name = $object->_name;
+        parent::set_instance($object, $name);
+        $this->pleft = $name.'_pleft';
+        $this->pright = $name.'_pright';
+        $this->needed_columns[$this->pleft] = new IntField($this->label.' left');
+        $this->needed_columns[$this->pright] = new IntField($this->label.' right');
+    }
+
+    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+        if ($sql_query->debug > 1) echo 'M2OS['.$this->name.']: '.print_r($fields, true).'<br>';
+        $robj = $this->get_relation_object();
+        $nb_fields = count($fields);
+        if (($nb_fields == 0) && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){ //||($fields[0] == $this->relation_object_key)
+            $obj = $this->object;
+            $pa = $parent_alias->alias;
+            $operator = $context['operator'];
+            $op_data = trim($context['op_data']);
+            if (strlen($op_data) && $op_data[0] == '('){
+                $cmp_operator = ' IN ';
+            }else{
+                $cmp_operator = '=';
+            }
+
+
+            $ta = $sql_query->get_new_table_alias();
+            switch($operator){
+                case 'parent_of':
+                    $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'<'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'>'.$ta.'.'.$this->pright.')';
+                    $parent_alias->set_used();
+                    break;
+                case 'child_of':
+                    $sql = 'EXISTS(SELECT '.$obj->_key.' FROM '.$obj->_table.' AS '.$ta.' WHERE '.$ta.'.'.$obj->_key.$cmp_operator.$op_data.' AND '.$pa.'.'.$this->pleft.'>'.$ta.'.'.$this->pleft.' AND '.$pa.'.'.$this->pright.'<'.$ta.'.'.$this->pright.')';
+                    $parent_alias->set_used();
+                    break;
+            }
+            $sql_query->order_by[] = $pa.'.'.$this->pleft;
+            return $sql;
+        }
+        return parent::get_sql($parent_alias, $fields, $sql_query, $context);
+    }
 
     function after_write_trigger(&$old_values, $new_value){
-        if (!$this->left_right) return;
         //Update left and right tree
         $db = $this->object->_pool->db;
         $modified_values_ids = array();
@@ -251,7 +262,6 @@ class Many2OneField extends RelationalField{
     }
 
     function before_unlink_trigger($old_values){
-        if (!$this->left_right) return;
         if (count($old_values) == 0) return;
         $db = $this->object->_pool->db;
         $table = $this->object->_table;
@@ -275,7 +285,7 @@ class Many2OneField extends RelationalField{
     }
 
     function after_create_trigger($id, $value, $context){
-        if (!$this->left_right || is_null($id) || trim($id) == '') return;
+        if (is_null($id) || trim($id) == '') return;
         $db = $this->object->_pool->db;
         $l1 = $this->_tree_get_new_left($id, $value);
         $left_col = $this->pleft;
@@ -286,4 +296,3 @@ class Many2OneField extends RelationalField{
         $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$l1.', '.$right_col.'='.($l1+1).' WHERE '.$this->object->_key.'=%s', array($id));
     }
 }
-?>
