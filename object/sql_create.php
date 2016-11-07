@@ -8,7 +8,7 @@ class OM_SQLcreate extends OM_SQLinterface{
     function create($values){
         $obj = &$this->object;
         $this->debug = array_get($this->context, 'debug', false);
-        $user_id = array_get($this->context, 'user_id', $obj->_default_user_id);
+        $user_id = array_get($this->context, 'user_id', $obj->_pool->_default_user_id);
         if (!is_null($obj->_create_user_id)) $values[$obj->_create_user_id] = $user_id;
         if (!is_null($obj->_write_user_id)) $values[$obj->_write_user_id] = $user_id;
         $treated_columns = array(); 

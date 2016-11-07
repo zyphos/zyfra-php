@@ -89,7 +89,6 @@ class ObjectModel{
     var $_write_date = 'write_date';
     var $_create_user_id = 'create_user_id';
     var $_write_user_id = 'write_user_id';
-    var $_default_user_id = 1;
     var $_visible_field = 'visible';
     var $_visible_condition;
     var $_read_only = false;
@@ -127,10 +126,10 @@ class ObjectModel{
             $this->_columns[$this->_write_date] = new DatetimeField('Writed date');
         }
         if (!is_null($this->_create_user_id) && !array_key_exists($this->_create_user_id, $this->_columns)){
-            $this->_columns[$this->_create_user_id] = new IntField('Create user', array('default_value'=>$this->_default_user_id));
+            $this->_columns[$this->_create_user_id] = new IntField('Create user', array('default_value'=>$this->_pool->_default_user_id));
         }
         if (!is_null($this->_write_user_id) && !array_key_exists($this->_write_user_id, $this->_columns)){
-            $this->_columns[$this->_write_user_id] = new IntField('Write user', array('default_value'=>$this->_default_user_id));
+            $this->_columns[$this->_write_user_id] = new IntField('Write user', array('default_value'=>$this->_pool->_default_user_id));
         }
     }
 

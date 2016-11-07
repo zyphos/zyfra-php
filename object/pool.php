@@ -5,6 +5,7 @@ class Pool{
     protected static $instance;
     protected $auto_create = false;
     protected $language_object_name = 'language';
+    public $_default_user_id = 1;
 
     private function __construct(){
         // private = Avoid construct this object
