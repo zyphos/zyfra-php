@@ -79,6 +79,66 @@ require_once('object/pool.php');
 require_once('object/active_record.php');
 require_once('object/tools.php');
 
+class ContextedObjectModel{
+    protected $_object;
+    protected $_pool;
+    protected $_context;
+    
+    function __construct(&$object, &$pool=null, $context=null){
+        $this->_object = &$object;
+        if (is_null($pool)){
+            $this->_pool = $object->_pool;
+        }else{
+            $this->_pool = &$pool;
+        }
+        $this->_context = $context;
+    }
+    
+    protected function _get_context($context){
+        return array_merge($this->_pool->_context, $this->_context, $context);
+    }
+    
+    public function active_record(array $param = array(), array $context = array()){
+        return $this->_object->active_record($param, $this->_get_context($context));
+    }
+    
+    public function create(array $values, array $context = array()){
+        return $this->_object->create($values, $this->_get_context($context));
+    }
+    
+    public function write(array $values, $where, array $where_datas = array(), array $context = array()){
+        return $this->_object->write($values, $where, $where_datas, $this->_get_context($context));
+    }
+    
+    public function select($mql='*', array $context = array(), array $datas = array()){
+        return $this->_object->select($mql, $this->_get_context($context), $datas);
+    }
+    
+    public function unlink($where, array $datas = array(), array $context = array()){
+        return $this->_object->unlink($where, $datas, $this->_get_context($context));
+    }
+    
+    public function name_search($txt, array $context=array(), $operator='='){
+        return $this->_object->name_search($where, $datas, $this->_get_context($context));
+    }
+    
+    public function __call($method, $args){
+        return call_user_func_array(array($this->_object, $method), $args);
+    }
+     
+    public function __get($attribute){
+        return $this->_object->$attribute;
+    }
+     
+    public function __set($attribute, $value){
+        $this->_object->$attribute = $value;
+    }
+    
+    public function __invoke($context){
+        return new ContextedObectModel($this, $this->_pool, $context);
+    }
+}
+
 class ObjectModel{
     var $_columns;
     var $_name;
@@ -548,7 +608,11 @@ class ObjectModel{
         // Return ids corresponding to search on name
         $where = 'WHERE '.$this->_pool->db->safe_sql($this->_name_search_fieldname.' '.$operator.' %s', array($txt));
         return $this->get_scalar_array($this->_key, null, $where, $context);
-    } 
+    }
+    
+    public function __invoke($context){
+        return new ContextedObjectModel($this, $this->_pool, $context);
+    }
 }
 
 require_once('object/objects/meta.php');
