@@ -32,7 +32,7 @@ class ActiveRecord{
         $this->__id = array_key_exists($key, $this->__params)?$this->__params[$key]:0;
         $mql_fields = array_key_exists('mql_fields', $this->__context)?$this->__context['mql_fields']:'*';
         $this->__mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
-        $result = $obj->select($mql_fields.' WHERE '.$this->__mql_where, $this->__context, array($this->__id));
+        $result = $obj->select([$mql_fields.' WHERE '.$this->__mql_where, [$this->__id]], $this->__context);
         if (count($result)) $this->__data = $result[0];
     }
     
@@ -40,7 +40,7 @@ class ActiveRecord{
         // TODO: Handle One2Many, Many2Many
         if(is_null($this->__data)) return;
         $obj = $this->__object;
-        $result = $obj->select($mql_fields.' WHERE '.$this->__mql_where, $this->__context, array($this->__id));
+        $result = $obj->select([$mql_fields.' WHERE '.$this->__mql_where, [$this->__id]], $this->__context);
         if (count($result)) {
             foreach ($result[0] as $key=>$value){
                 $this->__data->$key = $value;

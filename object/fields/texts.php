@@ -63,11 +63,11 @@ class TextField extends Field{
         $where = $t['key'].' IN %s AND '.$t['language_id'].'=%s';
         $where_values = array($sql_write->ids, $language_id);
         if ($value == null || $value == ''){
-            $object_tr->unlink($where, $where_values);
+            $object_tr->unlink([$where, [$where_values]]);
             return;
         }
         $sql = $t['key'].' AS oid,'.$object_tr->_key.' AS id,'.$t['column'].' AS tr WHERE '.$where;
-        $rows = $object_tr->select($sql, array_merge($sql_write->context, array('key'=>'oid')), $where_values);
+        $rows = $object_tr->select([$sql, [$where_values]], array_merge($sql_write->context, array('key'=>'oid')));
         $row2add = array();
         $row2update = array();
         foreach($sql_write->ids as $id){
@@ -84,7 +84,7 @@ class TextField extends Field{
         }
         if (count($row2update) == 0) return;
         $where = $object_tr->_key.' IN %s AND '.$t['language_id'].'=%s';
-        $object_tr->write(array($t['column']=>$value), $where, array($row2update, $language_id), $sql_write->context);
+        $object_tr->write(array($t['column']=>$value), [$where, [$row2update, $language_id]], $sql_write->context);
     }
 
     function __get_translate_col_instance(){

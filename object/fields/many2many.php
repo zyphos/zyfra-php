@@ -178,13 +178,13 @@ class Many2ManyField extends One2ManyField{
                     }
                     break;
                 case 1: //modification
-                    $robj->write($val[2], $robj->_key.'=%s', array($val[1]), $context);
+                    $robj->write($val[2], [$robj->_key.'=%s', [$val[1]]], $context);
                     break;
                 case 2: //remove remote object
                     $robj->unlink($val[1]);
                     //Do also unlink
                 case 3: //unlink
-                    $this->relation_object->unlink($this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', array($local_ids, $val[1]));
+                    $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', [$local_ids, $val[1]]]);
                     break;
                 case 4: //link
                     foreach ($local_ids as $id){
@@ -192,16 +192,16 @@ class Many2ManyField extends One2ManyField{
                     }
                     break;
                 case 5: //unlink all
-                    $this->relation_object->unlink($this->rt_local_field.' in %s', array($local_ids));
+                    $this->relation_object->unlink([$this->rt_local_field.' in %s', [$local_ids]]);
                     break;
                 case 6: //Set a list of links
                     $new_rids = $val[2];
                     if (!count($new_rids)){
-                        $this->relation_object->unlink($this->rt_local_field.' in %s', array($local_ids));
+                        $this->relation_object->unlink([$this->rt_local_field.' in %s', [$local_ids]]);
                         return;
                     }
-                    $this->relation_object->unlink($this->rt_local_field.' in %s and '.$this->rt_foreign_field.' not in %s', array($local_ids, $new_rids));
-                    $result = $this->relation_object->select($this->rt_local_field.' as id,'.$this->rt_foreign_field.' as rid where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' in %s', array(), array($local_ids, $new_rids));
+                    $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' not in %s', [$local_ids, $new_rids]]);
+                    $result = $this->relation_object->select([$this->rt_local_field.' as id,'.$this->rt_foreign_field.' as rid where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' in %s', [$local_ids, $new_rids]]);
                     $existing_ids = array();
                     foreach($result as $row){
                         if(!isset($existing_ids[$row->id])) $existing_ids[$row->id] = array();
@@ -222,4 +222,3 @@ class Many2ManyField extends One2ManyField{
         }
     }
 }
-?>

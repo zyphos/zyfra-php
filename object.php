@@ -106,20 +106,24 @@ class ContextedObjectModel{
         return $this->_object->create($values, $this->_get_context($context));
     }
     
-    public function write(array $values, $where, array $where_datas = array(), array $context = array()){
-        return $this->_object->write($values, $where, $where_datas, $this->_get_context($context));
+    public function write(array $values, $where, array $context = array()){
+        return $this->_object->write($values, $where, $this->_get_context($context));
     }
     
-    public function select($mql='*', array $context = array(), array $datas = array()){
-        return $this->_object->select($mql, $this->_get_context($context), $datas);
+    public function select($mql='*', array $context = array()){
+        return $this->_object->select($mql, $this->_get_context($context));
     }
     
-    public function unlink($where, array $datas = array(), array $context = array()){
-        return $this->_object->unlink($where, $datas, $this->_get_context($context));
+    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
+        return $this->_object->get_scalar_array($value_field, $key_field, $where, $this->_get_context($context));
+    }
+    
+    public function unlink($where, array $context = array()){
+        return $this->_object->unlink($where, $this->_get_context($context));
     }
     
     public function name_search($txt, array $context=array(), $operator='='){
-        return $this->_object->name_search($where, $datas, $this->_get_context($context));
+        return $this->_object->name_search($txt, $this->_get_context($context), $operator);
     }
     
     public function __call($method, $args){
@@ -398,19 +402,42 @@ class ObjectModel{
             return $sql_create->create($values);
         }
     }
+    
+    protected function __parse_where($where){
+        
+        if (is_string($where)){
+            $where_datas = array();
+        }elseif (is_int($where)){
+            $where = $this->_key.'='.$where;
+            $where_datas = array();
+        }elseif (is_array($where)){
+            $nb = count($where);
+            if ($nb==0) return array(null, null);
+            if (is_string($where[0])){
+                $where_datas = &$where[1];
+                $where = &$where[0];
+            }else{
+                $where = $this->_key.' in ('.implode(',', $where).')';
+                $where_datas = array();
+            }
+        }else{
+            throw new Exception('Unsupported where ['.$where.']');
+        }
+        return array($where, $where_datas);
+    }
 
-    public function write(array $values, $where, array $where_datas = array(), array $context = array()){
+    public function write(array $values, $where, array $context = array()){
         if ($this->_read_only) return null;
-        if (is_int($where)) $where = $this->_key.'='.$where;
-        if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
-        $sql_write = new zyfra\orm\SQLWrite($this, $values, $where, $where_datas, $context);
+        list($where, $where_data) = $this->__parse_where($where);
+        if (is_null($where)) return null;
+        $sql_write = new zyfra\orm\SQLWrite($this, $values, $where, $where_data, $context);
         return $sql_write->result;
     }
 
-    public function unlink($where, array $datas = array(), array $context = array()){
+    public function unlink($where, array $context = array()){
         if ($this->_read_only) return null;
-        if (is_int($where)) $where = $this->_key.'='.$where;
-        if (is_array($where)) $where = $this->_key.' in ('.implode(',', $where).')';
+        list($where, $where_data) = $this->__parse_where($where);
+        if (is_null($where)) return null;
         $columns_before = array_keys($this->__before_unlink_fields);
         $columns_after = array_keys($this->__after_unlink_fields);
         $columns = array_merge($columns_before, $columns_after);
@@ -428,10 +455,10 @@ class ObjectModel{
         $sql = 'DELETE FROM '.$this->_table.' WHERE '.$where;
         
         if (isset($context['dry_run']) && $context['dry_run']){
-            return $this->_pool->db->safe_sql($sql, $datas);
+            return $this->_pool->db->safe_sql($sql, $where_data);
         }
         
-        $this->_pool->db->safe_query($sql, $datas);
+        $this->_pool->db->safe_query($sql, $where_data);
         foreach($columns_after as $column){
             $old_values = array();
             foreach($rows as $row){
@@ -456,7 +483,13 @@ class ObjectModel{
         return $res;
     }
 
-    public function select($mql='*', array $context = array(), array $datas = array()){
+    public function select($mql='*', array $context = array()){
+        if (is_string($mql)){
+            $datas = array();
+        }elseif (is_array($mql)){
+            $datas = &$mql[1];
+            $mql = &$mql[0];
+        }
         try{
             $mql = $this->_pool->db->safe_sql($mql, $datas);
         }catch(Exception $e){
@@ -469,7 +502,12 @@ class ObjectModel{
         return $sql_query->get_array($mql, $context);
     }
     
-    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array(), array $datas = array()){
+    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
+        list($where, $datas) = $this->__parse_where($where);
+        if (is_null($where)) {
+            $where = '';
+            $datas = array();
+        }
         try{
             $where = $this->_pool->db->safe_sql($where, $datas);
         }catch(Exception $e){

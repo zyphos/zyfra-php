@@ -54,7 +54,7 @@ class MetaField extends Field{
         print_r($values);
         $properties = array_keys($values);
         print_r($properties);
-        $cols = $this->column_object->select('name,tof,id WHERE name IN %s', array(), array($properties));
+        $cols = $this->column_object->select(['name,tof,id WHERE name IN %s', [$properties]]);
         $col_array = array();
         $col_name = array('col_id', 'src_id', 'value');
         $col2del = array();
@@ -75,17 +75,17 @@ class MetaField extends Field{
                 //1. Delete
                 $tof_obj = $this->type_objects[$this->tof[$tof][0]];
                 if (count($col2del)){
-                    $tof_obj->unlink('src_id IN %s AND col_id IN %s', array($src_ids, $col2del));
+                    $tof_obj->unlink(['src_id IN %s AND col_id IN %s', [$src_ids, $col2del]]);
                 }
 
                 //2. Update
-                $current_values = $tof_obj->select('col_id,src_id WHERE src_id IN %s AND col_id IN %s', array(), array($src_ids, array_keys($cols)));
+                $current_values = $tof_obj->select(['col_id,src_id WHERE src_id IN %s AND col_id IN %s', [$src_ids, array_keys($cols)]]);
                 $update_ids = array();
                 foreach($current_values as $row){
                     $update_ids[$row->col_id][] = $row->src_id;
                 }
                 foreach($update_ids as $col_id=>$src_col_ids){
-                    $tof_obj->write(array('value'=>$cols[$col_id]['value']), 'col_id=%s AND src_id IN %s', array($col_id, $src_ids), $context);
+                    $tof_obj->write(array('value'=>$cols[$col_id]['value']), ['col_id=%s AND src_id IN %s', [$col_id, $src_ids]], $context);
                 }
 
                 //3. Update

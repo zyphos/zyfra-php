@@ -38,7 +38,7 @@ class SQLWrite extends OM_SQLinterface{
             }
             if (array_key_exists($field_name, $object->__after_write_fields)){
                 $sql = $object->_key.','.$field_name.' WHERE ('.$where.')AND('.$field_name.'!=%s)';
-                $old_values[$field_name] = $object->select($sql, array_merge($ctx, array('key'=>$object->_key)), array($values[$field_name]));
+                $old_values[$field_name] = $object->select([$sql, [$values[$field_name]]], array_merge($ctx, array('key'=>$object->_key)));
             }
             if (array_key_exists($field_name, $object->_columns)){
                 $object->_columns[$field_name]->sql_write($this, $value, $fields, $ctx);

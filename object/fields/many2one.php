@@ -229,7 +229,7 @@ class Many2OneSelfField extends Many2OneField{
         }else{
             $parent_obj = $this->object->_pool->db->get_object('SELECT '.$left_col.' AS lc FROM '.$table.' WHERE '.$key.'=%s', array($value));
             $l1 = $parent_obj->lc + 1;
-            $brothers = $this->object->select($key.' AS id,'.$right_col.' AS rc WHERE '.$this->name.'=%s', array(), array($value));
+            $brothers = $this->object->select([$key.' AS id,'.$right_col.' AS rc WHERE '.$this->name.'=%s', [$value]]);
             foreach($brothers as $brother){
                 if ($brother->id == $id) break;
                 $l1 = $brother->rc + 1;
@@ -248,7 +248,7 @@ class Many2OneSelfField extends Many2OneField{
         if ($id==null || $id==0){
             $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0', array('visible'=>false));
         }else{
-            $rows = $this->object->select($key.' AS id WHERE '.$this->name.'=%s', array('visible'=>false), array($id));
+            $rows = $this->object->select([$key.' AS id WHERE '.$this->name.'=%s', [$id]], array('visible'=>false));
         }
         foreach ($rows as $row){
             $right = $this->rebuild_tree($row->id, $right, $key, $table);
