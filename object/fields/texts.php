@@ -186,4 +186,16 @@ class TinytextField extends TextField{
         return 'TINYTEXT';
     }
 }
-?>
+
+class MediumTextField extends TextField{
+    function get_sql_def(){
+        return 'MEDIUMTEXT';
+    }
+}
+
+class LongTextField extends TextField{
+    function get_sql_def(){
+        return 'LONGTEXT';
+    }
+}
+
