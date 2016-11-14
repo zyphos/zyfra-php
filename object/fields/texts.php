@@ -198,4 +198,3 @@ class LongTextField extends TextField{
         return 'LONGTEXT';
     }
 }
-
