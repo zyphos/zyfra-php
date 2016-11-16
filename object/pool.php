@@ -100,6 +100,17 @@ class Pool{
     	return array();
     }
     
+    public function get_objects_in_pool(){
+        return array_keys($this->pool);
+    }
+    
+    public function instanciate_all_objects(){
+        $object_names = $this->get_available_objects();
+        foreach($object_names as $object_name){
+            $this->$object_name;
+        }
+    }
+    
     public function get_language_object_name(){
         return $this->language_object_name;
     }
