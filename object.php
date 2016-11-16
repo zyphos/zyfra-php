@@ -648,7 +648,7 @@ class ObjectModel{
     
     public function name_search($txt, array $context=array(), $operator='='){
         // Return ids corresponding to search on name
-        $where = 'WHERE '.$this->_pool->db->safe_sql($this->_name_search_fieldname.' '.$operator.' %s', array($txt));
+        $where = ['WHERE '.$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
         return $this->get_scalar_array($this->_key, null, $where, $context);
     }
     
