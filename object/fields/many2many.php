@@ -184,18 +184,23 @@ class Many2ManyField extends One2ManyField{
                     $robj->unlink($val[1]);
                     //Do also unlink
                 case 3: //unlink
-                    $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', [$local_ids, $val[1]]]);
+                    $remote_id = $robj->get_id_from_value($val[1], $context);
+                    $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', [$local_ids, $remote_id]]);
                     break;
                 case 4: //link
+                    $remote_id = $robj->get_id_from_value($val[1], $context);
                     foreach ($local_ids as $id){
-                        $this->relation_object->create(array($this->rt_local_field=>$id, $this->rt_foreign_field=>$val[1]));
+                        $this->relation_object->create(array($this->rt_local_field=>$id, $this->rt_foreign_field=>$remote_id));
                     }
                     break;
                 case 5: //unlink all
                     $this->relation_object->unlink([$this->rt_local_field.' in %s', [$local_ids]]);
                     break;
                 case 6: //Set a list of links
-                    $new_rids = $val[2];
+                    $new_rids = [];
+                    foreach($val[2] as $r_id){
+                        $new_rids[] = $robj->get_id_from_value($r_id, $context);
+                    }
                     if (!count($new_rids)){
                         $this->relation_object->unlink([$this->rt_local_field.' in %s', [$local_ids]]);
                         return;

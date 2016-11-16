@@ -126,6 +126,10 @@ class ContextedObjectModel{
         return $this->_object->name_search($txt, $this->_get_context($context), $operator);
     }
     
+    public function get_id_from_value($value, $context, $field_name=null){
+        return $this->_object->get_id_from_value($value, $this->_get_context($context), $field_name);
+    }
+    
     public function __call($method, $args){
         return call_user_func_array(array($this->_object, $method), $args);
     }
@@ -650,6 +654,20 @@ class ObjectModel{
     
     public function __invoke($context){
         return new ContextedObjectModel($this, $this->_pool, $context);
+    }
+    
+    public function get_id_from_value($value, $context, $field_name=null){
+        if (is_null($field_name)) $field_name = $this->_key;
+        try{
+            return $this->_columns[$field_name]->sql2php($value);
+        }catch(UnexpectedValueException $e){
+        }
+        // Try to search it
+        $ids = $this->name_search($value, $context);
+        if (count($ids) != 1){
+            throw new UnexpectedValueException('Can not found match for this value. ['.$value.'] in ['.$this->_name.']');
+        }
+        return $ids[0];
     }
 }
 
