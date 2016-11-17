@@ -60,6 +60,10 @@ class OM_SQLcreate extends OM_SQLinterface{
             \zyfra_debug::print_set('CREATE:', $sql);
         }
         
+        if ($this->dry_run){
+            return null;
+        }
+        
         $res = $obj->_pool->db->query($sql);
         if ($res === false){
             throw new \Exception('Insert error: '.$sql.' - '.mysql_error());

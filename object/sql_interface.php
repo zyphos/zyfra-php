@@ -21,6 +21,7 @@ class OM_SQLinterface{
         $this->callbacks = array();
         $this->context = $context;
         $this->debug = array_get($context, 'debug', false);
+        $this->dry_run = array_get($context, 'dry_run', false);
     }
 
     function add_callback($field_object, $callback_name, $parameters=array()){

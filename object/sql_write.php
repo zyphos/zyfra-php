@@ -49,10 +49,15 @@ class SQLWrite extends OM_SQLinterface{
         }
         if (count($this->col_assign) == 0) return true;
         $sql = 'UPDATE '.$object->_table.' AS t0 SET '.implode(',', $this->col_assign).' WHERE '.$where;
+        $sql = $db->safe_sql($sql, array_merge($this->col_assign_data, $where_datas));
         if ($this->debug){
             \zyfra_debug::print_set('WRITE SQL: Model['.$this->object->_name.']', htmlentities($sql));
         }
-        $r = $db->safe_query($sql, array_merge($this->col_assign_data, $where_datas));
+        
+        if ($this->dry_run){
+            return true;
+        }
+        $r = $db->query($sql);
         /*foreach($this->callbacks as $callback){
          call_user_func($callback, $this, $values[$col_name], $this->ids, $context);
         }*/
