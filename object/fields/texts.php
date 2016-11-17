@@ -110,17 +110,17 @@ class TextField extends Field{
                 try{
                      $pool->{$language_object_name};
                 }catch (Exception $e) {}
-                
+                $model_class = $this->get_model_class();
                 if (!$pool->object_in_pool($language_object_name)){
                     $name_field = new CharField('Name', 30);
-                    $lg_obj = new ObjectModel($pool, array(
+                    $lg_obj = new $model_class($pool, array(
                             '_name'=>$language_object_name,
                         '_columns'=>array('name'=>$name_field)));
                     $pool->add_object($language_object_name, $lg_obj);
                 }
                 $language_field = new Many2OneField('Language', $language_object_name);
                 $source_field = new Many2OneField('Source row id', $object->_name);
-                $tr_obj = new ObjectModel($pool, array(
+                $tr_obj = new $model_class($pool, array(
                             '_name'=>$tr_name,
                       '_columns'=>array(
                         'language_id'=>$language_field, 

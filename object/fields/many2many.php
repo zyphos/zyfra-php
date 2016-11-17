@@ -11,7 +11,6 @@ class Many2ManyField extends One2ManyField{
     var $rt_foreign_field=null;
     var $equal2equal = false;
     var $foreign_key;
-    var $model_class='ObjectModel';
     var $handle_operator=true;
 
     function __construct($label, $relation_object_name, $args = array()){
@@ -42,6 +41,7 @@ class Many2ManyField extends One2ManyField{
             if ($this->back_ref_field !== null) $this->rt_local_field = $br_field.'_'.$this->rt_local_field;
             $this->rt_foreign_field = $name.'_'.$this->rt_foreign_field;
         }
+        $model_class = $this->get_model_class();
         if ($this->back_ref_field !== null){
             // Bug: !! The remote column won't be created if this class isn't intanciated !!
             if(!isset($robj->_columns[$br_field])){
@@ -52,14 +52,14 @@ class Many2ManyField extends One2ManyField{
                                         'rt_local_field'=>$this->rt_foreign_field,
                                         'foreign_key'=>$this->local_key,
                                         'local_key'=>$this->foreign_key,
-                                        'model_class'=>$this->model_class,
+                                        'model_class'=>$model_class,
                                         )); 
                 $robj->add_column($br_field, $many2many_field);
             }
         }
         $pool = $object->_pool;
         if (!$pool->object_in_pool($this->relation_table)){
-            $rel_table_object = new $this->model_class($pool, array(
+            $rel_table_object = new $model_class($pool, array(
                     '_name'=>$this->relation_table,
                     '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key)),
                             $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, array('relation_object_key'=>$this->foreign_key))

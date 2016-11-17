@@ -39,6 +39,7 @@ class Pool{
     protected $language_object_name = 'language';
     public $_default_user_id = 1;
     public $_context = null;
+    public $_model_class='ObjectModel';
 
     private function __construct(){
         // private = Avoid construct this object

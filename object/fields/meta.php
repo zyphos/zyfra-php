@@ -16,9 +16,10 @@ class MetaField extends Field{
         parent::set_instance($object, $name);
         $pool = $object->_pool;
         $this->metaname_base = $object->_name.'_'.$name;
+        $model_class = $this->get_model_class();
         foreach($this->types as $key=>$type){
             $meta_name = $this->metaname_base.'_'.$key;
-            $meta_obj = new ObjectModel($pool, array(
+            $meta_obj = new $model_class($pool, array(
                         '_name'=>$meta_name,
                         '_columns'=>array('src_id'=>new Many2OneField('Source obj', $this->object->_name),
                                           'col_id'=>new Many2OneField('Column', 'meta_columns'),

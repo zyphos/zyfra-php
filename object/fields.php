@@ -20,6 +20,7 @@ abstract class Field{
     var $handle_operator=false;
     var $not_null=false;
     var $select_all=true;
+    var $model_class=null;
 
     function __construct($label, $args = null){
         $this->label = $label;
@@ -123,6 +124,13 @@ abstract class Field{
     
     function get_default(){
         return $this->default_value;
+    }
+    
+    function get_model_class(){
+        if (is_null($this->model_class)){
+            return $this->object->_pool->_model_class;
+        }
+        return $this->model_class;
     }
 
     //abstract function after_create_trigger(&$values);
