@@ -112,18 +112,25 @@ class Many2ManyField extends One2ManyField{
     
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
         if ($sql_query->debug > 1) echo 'M2M['.$this->name.']: '.print_r($fields, true).'<br>';
-        if (isset($context['is_where']) && $context['is_where'] && count($fields) == 0 && isset($context['operator'])){
-            $pa = $parent_alias->alias;
-            $operator = $context['operator'];
-            $op_data = trim($context['op_data']);
-            $ta = $sql_query->get_new_table_alias();
-            
-            $sql = 'EXISTS(SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_foreign_field.' '.$operator.' '.$op_data.' AND '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key.')';
-            $parent_alias->set_used();
-            
-            return $sql;
-        }
         $nb_fields = count($fields);
+        if (isset($context['is_where']) && $context['is_where']) {
+            if ($nb_fields == 0 && isset($context['operator'])){
+                $pa = $parent_alias->alias;
+                $operator = $context['operator'];
+                $op_data = trim($context['op_data']);
+                $ta = $sql_query->get_new_table_alias();
+                
+                $sql = 'EXISTS(SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_foreign_field.' '.$operator.' '.$op_data.' AND '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key.')';
+                $parent_alias->set_used();
+                
+                return $sql;
+            }elseif($nb_fields>0){ // Todo handle case when parameters is set
+                $new_fields = $fields; //copy
+                array_unshift($new_fields, $this->rt_foreign_field);
+                return parent::get_sql($parent_alias, $new_fields, $sql_query, $context);
+            }
+        }
+       
         $new_fields = $fields; //copy
         $new_ctx = $context; //copy
         if ($nb_fields){
