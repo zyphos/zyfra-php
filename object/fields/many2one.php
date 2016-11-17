@@ -114,7 +114,8 @@ class Many2OneField extends RelationalField{
                 return $relation_object->create($value, $context);
             }
             
-            return $relation_object->get_id_from_value($value, $context, $this->relation_object_key);
+            $relation_id = $relation_object->get_id_from_value($value, $context, $this->relation_object_key);
+            return $relation_object->_columns[$this->relation_object_key]->sql_create($sql_create, $relation_id, $fields, $context);
         }
         //Handle subfield (meanfull ?)
         return null;
