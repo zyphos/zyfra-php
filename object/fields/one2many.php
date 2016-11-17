@@ -19,7 +19,7 @@ class One2ManyField extends RelationalField{
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
-        if ($sql_query->debug > 1) echo 'O2M['.$this->name.']: '.print_r($fields, true).'<br>';
+        if ($sql_query->debug > 1) echo 'O2M['.$this->name.'] fields: '.print_r($fields, true).'<br>';
         if (array_key_exists('parameter', $context)){
             $parameter = $context['parameter'];
         }else{
