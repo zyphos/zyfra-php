@@ -537,6 +537,7 @@ class ObjectModel{
     				'required'=>$column->required,
     		        'help'=>$column->help,
     				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
+    		        'hidden'=>$column->hidden,
     				'is_key'=>($name==$this->_key));
     		if (isset($column->relation_object_name)){
     			$col->relation_object_name = $column->relation_object_name;

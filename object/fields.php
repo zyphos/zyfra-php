@@ -21,6 +21,7 @@ abstract class Field{
     var $not_null=false;
     var $select_all=true;
     var $model_class=null;
+    var $hidden=false;
 
     function __construct($label, $args = null){
         $this->label = $label;
