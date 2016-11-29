@@ -7,6 +7,7 @@ class FunctionField extends Field{
     var $parameters=null;
     var $stored=false;
     var $select_all=false;
+    var $read_only=true;
     var $required_fields;
 
     function __construct($label, $fx, $args = null){
