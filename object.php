@@ -526,6 +526,7 @@ class ObjectModel{
     
     public function get_view(array $fields_list = null){
     	if (is_null($fields_list)) $fields_list = array_keys($this->_columns);
+    	if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
     	$view = array();
     	foreach($fields_list as $name){
     		$column = $this->_columns[$name];
