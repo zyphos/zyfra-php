@@ -163,6 +163,7 @@ class ObjectModel{
     var $_instanciated = false;
     var $_form_view_fields = null;
     var $_tree_view_fields = null;
+    var $_display_name_field = 'name'; // Used for widget display
     
     protected $_name_search_fieldname = 'name';
 
@@ -198,6 +199,14 @@ class ObjectModel{
         }
         if (!is_null($this->_write_user_id) && !array_key_exists($this->_write_user_id, $this->_columns)){
             $this->_columns[$this->_write_user_id] = new IntField('Write user', array('default_value'=>$this->_pool->_default_user_id));
+        }
+        
+        if (!array_key_exists('_display_name', $this->_columns)){
+            if (array_key_exists($this->_display_name_field, $this->_columns)){
+                $this->_columns['_display_name'] = &$this->_columns[$this->_display_name_field];
+            }else{
+                $this->_columns['_display_name'] = &$this->_columns[$this->_key];
+            }
         }
     }
 
@@ -525,7 +534,12 @@ class ObjectModel{
     }
     
     public function get_view(array $fields_list = null){
-    	if (is_null($fields_list)) $fields_list = array_keys($this->_columns);
+    	if (is_null($fields_list)) {
+    	    $fields_list = array_keys($this->_columns);
+    	    if(($key = array_search('_display_name', $fields_list)) !== false) {
+    	        unset($fields_list[$key]);
+    	    }
+    	}
     	if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
     	$view = array();
     	foreach($fields_list as $name){
