@@ -14,6 +14,7 @@ class FunctionField extends Field{
         $this->required_fields = array();
         parent::__construct($label, $args);
         $this->get_fx = $fx;
+        if (!is_null($this->set_fx) && !isset($args['read_only'])) $this->read_only = false;
     }
 
     function get_sql($parent_alias, $fields, $sql_query, $context=array()){
