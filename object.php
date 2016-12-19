@@ -203,9 +203,9 @@ class ObjectModel{
         
         if (!array_key_exists('_display_name', $this->_columns)){
             if (array_key_exists($this->_display_name_field, $this->_columns)){
-                $this->_columns['_display_name'] = &$this->_columns[$this->_display_name_field];
+                $this->_columns['_display_name'] = new ShortcutField('Display Name', $this->_display_name_field);
             }else{
-                $this->_columns['_display_name'] = &$this->_columns[$this->_key];
+                $this->_columns['_display_name'] = new ShortcutField('Display Name', $this->_key);
             }
         }
     }
