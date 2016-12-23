@@ -67,7 +67,8 @@ class TextField extends Field{
             return;
         }
         $sql = $t['key'].' AS oid,'.$object_tr->_key.' AS id,'.$t['column'].' AS tr WHERE '.$where;
-        $rows = $object_tr->select([$sql, [$where_values]], array_merge($sql_write->context, array('key'=>'oid')));
+        $new_context = array_merge($sql_write->context, array('key'=>'oid'));
+        $rows = $object_tr->select([$sql, $where_values], $new_context);
         $row2add = array();
         $row2update = array();
         foreach($sql_write->ids as $id){
