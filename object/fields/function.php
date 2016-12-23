@@ -37,6 +37,7 @@ class FunctionField extends Field{
     function get($ids, $context, $datas){
         //should return an array of object with array[id] = result
         if (is_null($this->get_fx)) return array();
+        if (count($ids) == 0) return [];
         return call_user_func($this->get_fx, $this, $ids, $context, $datas);
     }
 
