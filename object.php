@@ -555,7 +555,7 @@ class ObjectModel{
     				'is_key'=>($name==$this->_key));
     		if (isset($column->relation_object_name)){
     			$col->relation_object_name = $column->relation_object_name;
-    			$col->relation_object_key = $column->relation_object_key;
+    			$col->relation_object_field = $column->relation_object_field;
     		}
     		$view[] = $col;
     	}
