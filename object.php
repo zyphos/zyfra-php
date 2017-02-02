@@ -481,13 +481,19 @@ class ObjectModel{
         }
     }
 
-    public function read($where='', array $fields=array()){
+    public function read($where='', array $fields=array(), array $context = array()){
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
+        if (is_string($where)){
+            $datas = array();
+        }elseif (is_array($where)){
+            $datas = &$where[1];
+            $where = &$where[0];
+        }
         if (trim($where) != '') $where = ' WHERE '.$where;
         $mql = implode(',', $fields).$where;
-        $res = $this->select($mql);
+        $res = $this->select([$mql, $datas], $context);
         foreach($res as &$row){
         	foreach($row as $col_name=>&$value){
         		if (isset($this->_columns[$col_name])) $value = $this->_columns[$col_name]->sql2php($value); 
