@@ -563,6 +563,9 @@ class ObjectModel{
     			$col->relation_object_name = $column->relation_object_name;
     			$col->relation_object_field = $column->relation_object_field;
     		}
+    		if (isset($column->select_values)){
+    		    $col->select_values = $column->select_values;
+    		}
     		$view[] = $col;
     	}
     	return $view;
