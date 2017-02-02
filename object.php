@@ -677,6 +677,12 @@ class ObjectModel{
         return $this->get_scalar_array($this->_key, null, $where, $context);
     }
     
+    public function name_search_details($txt, array $context=array(), $operator='='){
+        // Return ids corresponding to search on name
+        $where = [$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
+        return $this->read($where, [$this->_key.' AS id', $this->_name_search_fieldname.' AS name'], $context);
+    }
+    
     public function __invoke($context){
         return new ContextedObjectModel($this, $this->_pool, $context);
     }
