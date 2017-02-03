@@ -7,6 +7,7 @@ class IntField extends Field{ // 4 Bytes
     var $widget='integer';
     
     function sql2php($value){
+        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected.');
     	return (int)$value;
     }
 
