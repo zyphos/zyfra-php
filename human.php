@@ -25,50 +25,49 @@
 *
 *****************************************************************************/
 
-class zyfra_human{
-    function hr2bin($hr){
-        //Make human readable to Binary size
-        //eg: $hr = 14.68M
-        //result: 15392074
-        preg_match("/(\d*\.?\d)(K|M|G|T)?/",$hr,$matches);
-        if (count($matches)< 1) return 0;
-        if (count($matches)< 2) return $matches[1]; 
-        $base = $matches[1];
-        switch($matches[2]){
-            case "T":
-                return $base * 1099511627776;
-                break;
-            case "G":
-                return $base * 1073741824;
-                break;
-            case "M":
-                return $base * 1048576;
-                break;
-            case "K":
-                return $base * 1024;
+namespace zyfra\human;
+
+function hr2bin($hr){
+    //Make human readable to Binary size
+    //eg: $hr = 14.68M
+    //result: 15392074
+    preg_match("/(\d*\.?\d)(K|M|G|T)?/",$hr,$matches);
+    if (count($matches)< 1) return 0;
+    if (count($matches)< 2) return $matches[1];
+    $base = $matches[1];
+    switch($matches[2]){
+        case "T":
+            return $base * 1099511627776;
             break;
-        }
-        return $base;
+        case "G":
+            return $base * 1073741824;
+            break;
+        case "M":
+            return $base * 1048576;
+            break;
+        case "K":
+            return $base * 1024;
+            break;
     }
-    
-    function bin2hr($size){
-        //Make Binary to human readable size
-        //eg: $size = 15392074
-        //result: 14.68M
-        $sizes = array(1024=>"K",1048576=>"M",1073741824=>"G");
-        krsort($sizes);
-        foreach($sizes as $lvl=>$lvlName){
-            if($size>=$lvl){
-                return round($size / $lvl,2).$lvlName;
-            }
-        }
-        return $size;
-    }
-    
-    static function date($the_date){
-        $date_array = explode('-', $the_date);
-        $date_array = array_reverse($date_array);
-        return implode('/', $date_array);
-    }
+    return $base;
 }
-?>
+
+function bin2hr($size){
+    //Make Binary to human readable size
+    //eg: $size = 15392074
+    //result: 14.68M
+    $sizes = array(1024=>"K",1048576=>"M",1073741824=>"G");
+    krsort($sizes);
+    foreach($sizes as $lvl=>$lvlName){
+        if($size>=$lvl){
+            return round($size / $lvl,2).$lvlName;
+        }
+    }
+    return $size;
+}
+
+function date($the_date){
+    $date_array = explode('-', $the_date);
+    $date_array = array_reverse($date_array);
+    return implode('/', $date_array);
+}
