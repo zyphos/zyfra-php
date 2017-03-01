@@ -7,6 +7,16 @@ require_once('sql_interface.php');
 class OM_SQLcreate extends OM_SQLinterface{
     function create($values){
         $obj = &$this->object;
+        //Check required fields
+        $required_lacking = [];
+        foreach($obj->_columns as $col_name=>$column){
+            if ($column->required && !isset($values[$col_name])){
+                $required_lacking[] = $col_name;
+            }
+        }
+        if (count($required_lacking)){
+            throw new \Exception('Fields: '.implode(', ', $required_lacking).' are required for creation in object['.$obj->_name.']');
+        }
         $this->debug = array_get($this->context, 'debug', false);
         $user_id = array_get($this->context, 'user_id', $obj->_pool->_default_user_id);
         if (!is_null($obj->_create_user_id)) $values[$obj->_create_user_id] = $user_id;
