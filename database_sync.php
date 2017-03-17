@@ -697,7 +697,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         	WHERE table_name="'.$table_name.'" AND sync_id='.$sync_id;
         $res = $db->query($sql);
         $obj = $db->fetch_object($res);
-        if ($obj === FALSE){
+        if (!is_object($obj)){
             return array(strtotime('1980-01-01 00:00:00 UTC'), strtotime('1980-01-01 00:00:00 UTC'));
         }else{
             return array(strtotime($obj->last_sync_start.' UTC'), strtotime($obj->last_sync_end.' UTC'));
