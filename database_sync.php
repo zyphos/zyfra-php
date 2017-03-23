@@ -599,6 +599,17 @@ class zyfra_database_synch extends zyfra_rpc_big{
                     $value = '\''.$this->db->safe_var($value).'\'';
                 }
                 break;
+            case 'date':
+                if ($value === '' || $value == '0000-00-00'){
+                    if ($field->null == 'NULL'){
+                        $value = 'null';
+                    }else{
+                        $value = '\''.$field->default_value.'\'';
+                    }
+                }else{
+                    $value = '\''.$this->db->safe_var($value).'\'';
+                }
+                break;
             default:
                 $value = '\''.$this->db->safe_var($value).'\'';
         }
