@@ -763,7 +763,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $slst_files = array();
         $files = scandir(getcwd());
         foreach($files as $filename){
-            if (strtolower(array_pop(explode('.',$filename)))=='slst'){
+            $file_name_exploded = explode('.',$filename);
+            if (strtolower(array_pop($file_name_exploded))=='slst'){
                 $slst_files[] = $filename;
             }
         }
