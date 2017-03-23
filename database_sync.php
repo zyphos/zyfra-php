@@ -552,6 +552,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //echo $field_name.'['.$field->type_short.'] value['.$value.'] default['.$field->default_value.'] null['.$field->null.']<br>';
         switch($field->type_short){
             case 'int':
+            case 'tinyint':
+            case 'smallint':
+            case 'mediumint':
+            case 'bigint':
                 if ($value === ''){
                     if ($field->null == 'NULL'){
                         $value = 'null';
