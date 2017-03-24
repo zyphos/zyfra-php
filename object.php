@@ -324,7 +324,7 @@ class ObjectModel{
             if (!$field->stored) continue;
             if(!array_key_exists($field_name, $fields)){
                 $error_msgs[] = '['.$this->_table.'] Field ['.$field_name.'] does not exist in table';
-                break;
+                continue;
             }
             $db_field = $fields[$field_name];
             
