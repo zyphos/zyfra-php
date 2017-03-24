@@ -8,7 +8,7 @@ class ActiveRecord{
     protected $__mql_where;
     protected $__id;
 
-    public function __construct($object, $params = array(), $context = array()){
+    public function __construct($object, $params, $context = array()){
         /* $params is an array:
          * it contains predefined attribute. Ie: $params = array('uid'=>4,'name'=>'test');
          * or the key id

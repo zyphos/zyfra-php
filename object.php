@@ -98,7 +98,7 @@ class ContextedObjectModel{
         return array_merge($this->_pool->_context, $this->_context, $context);
     }
     
-    public function active_record(array $param = array(), array $context = array()){
+    public function active_record(array $param, array $context = array()){
         return $this->_object->active_record($param, $this->_get_context($context));
     }
     
@@ -263,7 +263,7 @@ class ObjectModel{
         //Contains fields definitions
     }
 
-    public function active_record(array $param = array(), array $context = array()){
+    public function active_record($param, array $context = array()){
         return new ActiveRecord($this, $param, $context);
     }
 
