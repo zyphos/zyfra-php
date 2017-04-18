@@ -18,7 +18,7 @@ class IntField extends Field{ // 4 Bytes
     }
 
     function get_sql_def(){
-        return 'INT('.$this->display_width.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'INT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
 
     function get_sql_def_flags($update=false){
@@ -34,7 +34,7 @@ class TinyIntField extends IntField{ // 1 byte
     var $display_width = 3;
     
     function get_sql_def(){
-        return 'TINYINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'TINYINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
 }
 
@@ -42,7 +42,7 @@ class SmallIntField extends IntField{ // 2 bytes
     var $display_width = 6;
 
     function get_sql_def(){
-        return 'SMALLINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'SMALLINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
 }
 
@@ -50,7 +50,7 @@ class MediumIntField extends IntField{ // 3 bytes
     var $display_width = 8;
 
     function get_sql_def(){
-        return 'MEDIUMINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'MEDIUMINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
 }
 
@@ -58,7 +58,7 @@ class BigIntField extends IntField{ // 8 bytes
     var $display_width = 20;
 
     function get_sql_def(){
-        return 'BIGINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'BIGINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
 }
 
@@ -144,6 +144,6 @@ class IntSelectField extends Field{
     }
     
     function get_sql_def(){
-        return 'INT('.$this->size.')'.($this->unsigned?' UNSIGNED ':'');
+        return 'INT('.$this->size.')'.($this->unsigned?' UNSIGNED':'');
     }
 }
