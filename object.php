@@ -419,6 +419,7 @@ class ObjectModel{
     protected function __parse_where($where){
         
         if (is_string($where)){
+            if (is_numeric($where)) $where = $this->_key.'='.$where;
             $where_datas = array();
         }elseif (is_int($where)){
             $where = $this->_key.'='.$where;
