@@ -231,7 +231,10 @@ class zyfra_mysql extends zyfra_db_common {
         return false;
     }
 
-
+    function get_error(){
+        if ($this->link) return $this->link->error;
+        return '';
+    }
 
     function get_nb_row_query($sql){
         $result = $this->query($sql);
