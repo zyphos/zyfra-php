@@ -45,6 +45,7 @@ class zyfra_db_common {
     protected $link=false;
     protected $db_selected=false;
     protected $page_nr=0;
+    protected $error_callback=null;
     var $nb_rows=0;
     var $nb_pages=0;
     var $nb_row_per_page=0;
@@ -232,7 +233,12 @@ class zyfra_db_common {
             echo $the_html_error;
             throw new Exception($the_html_error);
         }
+        if (!is_null($this->error_callback)) call_user_func($this->error_callback, $the_html_error);
         $this->errors2mail .= $the_html_error;
+    }
+    
+    public function set_error_callback($callback){
+        $this->error_callback = $callback;
     }
 
     public function get_object($sql, $datas = array()){
