@@ -90,11 +90,19 @@ class Pool{
     }
 
     public function set_auto_create($flag){
+        throw new Exception('set_auto_create is not more used in pool use pool->update_sql_structure() instead');
         $this->auto_create = $flag;
     }
 
     public function get_auto_create(){
+        throw new Exception('get_auto_create is not more used in pool use pool->update_sql_structure() instead');
         return $this->auto_create;
+    }
+    
+    public function update_sql_structure(){
+        foreach ($this->pool as $model){
+            $model->update_sql_structure();
+        }
     }
     
     public function get_available_objects(){

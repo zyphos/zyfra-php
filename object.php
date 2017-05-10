@@ -244,7 +244,7 @@ class ObjectModel{
         }
 
         if (!isset($this->_table)) $this->_table = $this->_name;
-        if ($this->_pool->get_auto_create()) $this->update_sql();
+        //if ($this->_pool->get_auto_create()) $this->update_sql_structure();
     }
 
     public function __set($name, $value){
@@ -267,7 +267,7 @@ class ObjectModel{
         return new ActiveRecord($this, $param, $context);
     }
 
-    protected function update_sql(){
+    public function update_sql_structure(){
         if ($this->_read_only) return null;
         if (property_exists($this, '__update_sql_done')) return;
         #1 Check if table exists
