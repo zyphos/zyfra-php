@@ -560,9 +560,14 @@ class ObjectModel{
     				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
     		        'hidden'=>$column->hidden,
     				'is_key'=>($name==$this->_key));
+    		if (isset($column->translate)){
+    		    $col->translated = $column->translate && true; // transform it in boolean
+    		}
     		if (isset($column->relation_object_name)){
     			$col->relation_object_name = $column->relation_object_name;
-    			$col->relation_object_field = $column->relation_object_field;
+    		}
+    		if (isset($column->relation_object_field)){
+    		    $col->relation_object_field = $column->relation_object_field;
     		}
     		if (isset($column->select_values)){
     		    $col->select_values = $column->select_values;
