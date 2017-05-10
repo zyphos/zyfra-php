@@ -36,13 +36,11 @@ class TextField extends Field{
         }
         return null;
     }
-
+    
     function sql_create_after_trigger($sql_create, $value, $fields, $context, $id){
-        $language_id = $this->get_language_id($context);
-        $t = $this->translate;
-        $tr_obj = $this->object->_pool->{$t['object']};
-        $create = array($t['column']=>$value, $t['key']=>$id, $t['language_id']=>$language_id);
-        $tr_obj->create($create, $context);
+        $fake_sql_write = new stdClass;
+        $fake_sql_write->ids = array($id);
+        $this->sql_write($fake_sql_write, $value, $fields, $context);
     }
 
     function sql_write($sql_write, $value, $fields, $context){
@@ -67,7 +65,7 @@ class TextField extends Field{
             return;
         }
         $sql = $t['key'].' AS oid,'.$object_tr->_key.' AS id,'.$t['column'].' AS tr WHERE '.$where;
-        $new_context = array_merge($sql_write->context, array('key'=>'oid'));
+        $new_context = array_merge($context, array('key'=>'oid'));
         $rows = $object_tr->select([$sql, $where_values], $new_context);
         $row2add = array();
         $row2update = array();
@@ -81,11 +79,11 @@ class TextField extends Field{
         }
         foreach($row2add as $id){
             $create = array($t['column']=>$value, $t['key']=>$id, $t['language_id']=>$language_id);
-            $object_tr->create($create, $sql_write->context);
+            $object_tr->create($create, $context);
         }
         if (count($row2update) == 0) return;
         $where = $object_tr->_key.' IN %s AND '.$t['language_id'].'=%s';
-        $object_tr->write(array($t['column']=>$value), [$where, [$row2update, $language_id]], $sql_write->context);
+        $object_tr->write(array($t['column']=>$value), [$where, [$row2update, $language_id]], $context);
     }
 
     function __get_translate_col_instance(){
