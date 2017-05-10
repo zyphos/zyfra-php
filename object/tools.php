@@ -90,7 +90,7 @@ function specialsplit($string, $split_var = ',') {
 
     for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
-        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+        if ((($char == '"') || ($char == "'")) && ($level == 0) && ($i==0 || !($string[$i-1] == "\\"))){
             if ($char == $ignore){
                 $ignore = '';
             }elseif($ignore == ''){
@@ -152,7 +152,7 @@ function specialsplitnotpar($string, $split_var = ',') {
 
     for ($i = 0; $i < $string_len; $i++) {
         $char = $string[$i];
-        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+        if ((($char == '"') || ($char == "'")) && ($level == 0) && ($i==0 || !($string[$i-1] == "\\"))){
             if ($char == $ignore){
                 $ignore = '';
             }elseif($ignore == ''){
@@ -232,7 +232,7 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
     $ret_cur = &$ret[$cur];
     for ($i = 0; $i < $str_len; $i++) {
         $char = $string[$i];
-        if ((($char == '"') || ($char == "'")) && ($level == 0)){
+        if ((($char == '"') || ($char == "'")) && ($level == 0) && ($i==0 || !($string[$i-1] == "\\"))){
             if ($char == $ignore){
                 $ignore = '';
             }elseif($ignore == ''){
@@ -302,7 +302,7 @@ function r_multi_split_array($string, $split_var = array()) {
     $result = array();
     for ($i=$string_len-1; $i >= $min_len; $i--){
         $c = $string[$i];
-        if ((($c == '"') || ($c == "'")) && ($level == 0)){
+        if ((($c == '"') || ($c == "'")) && ($level == 0) && ($i==0 || !($string[$i-1] == "\\"))){
             if ($c == $ignore){
                 $ignore = '';
             }elseif($ignore == ''){
