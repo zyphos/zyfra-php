@@ -210,7 +210,7 @@ class ObjectModel{
         }
     }
 
-    public function add_column($name,Field &$col){
+    public function add_column($name,Field $col){
         $this->_columns[$name] = $col;
         $this->set_column_instance($name, $col);
     }
