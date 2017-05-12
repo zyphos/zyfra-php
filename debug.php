@@ -73,12 +73,13 @@ class zyfra_debug{
                         $txt .= '{';
                         $first = true;
                         foreach($value as $k=>$v){
-                            if (!$first) echo ', ';
+                            if (!$first) $txt .= ', ';
                             $first=false;
                             if (is_string($k)) $k = "'".$k."'";
                             if (is_string($v)) $v = "'".$v."'";
                             if (is_object($v)) $v = '-obj-';
-                            $txt .= $k.': '.$v;
+                            if (is_array($v)) $v = print_r($v, true);
+                            $txt .= $k.': '.(string)$v;
                         }
                         $txt .= '}';
                     }else{
