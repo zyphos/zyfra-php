@@ -50,46 +50,51 @@ class zyfra_debug{
         flush();
     }
     
-    static function print_backtrace($table=true, $avoid_from_self=false){
+    static function get_backtrace($table=true, $avoid_from_self=false){
         $bt = debug_backtrace();
         $src = array_shift($bt);
         if($avoid_from_self){
             $src_file = $src['file'];
             foreach($bt as $t){
-                if ($t['file'] == $src_file) return;
+                if ($t['file'] == $src_file) return '';
             }
         }
-        echo 'Backtrace in '.$src['file'].' line '.$src['line'];
-        echo $table?"<br/><table bgcolor='grey'>":'<pre>';
+        $txt = 'Backtrace in '.$src['file'].' line '.$src['line'];
+        $txt .= $table?"<br/><table bgcolor='grey'>":'<pre>';
         $nbt = count($bt);
         foreach($bt as $t){
-            echo ($table?"<tr bgcolor='#FFDDBB'><td>":'').$nbt--.'. '.($table?'</td><td>':'').$t['function'].'(';
+            $txt .= ($table?"<tr bgcolor='#FFDDBB'><td>":'').$nbt--.'. '.($table?'</td><td>':'').$t['function'].'(';
             if (isset($t['args'])){
                 $args = $t['args'];
                 foreach($args as $key=>$value){
                     if (is_object($value)){
-                        echo '-obj-';
+                        $txt .= '-obj-';
                     }elseif(is_array($value)){
-                    	echo '{';
-                    	$first = true;
-                    	foreach($value as $k=>$v){
-                    		if (!$first) echo ', ';
-                    		$first=false;
-                    		if (is_string($k)) $k = "'".$k."'";
-                    		if (is_string($v)) $v = "'".$v."'";
-                    		if (is_object($v)) $v = '-obj-';
-                    		echo $k.': '.$v;
-                    	}
-                    	echo '}';
+                        $txt .= '{';
+                        $first = true;
+                        foreach($value as $k=>$v){
+                            if (!$first) echo ', ';
+                            $first=false;
+                            if (is_string($k)) $k = "'".$k."'";
+                            if (is_string($v)) $v = "'".$v."'";
+                            if (is_object($v)) $v = '-obj-';
+                            $txt .= $k.': '.$v;
+                        }
+                        $txt .= '}';
                     }else{
-                        echo $value;
+                        $txt .= $value;
                     }
-                    if ($key < count($args)-1) echo ',';
+                    if ($key < count($args)-1) $txt .= ',';
                 }
             }
-            echo ')'.($table?'</td><td>':'').' in '.$t['file'].' line '.$t['line'].($table?'</td></tr>':"\n");
+            $txt .= ')'.($table?'</td><td>':'').' in '.$t['file'].' line '.$t['line'].($table?'</td></tr>':"\n");
         }
-        echo $table?'</table>':'</pre>';
+        $txt .= $table?'</table>':'</pre>';
+        return $txt;
+    }
+    
+    static function print_backtrace($table=true, $avoid_from_self=false){
+        echo self::get_backtrace($table, $avoid_from_self);
     }
 
     static function print_set($title, $content){
