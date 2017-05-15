@@ -94,6 +94,10 @@ function htmlquotes($var){
     return htmlentities($var,ENT_QUOTES, 'UTF-8');
 }
 
+function html_value($var){
+    return htmlspecialchars($var, ENT_QUOTES);
+}
+
 function accent2html($str){
 	//return strtr($chaine,
 	//   'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
