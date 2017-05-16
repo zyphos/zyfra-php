@@ -149,11 +149,7 @@ class TextField extends Field{
         if (!$this->translate){
             return $this->add_operator($this_sql, $context);
         }
-        if (array_key_exists('parameter', $context) && $context['parameter'] != ''){
-            $language_id = (int)$context['parameter'];
-        }else{
-            $language_id = array_get($sql_query->context, 'language_id');
-        }
+        $language_id = $this->get_language_id($context);
         if (!$language_id) return $this->add_operator($this_sql, $context);
         $context = array('parameter'=>$this->translate['language_id'].'='.$language_id);
         $fields = array($this->translate['column']);
