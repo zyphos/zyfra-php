@@ -23,22 +23,28 @@ class FunctionField extends Field{
         }else{
             $field_alias = '';
         }
+        $parameter = array_key_exists('parameter', $context) ? $context['parameter'] : '';
         $reqf = array();
         if (count($this->required_fields)){
             foreach($this->required_fields as $rf){
+                $rf = $rf.($parameter == ''?'':'['.$parameter.']');
                 $reqf[$rf] = $sql_query->field2sql($rf, $this->object, $parent_alias);
             }
             $sql_query->add_required_fields($reqf);
         }
-        $sql_query->add_sub_query($this->object, $this->name, '!function!', $field_alias, $reqf);
+        $sql_query->add_sub_query($this->object, $this->name, '!function!', $field_alias, [
+                        'reqf'=>$reqf,
+                        'param'=>$parameter]);
         return $parent_alias->alias.'.'.$this->object->_key;
     }
 
-    function get($ids, $context, $datas){
+    function get($ids, $context, $datas, $param){
         //should return an array of object with array[id] = result
         if (is_null($this->get_fx)) return array();
         if (count($ids) == 0) return [];
-        return call_user_func($this->get_fx, $this, $ids, $context, $datas);
+        $new_context = $context; //copy
+        $new_context['parameter'] = $param;
+        return call_user_func($this->get_fx, $this, $ids, $new_context, $datas);
     }
 
     function set($ids, $value, $context){

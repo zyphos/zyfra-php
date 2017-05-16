@@ -429,10 +429,12 @@ class SqlQuery{
                 }
                 if ($is_fx){
                     $fx_data = array();
-                    if(count($parameter)>0){
+                    $reqf = $parameter['reqf'];
+                    $param = $parameter['param'];
+                    if(count($reqf)>0){
                         foreach ($ids as $id){
                             $obj = new stdClass;
-                            foreach($parameter as $key=>$field){
+                            foreach($reqf as $key=>$field){
                                 foreach($row_alias_ids[$id] as $row_id){
                                     $obj->$key = $datas[$row_id]->{$this->sql_field_alias[$field]};
                                 }
@@ -440,7 +442,7 @@ class SqlQuery{
                             $fx_data[$id] = $obj;
                         }
                     }
-                    $sub_datas = $robject->$rfield->get($ids, $context, $fx_data);
+                    $sub_datas = $robject->$rfield->get($ids, $context, $fx_data, $param);
                     foreach($row_alias_ids as $id=>$row_ids){
                         if ($id=='') continue;
                         foreach($row_ids as $row_id){
