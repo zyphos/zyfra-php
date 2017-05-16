@@ -59,9 +59,9 @@ class TextField extends Field{
         
         //'column'=>$name, 'key'=>'source_id', 'language_id'=>'language_id'
         $where = $t['key'].' IN %s AND '.$t['language_id'].'=%s';
-        $where_values = array($sql_write->ids, $language_id);
+        $where_values = [$sql_write->ids, $language_id];
         if ($value == null || $value == ''){
-            $object_tr->unlink([$where, [$where_values]]);
+            $object_tr->unlink([$where, $where_values]);
             return;
         }
         $sql = $t['key'].' AS oid,'.$object_tr->_key.' AS id,'.$t['column'].' AS tr WHERE '.$where;
