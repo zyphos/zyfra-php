@@ -244,7 +244,11 @@ class zyfra_send_data{
         if (($post_url != '')&&(!is_null($post_url))){
             $post_data = array();
             if ($is_file){
-                $post_data[$this->post_field_prefix.'fname'] = "@$fname_data";    
+                if (!function_exists('curl_file_create')){
+                    $post_data[$this->post_field_prefix.'fname'] = "@$fname_data"; //below php 5.5
+                }else{
+                    $post_data[$this->post_field_prefix.'fname'] = curl_file_create($fname_data); //php 5.5 and above
+                }
             }else{
                 $post_data[$this->post_field_prefix.'data'] = $fname_data;
             }
