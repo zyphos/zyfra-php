@@ -154,6 +154,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     var $update_field = 'modified_on';
     var $db;
     var $table_structure = null;
+    var $only_slst_filename = null;
     
     function __construct(){
         global $db;
@@ -771,6 +772,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
     
     private function get_slst(){
+        if (!is_null($this->only_slst_filename)) return [$this->only_slst_filename];
         $slst_files = array();
         $files = scandir(getcwd());
         foreach($files as $filename){
