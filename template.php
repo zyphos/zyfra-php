@@ -131,8 +131,8 @@ function cycle(){
     return $args[$id];
 }
 
-function html_select($name, $values, $selected=null, $attribute=null){
-    $res = '<select name="'.$name.'">';
+function html_select($name, $values, $selected=null, $attribute=null, $params=null){
+    $res = '<select'.(is_null($name)?'':' name="'.$name.'"').(is_null($params)?'':' '.$params).'>';
     foreach($values as $key=>$value){
         if (!is_null($attribute)) $value = $value->{$attribute};
         $res .= '<option value="'.$key.'"'.($key==$selected?' selected':'').'>'.html($value).'</option>';
