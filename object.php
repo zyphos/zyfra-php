@@ -291,14 +291,19 @@ class ObjectModel{
                 if (!$field->stored || $field->primary_key) continue;
                 $sql_def = $field->get_sql_def();
                 if(array_key_exists($field_name, $fields)){
+                    $db_field  = &$fields[$field_name];
                     //Update ?
-                    if (strtoupper($fields[$field_name]->Type) != $sql_def || $fields[$field_name]->Extra != $field->get_sql_extra()){
+                    if (strtoupper($db_field->Type) != $sql_def || $db_field->Extra != $field->get_sql_extra()){
                         $columns_def[] = 'MODIFY '.$field_name.' '.$sql_def.$field->get_sql_def_flags(true);
+                    }
+                    if ($field->index && $db_field->Key != 'MUL'){
+                        $columns_def[] = 'ADD INDEX ('.$field_name.')';
                     }
                 }else{
                     //Create !
                     //Todo check for name change, (similar column)
                     $columns_def[] = 'ADD '.$field_name.' '.$sql_def.$field->get_sql_def_flags();
+                    if ($column->index) $columns_def[] = 'ADD INDEX ('.$field_name.')';
                 }
             }
             if (count($columns_def)){
