@@ -61,8 +61,8 @@ class Many2ManyField extends One2ManyField{
         if (!$pool->object_in_pool($this->relation_table)){
             $rel_table_object = new $model_class($pool, array(
                     '_name'=>$this->relation_table,
-                    '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key,'required'=>false)),
-                            $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, array('relation_object_key'=>$this->foreign_key,'required'=>false))
+                    '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key,'required'=>true)),
+                                    $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, array('relation_object_key'=>$this->foreign_key,'required'=>true))
                     )));
             $pool->add_object($this->relation_table, $rel_table_object);
         }else{
