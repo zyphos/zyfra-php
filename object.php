@@ -518,7 +518,7 @@ class ObjectModel{
         try{
         $mql = $this->_pool->db->safe_sql($mql, $datas);
         }catch(Exception $e){
-            if(in_array('debug', $datas) && $datas[debug]){
+            if(in_array('debug', $context) && $context['debug']){
                 throw $e;
             }
             return array();
@@ -536,7 +536,7 @@ class ObjectModel{
         try{
             $where = $this->_pool->db->safe_sql($where, $datas);
         }catch(Exception $e){
-            if(in_array('debug', $datas) && $datas[debug]){
+            if(in_array('debug', $context) && $context['debug']){
                 throw $e;
             }
             return array();
