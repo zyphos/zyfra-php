@@ -30,7 +30,7 @@ class MqlWhere{
         $this->sql_query = $sql_query;
         $this->operators = array('parent_of', 'child_of');
         $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in');
-        $this->basic_operators = array('+','-','=','/','*','<','>','!','in');
+        $this->basic_operators = array('+','-','=','/','*','<','>','!','in','is');
         $this->parenthesis = array('(',')',' ',',');
         $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
