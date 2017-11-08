@@ -109,7 +109,7 @@ class zyfra_http {
             return $url;
         }
         $mtime = filemtime($filename);
-        return preg_replace('{\\.([^./]+)$}', ".$mtime.\$1", $url);
+        return preg_replace('{\\.([^./]+)$}', '_'.$mtime.".\$1", $url);
     }
     
     static function split_url_data($url){
