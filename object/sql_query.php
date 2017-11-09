@@ -29,11 +29,12 @@ class MqlWhere{
     function __construct($sql_query){
         $this->sql_query = $sql_query;
         $this->operators = array('parent_of', 'child_of');
-        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in');
-        $this->basic_operators = array('+','-','=','/','*','<','>','!','in','is');
+        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in', 'is');
+        $this->basic_operators = array('+','-','=','/','*','<','>','!');
         $this->parenthesis = array('(',')',' ',',');
         $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
+        $this->basic_operators = array_merge($this->basic_operators, ['is not', 'is', 'in']);
     }
     
     protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data=''){
@@ -627,7 +628,10 @@ class SqlQuery{
         if ($this->debug > 1) {
             zyfra_debug::show_msg('Field2sql['.$obj->_name.'->'.$field_name.']');
         }
-        if (is_numeric($field_name) || $field_name == ',' || $field_name == ' ') return $field_name;
+        if (is_numeric($field_name) || in_array($field_name, [',',' ','','(',')','unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in','is'])) return $field_name;
+        if ($this->debug > 1) {
+            zyfra_debug::show_msg('FULL treatment['.$obj->_name.'->'.$field_name.']');
+        }
         if ($ta === null) $ta = $this->table_alias[''];
         $fx_regex = '/^([a-z_]+)\((.*)\)$/';
         if (preg_match($fx_regex, $field_name, $matches)){
@@ -657,4 +661,3 @@ class SqlQuery{
         $this->required_fields = array_unique(array_merge($this->required_fields, $required_fields));
     }
 }
-?>
