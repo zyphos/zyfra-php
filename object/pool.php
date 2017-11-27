@@ -40,6 +40,7 @@ class Pool{
     public $_default_user_id = 1;
     public $_context = null;
     public $_model_class='ObjectModel';
+    protected $_model_path = null;
 
     private function __construct(){
         // private = Avoid construct this object
@@ -61,7 +62,8 @@ class Pool{
     }
 
     protected function get_include_object_php($object_name){
-        return null;
+        if (is_null($this->_model_path)) return null;
+        return $this->_model_path.'/'.$object_name.'.php';
     }
 
     public function &__get($key){
@@ -106,7 +108,16 @@ class Pool{
     }
     
     public function get_available_objects(){
-    	return array();
+        if (is_null($this->_model_path)) return array();
+    	$filenames = scandir($this->_model_path.'/');
+    	$result = array();
+    	foreach($filenames as $filename){
+    	    $efn = explode('.', $filename);
+    	    $ext = array_pop($efn);
+    	    if ($ext != 'php') continue;
+    	    $result[] = implode('.', $efn);
+    	}
+    	return $result;
     }
     
     public function get_objects_in_pool(){
@@ -133,5 +144,8 @@ class Pool{
         $new_object = new ContextedObjectModel($object, $this, array_merge($this->_context, $args[0]));
         return $new_object;
     }
+    
+    public function set_model_path($path){
+        $this->_model_path = $path;
+    }
 }
-
