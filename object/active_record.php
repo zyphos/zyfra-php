@@ -93,11 +93,9 @@ class ActiveRecord{
         }
         if (count($values) == 0) return; //Nothing to save
         if (array_key_exists($key, $this->__params)){
-            $values[$key] = $this->__params[$key];
-            $obj->write($values);
+            $obj->write($values, (int)$this->__params[$key], $this->__context);
         }else{
-            $obj->create($values);
+            $obj->create($values, $this->__context);
         }
     }
 }
-?>
