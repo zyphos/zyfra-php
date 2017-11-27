@@ -70,7 +70,7 @@ class ActiveRecord{
 
     public function __set($name, $value){
         switch($name){
-            case $obj->_key:
+            case $this->__object->_key:
             case 'create_date':
             case 'write_date':
                 throw new Exception('Column '.$name.' can\'t be modified');
@@ -80,22 +80,25 @@ class ActiveRecord{
                 $this->__modified_columns[$name] = true;
             }
             $this->__params[$name] = $value;
+        }else{
+            throw new Exception('Column '.$name.' not found in '.$this->__object->_name);
         }
-        throw new Exception('Column '.$name.' not found in '.$this->__object->_name);
     }
 
     public function save(){
-        $obj = $this->object;
+        $obj = $this->__object;
         $key = $this->__object->_key;
-        $values = array();
-        foreach($this->__modified_columns as $col_name=>$t){
-            $values[$col_name] = $this->__params[$col_name];
-        }
-        if (count($values) == 0) return; //Nothing to save
+        
         if (array_key_exists($key, $this->__params)){
+            $values = array();
+            foreach($this->__modified_columns as $col_name=>$t){
+                $values[$col_name] = $this->__params[$col_name];
+            }
+            if (count($values) == 0) return; //Nothing to save
             $obj->write($values, (int)$this->__params[$key], $this->__context);
+            return (int)$this->__params[$key];
         }else{
-            $obj->create($values, $this->__context);
+            return $obj->create($this->__params, $this->__context);
         }
     }
 }
