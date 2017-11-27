@@ -31,11 +31,11 @@ class OM_SQLcreate extends OM_SQLinterface{
             $ctx = $this->context; // Copy context
             $ctx['parameter'] = $field_data;
             if (!isset($obj->_columns[$field_name])){
-                throw new \Exception('Column '.$field_name.' does not exist in object['.$obj->_name.']');
+                throw new \Exception('Column ['.$field_name.'] does not exist in object['.$obj->_name.']');
             }
             $col_obj = $obj->_columns[$field_name];
             if (!is_object($col_obj)){
-                throw new \Exception('Column '.$field_name.' does not exist in object['.$obj->_name.']');
+                throw new \Exception('Column ['.$field_name.'] does not exist in object['.$obj->_name.']');
             }
             $sql_value = $col_obj->sql_create($this, $value, $fields, $ctx);
             if ($sql_value instanceof \zyfra\orm\Callback){
