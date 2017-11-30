@@ -25,7 +25,9 @@ class One2ManyField extends RelationalField{
         }else{
             $parameter = '';
         }
-        if (isset($context['is_where']) && $context['is_where'] && count($fields) == 0){
+        $is_where = isset($context['is_where']) && $context['is_where'];
+        
+        if ($is_where && count($fields) == 0){
             $fields[] = $this->relation_object_key;
         }
         $key_field = $parent_alias->alias.'.'.$this->local_key;
