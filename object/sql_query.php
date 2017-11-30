@@ -34,7 +34,7 @@ class MqlWhere{
         $this->parenthesis = array('(',')',' ',',');
         $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
-        $this->basic_operators = array_merge($this->basic_operators, ['is not', 'is', 'in']);
+        $this->basic_operators = array_merge($this->basic_operators, ['is not', 'is','not in','in']);
     }
     
     protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data=''){
