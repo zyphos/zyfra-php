@@ -29,12 +29,12 @@ class MqlWhere{
     function __construct($sql_query){
         $this->sql_query = $sql_query;
         $this->operators = array('parent_of', 'child_of');
-        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in', 'is');
-        $this->basic_operators = array('+','-','=','/','*','<','>','!');
+        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in','is');
+        $this->basic_operators = array('+','-','=','/','*','<','>','!','is not','is','not in','in');
         $this->parenthesis = array('(',')',' ',',');
         $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
-        $this->basic_operators = array_merge($this->basic_operators, ['is not', 'is','not in','in']);
+        //$this->basic_operators = array_merge($this->basic_operators, ['is not','is','not in','in']);
     }
     
     protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data=''){

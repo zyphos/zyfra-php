@@ -95,7 +95,7 @@ abstract class Field{
     protected function add_operator($field_sql, &$context){
         if (isset($context['operator'])){
             $operator = $context['operator'];
-            if ($operator == 'in') $operator = ' in ';
+            if (in_array($operator, ['in','is'])) $operator = ' '.$operator.' ';
             $op_data = trim($context['op_data']);
             return $field_sql.$operator.$op_data;
         }
