@@ -120,10 +120,11 @@ class Many2ManyField extends One2ManyField{
                 $op_data = trim($context['op_data']);
                 
                 $ta = $sql_query->get_new_table_alias();
+                $sql_common = 'SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key;
                 if ($operator == 'is' && $op_data == 'null'){
-                    $sql = 'NOT EXISTS(SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key.')';
+                    $sql = 'NOT EXISTS('.$sql_common.')';
                 }else{
-                    $sql = 'EXISTS(SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_foreign_field.' '.$operator.' '.$op_data.' AND '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key.')';
+                    $sql = 'EXISTS('.$sql_common.' AND '.$ta.'.'.$this->rt_foreign_field.' '.$operator.' '.$op_data.')';
                 }
                 
                 $parent_alias->set_used();
