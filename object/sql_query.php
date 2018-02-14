@@ -542,7 +542,7 @@ class SqlQuery{
                 $last_field = array_pop($fields);
                 $no_alias = $recursive || $auto_alias && ($last_field==$alias);
                 $this->sql_select_fields[] = $sql_field.($no_alias?'':' AS '.$alias);
-                if (!$recursive) $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
+                if (!$recursive && !isset($this->sql_field_alias[$sql_field])) $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
             }
         }
         foreach($this->required_fields as $field){
