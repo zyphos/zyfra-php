@@ -303,7 +303,7 @@ class ObjectModel{
                     //Create !
                     //Todo check for name change, (similar column)
                     $columns_def[] = 'ADD '.$field_name.' '.$sql_def.$field->get_sql_def_flags();
-                    if ($column->index) $columns_def[] = 'ADD INDEX ('.$field_name.')';
+                    if ($field->index) $columns_def[] = 'ADD INDEX ('.$field_name.')';
                 }
             }
             if (count($columns_def)){
