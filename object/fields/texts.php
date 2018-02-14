@@ -10,13 +10,17 @@ class TextField extends Field{
     protected function get_language_id(&$context){
         $language_id = array_get($context, 'language_id');
         $parameter = array_get($context, 'parameter');
-        $pool = &$this->object->_pool;
-        $object_tr = $pool->{$pool->get_language_object_name()};
+        
         if (is_numeric($parameter)){
             $language_id = (int)$parameter;
         }elseif($parameter){
+            $pool = &$this->object->_pool;
+            $object_tr = $pool->{$pool->get_language_object_name()};
             $language_ids = $object_tr->name_search($parameter, $context);
-            if (count($language_ids) == 1) $language_id = $language_ids[0];
+            if (count($language_ids) == 1) {
+                $language_id = $language_ids[0];
+                $context['parameter'] = $language_id; // Cache result
+            }
         }
         return $language_id;
     }
@@ -28,13 +32,10 @@ class TextField extends Field{
         
         $language_id = $this->get_language_id($context);
         
-        if (!$this->translate || !$language_id){
+        if (!$language_id){
             return parent::sql_create($sql_create, $value, $fields, $context);
-        }else{
-            return new zyfra\orm\Callback('sql_create_after_trigger', null);
-            //$sql_create->add_callback($this, 'sql_create_after_trigger', $value, $fields, $context);
         }
-        return null;
+        return new zyfra\orm\Callback('sql_create_after_trigger', null);
     }
     
     function sql_create_after_trigger($sql_create, $value, $fields, $context, $id){

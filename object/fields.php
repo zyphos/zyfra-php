@@ -67,7 +67,7 @@ abstract class Field{
     	if (is_null($this->sql_escape_fx)){
     		return "'".str_replace("'", "\'", $value)."'"; // Warning sql injection !!!
     	}
-    	if (is_null($this->sql_escape_fx)){
+    	if (is_null($this->sql_escape_fx)){ // TODO: check why this is not used
     		$this->sql_escape_fx = array($this->object->_pool->db, 'safe_var');
     	}
     	return call_user_func($this->sql_escape_fx, $value);

@@ -138,6 +138,7 @@ function specialsplit($string, $split_var = ',') {
 }
 
 function specialsplitnotpar($string, $split_var = ',') {
+    //echo 'specialsplitnotpar('.$string.','.print_r($split_var, true).')';
     $level = 0;       // number of nested sets of brackets
     $ret = array(''); // array to return
     $string_len = strlen($string);
@@ -197,6 +198,7 @@ function specialsplitnotpar($string, $split_var = ',') {
                 $buffer .= $char;
         }
     }
+    //print_r($ret);
     return $ret;
 }
 
