@@ -405,6 +405,7 @@ class SqlQuery{
         $datas = $this->pool->db->get_array_object($sql, $key);
         $field_alias_ids = array();
         $row_field_alias_ids = array();
+        
         if (count($datas)>0){
             foreach($this->sub_queries as $sub_query){
                 list($robject, $rfield, $sub_mql, $field_alias, $parameter) = $sub_query;
@@ -414,19 +415,20 @@ class SqlQuery{
                     $row_alias_ids = $row_field_alias_ids[$field_alias];
                     //foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                 }else{
-                    $ids = array();
+                    $ids = [];
                     $row_alias_ids = array();
                     foreach($datas as $row_id=>$row){
-                        $ids[$row->{$field_alias}] = true;
+                        $parent_id = &$row->{$field_alias};
+                        $ids[$parent_id] = true;
                         //$row_alias_ids[$row_id] = $row->$field_alias;
-                        if(!isset($row_alias_ids[$row->$field_alias])) $row_alias_ids[$row->$field_alias] = array();
-                        $row_alias_ids[$row->$field_alias][] = $row_id;
-                        if (!$is_fx) $row->$field_alias = array();
+                        if(!isset($row_alias_ids[$parent_id])) $row_alias_ids[$parent_id] = [];
+                        $row_alias_ids[$parent_id][] = $row_id;
+                        if (!$is_fx) $row->$field_alias = [];
                     }
                     $ids = array_keys($ids);
                     foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
-                    $field_alias_ids[$field_alias] = $ids;
-                    $row_field_alias_ids[$field_alias] = $row_alias_ids;
+                    $field_alias_ids[$field_alias] = $ids; // Cache result
+                    $row_field_alias_ids[$field_alias] = $row_alias_ids; // Cache result
                 }
                 if ($is_fx){
                     $fx_data = array();
@@ -434,16 +436,20 @@ class SqlQuery{
                     $param = $parameter['param'];
                     if(count($reqf)>0){
                         foreach ($ids as $id){
-                            $obj = new stdClass;
+                            $obj = new stdClass();
                             foreach($reqf as $key=>$field){
                                 foreach($row_alias_ids[$id] as $row_id){
-                                    $obj->$key = $datas[$row_id]->{$this->sql_field_alias[$field]};
+                                    $obj->$key = &$datas[$row_id]->{$this->sql_field_alias[$field]};
+                                    break;
                                 }
                             }
                             $fx_data[$id] = $obj;
                         }
                     }
                     $sub_datas = $robject->$rfield->get($ids, $context, $fx_data, $param);
+                    unset($ids);
+                    unset($fx_data);
+                    unset($param);
                     foreach($row_alias_ids as $id=>$row_ids){
                         if ($id=='') continue;
                         foreach($row_ids as $row_id){
@@ -485,7 +491,7 @@ class SqlQuery{
                 }
             }
         }
-        $this->init();
+        //$this->init();
         return $datas;
     }
     
@@ -508,10 +514,12 @@ class SqlQuery{
     }
 
     function split_select_fields($field_defs, $recursive=false, $obj = null, $ta = null, $pre_alias = ''){
-        if ($obj==null) $obj = $this->object;
+        $original_obj = $obj==null;
+        if ($original_obj) $obj = $this->object;
         if(!is_array($field_defs)) $field_defs = specialsplit($field_defs);
         foreach (array_keys($field_defs) as $key){
             if (trim($field_defs[$key]) == '*'){
+                //throw new Exception('* not allowed');
                 unset($field_defs[$key]);
                 foreach($obj->_columns as $name=>$column){
                     if ($column->select_all && $name != '_display_name') $field_defs[] = $name;
@@ -542,15 +550,7 @@ class SqlQuery{
                 $last_field = array_pop($fields);
                 $no_alias = $recursive || $auto_alias && ($last_field==$alias);
                 $this->sql_select_fields[] = $sql_field.($no_alias?'':' AS '.$alias);
-                if (!$recursive && !isset($this->sql_field_alias[$sql_field])) $this->sql_field_alias[$sql_field] = ($no_alias?$last_field:$alias);
             }
-        }
-        foreach($this->required_fields as $field){
-            if ($recursive || isset($this->sql_field_alias[$field])) continue;
-            $alias = '_rq'.++$this->rqi;
-            $this->sql_select_fields[] = $field.' AS '.$alias;
-            $this->sql_field_alias[$field] = $alias;
-            $this->remove_from_result[] = $alias;
         }
     }
 
@@ -633,7 +633,7 @@ class SqlQuery{
             zyfra_debug::show_msg('FULL treatment['.$obj->_name.'->'.$field_name.']');
         }
         if ($ta === null) $ta = $this->table_alias[''];
-        $fx_regex = '/^([a-z_]+)\((.*)\)$/';
+        $fx_regex = '/^([a-z_]+)\((.*)\)$/'; // handle function
         if (preg_match($fx_regex, $field_name, $matches)){
             return $matches[1].'('.$this->parse_mql_fields($matches[2], true).')';
         }
@@ -658,6 +658,13 @@ class SqlQuery{
     }
     
     function add_required_fields($required_fields){
-        $this->required_fields = array_unique(array_merge($this->required_fields, $required_fields));
+        foreach($required_fields as $field){
+            if (isset($this->sql_field_alias[$field])) continue;
+            $alias = '_rq'.++$this->rqi;
+            $this->sql_select_fields[] = $field.' AS '.$alias;
+            $this->sql_field_alias[$field] = $alias;
+            $this->remove_from_result[] = $alias;
+        }
+        //$this->required_fields = array_unique(array_merge($this->required_fields, $required_fields));
     }
 }
