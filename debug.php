@@ -56,7 +56,8 @@ class zyfra_debug{
         if($avoid_from_self){
             $src_file = $src['file'];
             foreach($bt as $t){
-                if ($t['file'] == $src_file) return '';
+                $t_file = isset($t['file']) ? $t['file'] : '';
+                if ($t_file== $src_file) return '';
             }
         }
         $txt = 'Backtrace in '.$src['file'].' line '.$src['line'];
@@ -78,7 +79,8 @@ class zyfra_debug{
                             if (is_string($k)) $k = "'".$k."'";
                             if (is_string($v)) $v = "'".$v."'";
                             if (is_object($v)) $v = '-obj-';
-                            if (is_array($v)) $v = print_r($v, true);
+                            //if (is_array($v)) $v = print_r($v, true);
+                            if (is_array($v)) $v = '-array-';
                             $txt .= $k.': '.(string)$v;
                         }
                         $txt .= '}';
@@ -88,7 +90,9 @@ class zyfra_debug{
                     if ($key < count($args)-1) $txt .= ',';
                 }
             }
-            $txt .= ')'.($table?'</td><td>':'').' in '.$t['file'].' line '.$t['line'].($table?'</td></tr>':"\n");
+            $t_file = isset($t['file']) ? $t['file'] : '';
+            $t_line = isset($t['line']) ? $t['line'] : '';
+            $txt .= ')'.($table?'</td><td>':'').' in '.$t_file.' line '.$t_line.($table?'</td></tr>':"\n");
         }
         $txt .= $table?'</table>':'</pre>';
         return $txt;
