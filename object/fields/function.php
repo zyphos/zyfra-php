@@ -35,6 +35,7 @@ class FunctionField extends Field{
         $sql_query->add_sub_query($this->object, $this->name, '!function!', $field_alias, [
                         'reqf'=>$reqf,
                         'param'=>$parameter]);
+        $parent_alias->set_used();
         return $parent_alias->alias.'.'.$this->object->_key;
     }
 
