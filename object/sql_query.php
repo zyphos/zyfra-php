@@ -395,6 +395,7 @@ class SqlQuery{
 
     function get_array($mql, $context = array()){
         $sql = $this->mql2sql($mql, $context, true);
+        $debug = array_key_exists('debug', $context) ? $context['debug'] : false;
         if(isset($context['key'])){
             $key = $context['key'];
             unset($context['key']);
@@ -409,6 +410,12 @@ class SqlQuery{
         if (count($datas)>0){
             foreach($this->sub_queries as $sub_query){
                 list($robject, $rfield, $sub_mql, $field_alias, $parameter) = $sub_query;
+                if ($debug){
+                    echo '<h3>Sub query</h3>';
+                    echo 'Sub MQL: <pre>'.$sub_mql.'</pre><br>';
+                    echo 'Field alias: ['.$field_alias.']<br>';
+                    echo 'Parameter: '.print_r($parameter, true).'<br>';
+                }
                 $is_fx = $sub_mql == '!function!';
                 if(array_key_exists($field_alias, $field_alias_ids)){
                     $ids = $field_alias_ids[$field_alias];
@@ -654,6 +661,10 @@ class SqlQuery{
     }
 
     function add_sub_query($robject, $rfield, $sub_mql, $field_alias, $parameter){
+        if ($field_alias == '') {
+            echo 'sub_mql: <pre>'.$sub_mql.'</pre><br>';
+            throw new Exception('Field alias can not be empty on subquery');
+        }
         $this->sub_queries[] = array($robject, $rfield, $sub_mql, $field_alias, $parameter);
     }
     
