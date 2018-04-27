@@ -71,3 +71,75 @@ function date($the_date){
     $date_array = array_reverse($date_array);
     return implode('/', $date_array);
 }
+
+function date2text($the_date, $language='en'){
+    // Return human readable txt date
+    // Input: $the_date = 'YYYY-MM-DD'
+    // ie: date2text('2018-04-25', 'en') => '25th of April 2018'
+    list($year, $month, $day) = explode('-', $the_date);
+    $month = (int)$month;
+    $day = (int)$day;
+    
+    if($language == 'fr'){
+        $months = [1=>'janvier',
+                   2=>'f&eacute;vrier',
+                   3=>'mars',
+                   4=>'avril',
+                   5=>'mai',
+                   6=>'juin',
+                   7=>'juillet',
+                   8=>'o&ucirc;t',
+                   9=>'septembre',
+                   10=>'octobre',
+                   11=>'novembre',
+                   12=>'d&eacute;cembre',
+                  ];
+        return $day.' '.$months[$month].' '.$year;
+    }elseif($language == 'nl'){
+        $months = [1=>'januari',
+                   2=>'februari',
+                   3=>'maart',
+                   4=>'april',
+                   5=>'mei',
+                   6=>'juni',
+                   7=>'juli',
+                   8=>'augustus',
+                   9=>'september',
+                   10=>'oktober',
+                   11=>']="november',
+                   12=>'december',
+                    ];
+        return $day.' '.$months[$month].' '.$year;
+    }
+    $months = [1=>'January',
+                    2=>'February',
+                    3=>'March',
+                    4=>'April',
+                    5=>'May',
+                    6=>'June',
+                    7=>'July',
+                    8=>'August',
+                    9=>'September',
+                    10=>'October',
+                    11=>'November',
+                    12=>'December',
+    ];
+    switch($day){
+        case 1:
+        case 21:
+        case 31:
+            $day .= 'st';
+            break;
+        case 2:
+        case 22:
+            $day .= 'nd';
+            break;
+        case 3:
+        case 23:
+            $day .= 'rd';
+            break;
+        default:
+            $day .= 'th';
+    }
+    return $day.' of '.$months[$month].' '.$year;
+}
