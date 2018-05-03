@@ -27,8 +27,8 @@ class FunctionField extends Field{
         $reqf = array();
         if (count($this->required_fields)){
             foreach($this->required_fields as $rf){
-                $rf = $rf.($parameter == ''?'':'['.$parameter.']');
-                $reqf[$rf] = $sql_query->field2sql($rf, $this->object, $parent_alias);
+                $rf_w_param = $rf.($parameter == ''?'':'['.$parameter.']');
+                $reqf[$rf] = $sql_query->field2sql($rf_w_param, $this->object, $parent_alias);
             }
             $sql_query->add_required_fields($reqf);
         }
