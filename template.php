@@ -60,6 +60,7 @@ function remove_accent($str){
     $str = str_replace("&trade;","",$str);
     $str = str_replace("&deg;","d",$str);
     $str = str_replace("&oslash;","d",$str);
+    $str = str_replace("&Oslash;","d",$str);
     $str = str_replace("&sup2;","2",$str);
     $str = str_replace("&reg;","",$str);
     return html_entity_decode($str, ENT_COMPAT, 'UTF-8');
