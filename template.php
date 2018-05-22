@@ -63,6 +63,7 @@ function remove_accent($str){
     $str = str_replace("&Oslash;","d",$str);
     $str = str_replace("&sup2;","2",$str);
     $str = str_replace("&reg;","",$str);
+    $str = str_replace("&micro;","_micro_",$str);
     return html_entity_decode($str, ENT_COMPAT, 'UTF-8');
 }
 
