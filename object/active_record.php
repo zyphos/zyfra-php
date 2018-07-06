@@ -41,11 +41,17 @@ class ActiveRecord{
         }
         if (is_string($fields)) $fields = array_filter(explode(',',$fields));
         if (empty($fields) && (empty($this->__prefetch_fields) || !is_null($this->__data))) return;
+        if (is_null($this->__data)){
+            $fields2query = &$fields;
+        }else{
+            $fields2query = array_diff($fields, array_keys(get_object_vars($this->__data)));
+            if (empty($fields2query)) return;
+        }
         
         $obj = $this->__object;
         $key = $obj->_key;
-        if (is_null($this->__data)) $fields = array_unique(array_merge($fields, $this->__prefetch_fields));
-        $mql_fields = implode(',', $fields);
+        if (is_null($this->__data)) $fields2query = array_unique(array_merge($fields2query, $this->__prefetch_fields));
+        $mql_fields = implode(',', $fields2query);
         $result = $obj->select([$mql_fields.' WHERE '.$this->__mql_where, [$this->__id]], $this->__context);
         
         if (count($result)) {
