@@ -30,10 +30,12 @@ class zyfra_db_query{
     var $sql;
     var $start;
     var $duration=false;
+    var $backtrace = null;
     
-    function __construct($sql){
+    function __construct($sql, &$backtrace=null){
         $this->sql = $sql;
         $this->start = microtime(true);
+        $this->backtrace = &$backtrace;
     }
     
     function stop(){
@@ -57,6 +59,7 @@ class zyfra_db_common {
     var $errors2mail='';
     var $log=false;
     var $queries=null;
+    public $debug=false;
 
     function __construct(){
         $last_query_datas = array();
@@ -76,7 +79,13 @@ class zyfra_db_common {
     public function query($sql){
         $nb_queries = count($this->queries);
         if ($nb_queries) $this->queries[$nb_queries-1]->stop();
-        $this->queries[] = new zyfra_db_query($sql);
+        if ($this->debug){
+            $backtrace = debug_backtrace();
+            array_pop($backtrace);
+        }else{
+            $backtrace = null;
+        }
+        $this->queries[] = new zyfra_db_query($sql, $backtrace);
         $this->nb_query++;
         if ($this->log) echo $sql."<br>\n";
     }
@@ -196,6 +205,22 @@ class zyfra_db_common {
         //if ($this->nb_pages<2) $content = "";
         return $content;
     }
+    
+    public function render_backtrace(&$traceback){
+        //$res = "<table bgcolor='grey'>";
+        $res = '<ol>';
+        $i = 1;
+        foreach($traceback as $line){
+            if (!isset($line["class"])) $line["class"] = '';
+            if (!isset($line["type"])) $line["type"] = '';
+            //$res .= "<tr><td bgcolor='orange'>".$i."</td><td>".$line["class"].$line["type"].$line["function"]."() from ".$line["file"]." at line ".$line["line"]."</td></tr>";
+            $res .= "<li>".$line["class"].$line["type"].$line["function"]."() from ".$line["file"]." at line ".$line["line"]."</li>";
+            $i++;
+        }
+        //$res .= "</table>";
+        $res .= "</ol";
+        return $res;
+    }
 
     protected function show_error($the_query,$err_no=0,$err=""){
         global $security;
@@ -207,21 +232,13 @@ class zyfra_db_common {
             $sql.="<tr><td bgcolor='orange' align='right'>".($no_line+1)."</td><td>".$line."</td></tr>";
         }
         $sql .= "</table>";
-        $debug = debug_backtrace();
+        $backtrace = debug_backtrace();
         //reverse
-        $debug = array_reverse($debug);
+        $backtrace = array_reverse($backtrace);
         //On retire ce qui est relatif � cette classe
-        array_pop($debug);
+        array_pop($backtrace);
         //array_pop($debug);
-        $loca = "<table bgcolor='grey'>";
-        $i = 1;
-        foreach($debug as $debug_line){
-            if (!isset($debug_line["class"])) $debug_line["class"] = '';
-            if (!isset($debug_line["type"])) $debug_line["type"] = '';
-            $loca .= "<tr><td bgcolor='orange'>".$i."</td><td>".$debug_line["class"].$debug_line["type"].$debug_line["function"]."() from ".$debug_line["file"]." at line ".$debug_line["line"]."</td></tr>";
-            $i++;
-        }
-        $loca .= "</table>";
+        $loca = $this->render_backtrace($backtrace);
         $the_html_error= "<table border='1' cellspacing='0'><tr bgcolor='#FF0000'><td>MySQL Error</td></tr>
 					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
 					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
