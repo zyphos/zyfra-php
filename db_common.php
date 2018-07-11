@@ -311,17 +311,14 @@ class zyfra_db_common {
          * result in
          * 'select a from b where c=4 and e in (4,5,7) and t=\'ha\''
          */
-        $sql_array = explode('%s', $sql);
-        $new_sql = array_shift($sql_array);
-        $nb_var = count($sql_array);
-        if (count($datas) < $nb_var){
-            throw new Exception('Not enough datas for SQL. '."\n".$sql."\n".print_r($datas, true)."\n");
-        }
-        for($i=0; $i<$nb_var; $i++){
+        $that = $this;
+        $datas_origin = $datas; // Copy
+        $sql = preg_replace_callback('/(?<!%)%s/', function($matches) use(&$that, &$datas, &$sql, &$datas_origin){
+            if (count($datas) == 0) throw new Exception('Not enough datas for SQL. '."\n".$sql."\n".print_r($datas_origin, true)."\n");
             $data = array_shift($datas);
-            $new_sql .= $this->var2sql($data).array_shift($sql_array);
-        }
-        return $new_sql;
+            return $that->var2sql($data);
+        }, $sql);
+        return str_replace('%%','%', $sql);
     }
 
     public function safe_query($sql, $datas = array()){
