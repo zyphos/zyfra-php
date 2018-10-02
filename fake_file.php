@@ -121,10 +121,6 @@ class zyfra_fake_file_memory{
         return false;
     }
     
-    public function __destruct(){
-        unset($this);
-    }
-    
     protected function sign($nb){
         if ($nb < 0) {
             return -1;
