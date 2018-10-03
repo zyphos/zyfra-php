@@ -122,11 +122,9 @@ class zyfra_send_data{
             $data = $ff->read();
             if ($ff->is_physic()){
                 $ff->get_filename();
-                $ff->__destruct();
                 unlink($filename);
-            }else{
-                $ff->__destruct();
             }
+            unset($ff);
             //Not send_data !
             return $data;
         }        
@@ -134,7 +132,7 @@ class zyfra_send_data{
         while(!$ff->eof()){
             $datas[] = $this->read_block($ff);
         }
-        $ff->__destruct();
+        unset($ff);
         return $datas;
     }
     
@@ -293,7 +291,7 @@ class zyfra_send_data{
         if($this->file2send->is_physic()){
             $filename = $this->file2send->get_filename();
             $is_tmp_file = $this->file2send->tmp_file();
-            $this->file2send->__destruct();
+            unset($this->file2send);
             $this->file2send = NULL;
             $this->has_content = FALSE;
             $rdata = $this->post($this->current_url, true, $filename);
@@ -307,7 +305,7 @@ class zyfra_send_data{
             $this->file2send->rewind();
             $rdata = $this->post($this->current_url, false, 
                 $this->file2send->read());
-            $this->file2send->__destruct();
+            unset($this->file2send);
             $this->file2send = NULL;
             $this->has_content = FALSE;
         }        
