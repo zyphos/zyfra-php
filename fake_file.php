@@ -242,7 +242,6 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
                 $this->fhandle = NULL;
             }
         }
-        unset($this);
     }
     
     protected function get_tmp_file(){
