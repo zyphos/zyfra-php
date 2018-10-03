@@ -55,7 +55,8 @@
 include_once 'fake_file.php';
 
 class zyfra_send_data{
-    private $crypt_key = "Hello world !"; // Encryption key
+    //private $crypt_key = "Hello world !"; // Encryption key, deprecated since PHP 7.2
+    private $crypt_key = null;
     // File first bytes limited to 20 chars !!! 
     protected $file_header = "SendData_v0.1";
     protected $send_filename = ''; // Local filename for storing data to be sent 
@@ -210,18 +211,23 @@ class zyfra_send_data{
         $data_str = serialize($obj);
         $data_gz = gzcompress($data_str,9);
         unset($data_str);
+        if (is_null($this->crypt_key)) return $data_gz;
         return $this->crypt($data_gz);
     }
   
     private function unmake_str(&$txt){
-        $data_gz = $this->decrypt($txt);
+        if (is_null($this->crypt_key)){
+            $data_gz = &$txt;
+        }else{
+            $data_gz = $this->decrypt($txt);
+        }
         $data_str = gzuncompress($data_gz);
         unset($data_gz);
         return unserialize($data_str);
     }
   
     private function crypt($txt){
-        $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, "");
+        $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, ""); // deprecated since PHP 7.2
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
         mcrypt_generic_init($td, $this->crypt_key, $iv);
         $data_crypt = mcrypt_generic($td, $txt);
@@ -231,7 +237,7 @@ class zyfra_send_data{
     }
   
     private function decrypt($txt){
-        $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, "");
+        $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, ""); // deprecated since PHP 7.2
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
         mcrypt_generic_init($td, $this->crypt_key, $iv);
         $data_crypt = mdecrypt_generic($td, $txt);
