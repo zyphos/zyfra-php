@@ -81,7 +81,8 @@ class zyfra_STRUCT_rpc{
 
 class zyfra_rpc_big{
     private static $file_header = 'rpc_big v0.01';
-    private static $crypt_key = 'Hello world !';
+    //private static $crypt_key = 'Hello world !'; // Removed from PHP 7.2
+    private static $crypt_key = null;
     private $is_rpc = false;
     private static $log_error_file = '';
     
