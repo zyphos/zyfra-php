@@ -582,6 +582,56 @@ class ObjectModel{
     	return $view;
     }
 
+    private function table2txt($table){
+        //1. find max length of each column
+        $max_lengths = [];
+        foreach($table as $row){
+            for($i = 0; $i<count($row);$i++){
+                $len = strlen($row[$i]);
+                if (!isset($max_lengths[$i])||$max_lengths[$i] < $len){
+                    $max_lengths[$i] = $len;
+                }
+            }
+        }
+
+        //2. Format row
+        $txt_table = [];
+        foreach($table as $row){
+            $row_txt = [];
+
+            for($i = 0; $i<count($row);$i++){
+                $row_txt[] = str_pad($row[$i], $max_lengths[$i]," ");
+            }
+            $txt_table[] = implode(' ', $row_txt);
+        }
+
+        //3. Join all row
+        return implode("\n", $txt_table);
+    }
+
+    public function get_fields(){
+        $fields = $this->get_view();
+        $fields_txt = [];
+        $table = [];
+        foreach ($fields as $field){
+            $row = [$field->name];
+
+            $type = $field->widget;
+            if (isset($field->relation_object_name)){
+                if (isset($field->relation_object_field)){
+                    $type .= '('.$field->relation_object_name.'.'.$field->relation_object_field.')';
+                }else{
+                    $type .= '('.$field->relation_object_name.')';
+                }
+            }
+            $row[] = $type;
+            $row[] = $field->default_value;
+            $row[] = $field->label;
+            $table[] = $row;
+        }
+        return $this->table2txt($table);
+    }
+
     public function get_form_view(){
     	return $this->get_view($this->_form_view_fields);
     }
