@@ -233,7 +233,7 @@ class Many2OneSelfField extends Many2OneField{
         return $l1;
     }
 
-    function rebuild_tree($id = 0, $left = 1, $key='', $table=''){
+    function rebuild_tree($verbose=false, $id = 0, $left = 1, $key='', $table=''){
         if($key == '' || $table == ''){
             $key = $this->object->_key;
             $table = $this->object->_table;
@@ -246,11 +246,13 @@ class Many2OneSelfField extends Many2OneField{
             $rows = $this->object->select([$key.' AS id WHERE '.$this->name.'=%s', [$id]], array('visible'=>false));
         }
         foreach ($rows as $row){
-            $right = $this->rebuild_tree($row->id, $right, $key, $table);
+            $right = $this->rebuild_tree($verbose, $row->id, $right, $key, $table);
         }
         if ($id!=0 && $id!=null){
             $db = $this->object->_pool->db;
-            echo sprintf('id[%s] pleft[%s] pright[%s]<br>', $id, $left, $right);
+            if ($verbose){
+                echo sprintf('id[%s] pleft[%s] pright[%s]<br>', $id, $left, $right);
+            }
             $db->safe_query('UPDATE '.$table.' SET '.$this->pleft.'='.$left.', '.$this->pright.'='.$right.' WHERE '.$key.'=%s', array($id));
         }
         return $right+1;
