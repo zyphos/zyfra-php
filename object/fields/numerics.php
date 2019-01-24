@@ -91,6 +91,7 @@ class DoubleField extends Field{
     }
 
     function sql_format($value){
+        if (is_null($value)) return $this->_sql_format_null();
         return (double)$value;
     }
     function get_sql_def(){
@@ -107,6 +108,7 @@ class BooleanField extends Field{
     }
 
     function sql_format($value){
+        if (is_null($value)) return $this->_sql_format_null();
         return $value?1:0;
     }
 
@@ -131,6 +133,7 @@ class IntSelectField extends Field{
     }
 
     function sql_format($value){
+        if (is_null($value)) return $this->_sql_format_null();
         if(is_string($value)){
             $key = array_search($value, $this->select_values);
             if($key !== false) return $key;
