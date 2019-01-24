@@ -99,6 +99,26 @@ class DoubleField extends Field{
     }
 }
 
+class DecimalField extends Field{
+    var $default_value=0;
+    var $widget='decimal';
+
+    function sql2php($value){
+        if (is_null($value)) return $this->_sql_format_null();
+        if (!is_numeric($value)) throw new UnexpectedValueException('Decimal value is expected.');
+        return (double)$value;
+    }
+
+    function sql_format($value){
+        if (is_null($value)) return $this->_sql_format_null();
+        return (double)$value;
+    }
+
+    function get_sql_def(){
+        return 'DECIMAL';
+    }
+}
+
 class BooleanField extends Field{
     var $default_value=0;
     var $widget='boolean';
