@@ -152,6 +152,20 @@ class IntSelectField extends Field{
         parent::__construct($label, $args = null);
     }
 
+    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+        if (count($fields) && $fields[0] == 'value'){ // return value when using field_name.value
+            $parent_alias->set_used();
+            $whens = [];
+            foreach($this->select_values as $key=>$value){
+                $whens[] = 'WHEN '.$key." THEN '".$value."'";
+            }
+
+            $sql = '(CASE '.$parent_alias->alias.'.'.$this->name.' '.implode(' ', $whens)." ELSE '' END)";
+            return $this->add_operator($sql, $context);
+        }
+        return parent::get_sql($parent_alias, $fields, $sql_query, $context);
+    }
+
     function sql_format($value){
         if (is_null($value)) return $this->_sql_format_null();
         if(is_string($value)){
