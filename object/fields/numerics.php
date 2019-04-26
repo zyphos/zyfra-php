@@ -7,13 +7,13 @@ class IntField extends Field{ // 4 Bytes
     var $widget='integer';
     
     function sql2php($value){
-        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected.');
+        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected. '.$this->object->_name.'.'.$this->name);
     	return (int)$value;
     }
 
     function sql_format($value){
         if (is_null($value)) return $this->_sql_format_null();
-        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected.');
+        if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected. '.$this->object->_name.'.'.$this->name);
         return (int)$value;
     }
 
