@@ -176,6 +176,11 @@ class zyfra_template{
         return $this;
     }
     
+    public function get($var_name, $default_value=''){
+        if(array_key_exists($var_name, $this->vars)) return $this->vars[$var_name];
+        return $default_value;
+    }
+
     public function assign($var_name, $value=''){ // Used for backward compatibility
         zyfra_debug::depreciated_function();
         return $this->set($var_name, $value);
