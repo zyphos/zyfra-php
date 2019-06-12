@@ -54,6 +54,7 @@ class One2ManyField extends RelationalField{
                     $field_alias = '';
                 }
                 $sub_mql = substr($field_name, 1, -1);
+                if ($sql_query->debug > 1) echo 'O2M subquery['.$this->name.'] robj_field: '.$this->relation_object_field.' sub_mql: '.print_r($sub_mql, true).'<br>';
                 $sql_query->add_sub_query($robject, $this->relation_object_field, $sub_mql, $field_alias, $parameter);
                 $parent_alias->set_used();
                 return $key_field;

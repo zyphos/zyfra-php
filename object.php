@@ -747,7 +747,7 @@ class ObjectModel{
     public function __invoke($context){
         return new ContextedObjectModel($this, $this->_pool, $context);
     }
-    
+
     public function get_id_from_value($value, $context, $field_name=null){
         if (is_null($field_name)) $field_name = $this->_key;
         try{
@@ -760,6 +760,15 @@ class ObjectModel{
             throw new UnexpectedValueException('Can not found match for this value. ['.$value.'] in ['.$this->_name.']');
         }
         return $ids[0];
+    }
+
+    public function does_id_exists($id){
+        $id = (int)$id;
+        $db = &$this->_pool->db;
+        if (!$db->get_object('SELECT '.$this->_key.' FROM '.$this->_table.' WHERE '.$this->_key.'='.$id)){
+            return false;
+        }
+        return true;
     }
 }
 
