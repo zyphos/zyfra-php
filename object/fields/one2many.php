@@ -73,5 +73,17 @@ class One2ManyField extends RelationalField{
             }
         }
     }
+
+    function sql_create($sql_create, $value, $fields, $context){
+        return new zyfra\orm\Callback('sql_create_after_trigger', null);
+    }
+
+    function sql_create_after_trigger($sql_create, $value, $fields, $context, $id){
+        $robject = $this->get_relation_object();
+        foreach($value as $rvalues){
+            if (!is_array($rvalues)) continue;
+            $rvalues[$this->relation_object_field] = $id;
+            $robject->create($rvalues, $context);
+        }
+    }
 }
-?>
