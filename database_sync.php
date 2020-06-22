@@ -283,7 +283,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         unset($local_indexes, $remote_indexes, $local_datas, $remote_datas);
     }
     
-    function sync($synch_table_lst, $incremental = true){
+    function sync($synch_table_lst, $incremental = true, $only_table = null){
         global $db;
         $db->query('BEGIN');
         
@@ -301,6 +301,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $this->log('Sync id: '.$sync_id.'<hr>');
         foreach ($table_list as $table){
             list($table_name,$key_names,$col_names,$sync_flags) = explode(':',$table);
+            if (!is_null($only_table) && $table_name != $only_table) continue;
             $nb_try = 0;
             while(true){
                 try {
@@ -749,10 +750,15 @@ class zyfra_database_synch extends zyfra_rpc_big{
             if(isset($_GET['incremental'])&&(int)$_GET['incremental']==1){
                 $incremental = true;
             }
+            if (isset($_GET['only_table']) && str_len(trim($_GET['only_table']))>0){
+                $only_table = trim($_GET['only_table']);
+            }else{
+                $only_table = null;
+            }
             echo '<h1>Doing sync</h1>';
             echo 'Started at: '.date('Y-m-d H:i:s').'<hr>';
             $start = microtime(true);
-            $this->sync($_GET['slst_file'], $incremental);
+            $this->sync($_GET['slst_file'], $incremental, $only_table);
             $finish = microtime(true);
             echo '<hr>Finished at: '.date('Y-m-d H:i:s');
             printf('<hr>%.3f seconds',$finish-$start);
