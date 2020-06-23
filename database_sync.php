@@ -750,7 +750,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             if(isset($_GET['incremental'])&&(int)$_GET['incremental']==1){
                 $incremental = true;
             }
-            if (isset($_GET['only_table']) && str_len(trim($_GET['only_table']))>0){
+            if (isset($_GET['only_table']) && strlen(trim($_GET['only_table']))>0){
                 $only_table = trim($_GET['only_table']);
             }else{
                 $only_table = null;
