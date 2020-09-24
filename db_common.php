@@ -139,7 +139,7 @@ class zyfra_db_common {
         return $temp;
     }
 
-    public function get_array_object($sql,$idRow='', $datas=array()){
+    public function get_array_object($sql,$idRow='', $datas=[]){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
@@ -300,7 +300,7 @@ class zyfra_db_common {
         return $var;
     }
 
-    public function safe_sql($sql, $datas = array()){
+    public function safe_sql($sql, $datas=[]){
         /*
          * Safe sql against Database (avoid SQL injection)
          * @param $sql: SQL statement
@@ -321,7 +321,7 @@ class zyfra_db_common {
         return str_replace('%%','%', $sql);
     }
 
-    public function safe_query($sql, $datas = array()){
+    public function safe_query($sql, $datas=[]){
         /*
          * Safe query against Database (avoid SQL injection)
          * @param $sql: SQL statement
@@ -332,10 +332,10 @@ class zyfra_db_common {
          * result in
          * query('select a from b where c=4 and e in (4,5,7) and t=\'ha\'');
          */
-        $new_sql = $this->safe_sql($sql, $datas);
-        return $this->query($new_sql);
+        if (count($datas)) $sql = $this->safe_sql($sql, $datas);
+        return $this->query($sql);
     }
-     
+
     public function __destruct(){
         /*if (strlen($this->errors2mail)>0){
          //Email the error to webmaster@matedex.be
