@@ -131,7 +131,7 @@ class TextField extends Field{
             }
             $this->translate = array('object'=>$tr_name, 'column'=>$name, 'key'=>'source_id', 'language_id'=>'language_id', 'local_key'=>'');
         }
-        if (!array_key_exists('_translation', $object)){
+        if (!property_exists('_translation', $object)){
             $args = array();
             if (isset($this->translate['local_key'])) $args['local_key'] = $this->translate['local_key'];
             $translation_field = new One2ManyField('Translation', $this->translate['object'], $this->translate['key'], $args);
