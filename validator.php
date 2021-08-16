@@ -113,8 +113,66 @@ class zyfra_v_phone extends zyfra_validator_type{
 
 class zyfra_v_email extends zyfra_validator_type{
     function is_valid($data, $spam_check){
-        $regex = '/^[a-zA-Z0-9._%-]+[a-zA-Z0-9_%-]+@[a-z0-9._%-]+.[a-z]{2,6}$/';
-        return $this->is_regex_valid($regex, $data);
+        $at_pos = strrpos($data, "@");
+        if (is_bool($at_pos) && !$at_pos)
+        {
+            return false;
+        }
+        else
+        {
+            $domain = substr($data, $at_pos+1);
+            $local = substr($data, 0, $at_pos);
+            $local_len = strlen($local);
+            $domain_len = strlen($domain);
+            if ($local_len < 1 || $local_len > 64)
+            {
+                // local part length exceeded
+                return false;
+            }
+            else if ($domain_len < 1 || $domain_len > 255)
+            {
+                // domain part length exceeded
+                return false;
+            }
+            else if ($local[0] == '.' || $local[$local_len-1] == '.')
+            {
+                // local part starts or ends with '.'
+                return false;
+            }
+            else if (preg_match('/\\.\\./', $local))
+            {
+                // local part has two consecutive dots
+                return false;
+            }
+            else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain))
+            {
+                // character not valid in domain part
+                return false;
+            }
+            else if (preg_match('/\\.\\./', $domain))
+            {
+                // domain part has two consecutive dots
+                return false;
+            }
+            else if ($domain[0] == '.' || $domain[$domain_len-1] == '.')
+            {
+                // local part starts or ends with '.'
+                return false;
+            }
+            else if
+            (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/',
+                    str_replace("\\\\","",$local)))
+            {
+                // character not valid in local part unless
+                // local part is quoted
+                if (!preg_match('/^"(\\\\"|[^"])+"$/',
+                        str_replace("\\\\","",$local)))
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 
