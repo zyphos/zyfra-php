@@ -480,7 +480,7 @@ class zyfra_wiki_parser {
     if ( $fl < $shorter ) { $shorter = $fl; }
 
     for ( $i = 0; $i < $shorter; ++$i ) {
-        if ( $st1{$i} != $st2{$i} ) { break; }
+        if ( $st1[$i] != $st2[$i] ) { break; }
     }
     return $i;
     }
