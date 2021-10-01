@@ -149,7 +149,9 @@ class zyfra_rpc_big{
                 return $results[0];
             }
         }else{
-            self::throw_exception('RPC response should be a array ('.$results.')');
+            echo '<b>Remote answer:</b><br>';
+            echo '<textarea rows=50 style="width:100%;">'.$results.'</textarea>';
+            self::throw_exception('RPC response should be an array ('.$results.')');
         }    
     }
     
