@@ -261,6 +261,9 @@ class zyfra_send_data{
             // perform post
             $this->log('Sending data...');
             $result = curl_exec($this->cnx);
+            if ($result === false){
+                throw new Exception('Can not post with Curl @ '.$post_url.' Error: '.curl_error($this->cnx));
+            }
             return $result;
         }else{
             header("Content-Type: application/octet-stream; ");
