@@ -102,12 +102,8 @@ class zyfra_send_data{
             $ff = new zyfra_fake_file_memory($data);
             $ff->rewind();
         }elseif(isset($_POST[$post_field_data])){
-            if (!get_magic_quotes_gpc()) {
-                $data = $_POST[$post_field_data];
-            }else{
-                $data = stripslashes($_POST[$post_field_data]);
-            }
-            $ff = new zyfra_fake_file_memory($data);    
+            $data = $_POST[$post_field_data];
+            $ff = new zyfra_fake_file_memory($data);
         }else if(isset($_FILES[$post_field_file])){
             $ff = new zyfra_fake_file(
                 $_FILES[$post_field_file]['tmp_name'],'rb');
