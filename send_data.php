@@ -66,7 +66,7 @@ class zyfra_send_data{
     private $has_content = false;
     public $logging = false;
     private $cnx;
-    
+
     function __construct(){
         $cnx = curl_init();
         curl_setopt($cnx, CURLOPT_RETURNTRANSFER, TRUE);
@@ -74,12 +74,11 @@ class zyfra_send_data{
         curl_setopt($cnx, CURLOPT_POST, TRUE);
         $this->cnx = $cnx;
     }
-    
+
     function __destruct(){
         curl_close($this->cnx);
     }
-    
-    
+
     public function send(&$data, $url = NULL, $wait = FALSE){
         if ($this->has_content && $url != $this->current_url)
             return $this->close_and_send_file();
@@ -95,7 +94,7 @@ class zyfra_send_data{
         if (!$wait) return $this->close_and_send_file();
         return NULL;
     }
-    
+
     public function get_data($data = NULL){
         $post_field_data = $this->post_field_prefix."data";
         $post_field_file = $this->post_field_prefix."fname";
@@ -135,26 +134,26 @@ class zyfra_send_data{
         unset($ff);
         return $datas;
     }
-    
-    
+
+
     public function set_crypt_key($key){
         $this->crypt_key = $key;
     }
-    
+
     public function set_send_filename($send_filename){
         $this->send_filename = $send_filename;
     }
-    
+
     public function set_file_header($file_header){
         $this->file_header = $file_header;
     }
-    
+
     protected function log($msg){
         if ($this->logging){
             echo '[log]: '.$msg;
         }
     }
-    
+
     private function write_block($file, &$data){
         $block_data = $this->make_str($data); //Convert to a string
         unset($data); //Free up some memory
@@ -168,7 +167,7 @@ class zyfra_send_data{
         $file->write($block_data,$block_size);
         unset($block_data); //Free memory
     }
-  
+
     private function read_block($file){
         $block_header = $file->read(8);
         if($file->eof()) return NULL;
@@ -204,7 +203,7 @@ class zyfra_send_data{
         }*/
         return $data;
     }
-  
+
     private function make_str(&$obj){
         $data_str = serialize($obj);
         $data_gz = gzcompress($data_str,9);
@@ -212,7 +211,7 @@ class zyfra_send_data{
         if (is_null($this->crypt_key)) return $data_gz;
         return $this->crypt($data_gz);
     }
-  
+
     private function unmake_str(&$txt){
         if (is_null($this->crypt_key)){
             $data_gz = &$txt;
@@ -223,7 +222,7 @@ class zyfra_send_data{
         unset($data_gz);
         return unserialize($data_str);
     }
-  
+
     private function crypt($txt){
         $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, ""); // deprecated since PHP 7.2
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
@@ -233,7 +232,7 @@ class zyfra_send_data{
         mcrypt_module_close($td);
         return $data_crypt;
     }
-  
+
     private function decrypt($txt){
         $td = mcrypt_module_open(MCRYPT_TripleDES, "", MCRYPT_MODE_ECB, ""); // deprecated since PHP 7.2
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
@@ -243,7 +242,7 @@ class zyfra_send_data{
         mcrypt_module_close($td);
         return $data_crypt;
     }
-    
+
     private function post($post_url, $is_file, $fname_data){
         if (($post_url != '')&&(!is_null($post_url))){
             $post_data = array();
@@ -287,7 +286,7 @@ class zyfra_send_data{
             return NULL;
         }
     }
-    
+
     private function close_and_send_file(){
         if (is_null($this->file2send)) return;
         $physical = $this->file2send->is_physic();
@@ -315,5 +314,3 @@ class zyfra_send_data{
         return $this->get_data($rdata);
     }
 }
-
-?>
