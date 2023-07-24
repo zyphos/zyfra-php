@@ -38,7 +38,7 @@ class zyfra_get_post {
         // Clean $_POST, $_GET, $_COOKIE fields from magic_quotes_gpc
         global $var_zyfra_get_post_is_sanitized;
         if(!isset($var_zyfra_get_post_is_sanitized)||
-          !$var_zyfra_get_post_is_sanitized)){
+          !$var_zyfra_get_post_is_sanitized){
             foreach($_POST as $key=>$value) 
                 $_POST[$key] = self::unquote($value);
             foreach($_GET as $key=>$value) $_GET[$key] = self::unquote($value);
