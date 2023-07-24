@@ -285,7 +285,6 @@ class zyfra_send_data{
 
     private function close_and_send_file(){
         if (is_null($this->file2send)) return;
-        $physical = $this->file2send->is_physic();
         if($this->file2send->is_physic()){
             $filename = $this->file2send->get_filename();
             $is_tmp_file = $this->file2send->tmp_file();
