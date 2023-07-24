@@ -37,7 +37,7 @@ class zyfra_get_post {
     public static function sanitize(){
         // Clean $_POST, $_GET, $_COOKIE fields from magic_quotes_gpc
         global $var_zyfra_get_post_is_sanitized;
-        if(get_magic_quotes_gpc()&&(!isset($var_zyfra_get_post_is_sanitized)||
+        if(!isset($var_zyfra_get_post_is_sanitized)||
           !$var_zyfra_get_post_is_sanitized)){
             foreach($_POST as $key=>$value) 
                 $_POST[$key] = self::unquote($value);
@@ -47,7 +47,7 @@ class zyfra_get_post {
             $var_zyfra_get_post_is_sanitized = true; //Avoid doing this twice
         }
     }
-    
+
     private static function unquote($data){
         if (is_array($data)){
             foreach($data as &$row) $row = self::unquote($row);
@@ -56,4 +56,3 @@ class zyfra_get_post {
         return stripslashes($data);
     }
 }
-?>
