@@ -24,4 +24,3 @@ abstract class RelationalField extends Field{
         return $this->relation_object;
     }
 } 
-?>

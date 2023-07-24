@@ -143,13 +143,13 @@ abstract class Field{
     //abstract function delete_after_trigger(&$values);
 }
 
-require_once('fields/texts.php');
-require_once('fields/numerics.php');
-require_once('fields/time.php');
-require_once('fields/many2one.php');
-require_once('fields/one2many.php');
-require_once('fields/many2many.php');
-require_once('fields/meta.php');
-require_once('fields/function.php');
-require_once('fields/shortcut.php');
-require_once('fields/blob.php');
+require_once 'fields/texts.php';
+require_once 'fields/numerics.php';
+require_once 'fields/time.php';
+require_once 'fields/many2one.php';
+require_once '/fields/one2many.php';
+require_once 'fields/many2many.php';
+require_once 'fields/meta.php';
+require_once 'fields/function.php';
+require_once 'fields/shortcut.php';
+require_once 'fields/blob.php';
