@@ -120,13 +120,13 @@ class zyfra_send_data{
             $ff->rewind();
             $data = $ff->read();
             if ($ff->is_physic()){
-                $ff->get_filename();
+                $filename = $ff->get_filename();
                 unlink($filename);
             }
             unset($ff);
             //Not send_data !
             return $data;
-        }        
+        }
         $datas = array();
         while(!$ff->eof()){
             $datas[] = $this->read_block($ff);
@@ -159,7 +159,7 @@ class zyfra_send_data{
         unset($data); //Free up some memory
         //Write it to file
         //1.header
-        
+
         $block_size = strlen($block_data);
         $block_crc32 = crc32($block_data);
         $block_header = pack("NN",$block_size,$block_crc32);
@@ -298,19 +298,19 @@ class zyfra_send_data{
             $this->has_content = FALSE;
             $rdata = $this->post($this->current_url, true, $filename);
             if ($is_tmp_file){
-                unlink($filename); //Delete file if temporary file             
+                unlink($filename); //Delete file if temporary file
             }else{
                 $fh = fopen($filename, 'wb'); //Reset file size to 0
-                fclose($fh);    
+                fclose($fh);
             }
         }else{
             $this->file2send->rewind();
-            $rdata = $this->post($this->current_url, false, 
+            $rdata = $this->post($this->current_url, false,
                 $this->file2send->read());
             unset($this->file2send);
             $this->file2send = NULL;
             $this->has_content = FALSE;
-        }        
+        }
         return $this->get_data($rdata);
     }
 }
