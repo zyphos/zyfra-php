@@ -51,7 +51,7 @@ function check($result, $expected, $description){
         echo 'Failed, '.print_r($result, true).' != '.print_r($expected, true)."\n";
     }
 }
-        
+
 // Check creation
 $id = $o->language->create(['name'=> 'en']);
 $o->language->create(['name'=> 'fr']);

@@ -321,7 +321,7 @@ class SqlQuery{
         if ($this->debug) {
             $s = multispecialsplit($mql, ',');
             $s = array_map('htmlentities', $s);
-            $txt = implode($s,",<br>");
+            $txt = implode(",<br>", $s);
             $txt .= "<br>";
             foreach(array_reverse($query_datas,true) as $key=>$value){
                 $txt .= '<b>'.strtoupper($key).'</b><br>'.htmlentities($value).'<br>';
@@ -369,7 +369,7 @@ class SqlQuery{
                 if ($key == 'SELECT '){
                     $s = multispecialsplit($ss, ',');
                     $s = array_map('htmlentities', $s);
-                    $txt .= implode($s,",<br>");
+                    $txt .= implode(",<br>", $s);
                     $txt .= "<br>";
                 }else{
                     $txt .= htmlentities($ss).'<br>';
