@@ -79,11 +79,51 @@ require_once('object/pool.php');
 require_once('object/active_record.php');
 require_once('object/tools.php');
 
+global $mysql_reserved_keywords;
+$mysql_reserved_keywords = [
+    'accessible','add','all','alter','analyze','and','as','asc','asensitive',
+    'before','between','bigint','binary','blob','both','by','call','cascade',
+    'case','change','char','character','check','collate','column','condition',
+    'constraint','continue','convert','create','cross','current_date',
+    'current_role','current_time','current_timestamp','current_user','cursor',
+    'database','databases','day_hour','day_microsecond','day_minute',
+    'day_second','dec','decimal','declare','default','delayed','delete',
+    'delete_domain_id','desc','describe','deterministic','distinct',
+    'distinctrow','div','do_domain_ids','double','drop','dual','each','else',
+    'elseif','enclosed','escaped','except','exists','exit','explain','false',
+    'fetch','float','float4','float8','for','force','foreign','from','fulltext',
+    'general','grant','group','having','high_priority','hour_microsecond',
+    'hour_minute','hour_second','if','ignore','ignore_domain_ids',
+    'ignore_server_ids','in','index','infile','inner','inout','insensitive',
+    'insert','int','int1','int2','int3','int4','int8','integer','intersect',
+    'interval','into','is','iterate','join','key','keys','kill','leading',
+    'leave','left','like','limit','linear','lines','load','localtime',
+    'localtimestamp','lock','long','longblob','longtext','loop','low_priority',
+    'master_heartbeat_period','master_ssl_verify_server_cert','match',
+    'maxvalue','mediumblob','mediumint','mediumtext','middleint',
+    'minute_microsecond','minute_second','mod','modifies','natural','not',
+    'no_write_to_binlog','null','numeric','offset','on','optimize','option',
+    'optionally','or','order','out','outer','outfile','over','page_checksum',
+    'parse_vcol_expr','partition','position','precision','primary','procedure',
+    'purge','range','read','reads','read_write','real','recursive',
+    'ref_system_id','references','regexp','release','rename','repeat','replace',
+    'require','resignal','restrict','return','returning','revoke','right',
+    'rlike','row_number','rows','schema','schemas','second_microsecond',
+    'select','sensitive','separator','set','show','signal','slow','smallint',
+    'spatial','specific','sql','sqlexception','sqlstate','sqlwarning',
+    'sql_big_result','sql_calc_found_rows','sql_small_result','ssl','starting',
+    'stats_auto_recalc','stats_persistent','stats_sample_pages','straight_join',
+    'table','terminated','then','tinyblob','tinyint','tinytext','to','trailing',
+    'trigger','true','undo','union','unique','unlock','unsigned','update',
+    'usage','use','using','utc_date','utc_time','utc_timestamp','values',
+    'varbinary','varchar','varcharacter','varying','when','where','while',
+    'window','with','write','xor','year_month','zerofill'];
+
 class ContextedObjectModel{
     protected $_object;
     protected $_pool;
     protected $_context;
-    
+
     function __construct(&$object, &$pool=null, $context=null){
         $this->_object = &$object;
         if (is_null($pool)){
@@ -93,57 +133,57 @@ class ContextedObjectModel{
         }
         $this->_context = $context;
     }
-    
+
     protected function _get_context($context){
         return array_merge($this->_pool->_context, $this->_context, $context);
     }
-    
+
     public function active_record(array $param, array $context = array()){
         return $this->_object->active_record($param, $this->_get_context($context));
     }
-    
+
     public function create(array $values, array $context = array()){
         return $this->_object->create($values, $this->_get_context($context));
     }
-    
+
     public function write(array $values, $where, array $context = array()){
         return $this->_object->write($values, $where, $this->_get_context($context));
     }
-    
+
     public function select($mql='*', array $context = array()){
         return $this->_object->select($mql, $this->_get_context($context));
     }
-    
+
     public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
         return $this->_object->get_scalar_array($value_field, $key_field, $where, $this->_get_context($context));
     }
-    
+
     public function unlink($where, array $context = array()){
         return $this->_object->unlink($where, $this->_get_context($context));
     }
-    
+
     public function name_search($txt, array $context=array(), $operator='='){
         return $this->_object->name_search($txt, $this->_get_context($context), $operator);
     }
-    
+
     public function get_id_from_value($value, $context, $field_name=null){
         return $this->_object->get_id_from_value($value, $this->_get_context($context), $field_name);
     }
-    
+
     public function __call($method, $args){
         return call_user_func_array(array($this->_object, $method), $args);
     }
-     
+
     public function __get($attribute){
         return $this->_object->$attribute;
     }
-     
+
     public function __set($attribute, $value){
         $this->_object->$attribute = $value;
     }
-    
+
     public function __invoke($context){
-        return new ContextedObectModel($this, $this->_pool, $context);
+        return new ContextedObjectModel($this, $this->_pool, $context);
     }
 }
 
@@ -164,7 +204,7 @@ class ObjectModel{
     var $_form_view_fields = null;
     var $_tree_view_fields = null;
     var $_display_name_field = 'name'; // Used for widget display
-    
+
     protected $_name_search_fieldname = 'name';
 
     function __construct(Pool $pool, array $args = null){
@@ -248,7 +288,11 @@ class ObjectModel{
     }
 
     public function __set($name, $value){
+        global $mysql_reserved_keywords;
         if ($value instanceof Field){
+            if (in_array($name, $mysql_reserved_keywords)){
+                throw new Exception('"'.$name.'" is a MySQL reserved keyword, can not be used as field name in model '.$this->_name);
+            }
             $this->_columns[$name] = $value;
         }else{
             $this->{$name} = $value;
@@ -313,7 +357,7 @@ class ObjectModel{
         }
         $this->__update_sql_done = true;
     }
-    
+
     public function check_table_structure(){
         $db = $this->_pool->db;
         $error_msgs = array();
@@ -358,7 +402,7 @@ class ObjectModel{
         }
         return $error_msgs;
     }
-    
+
     protected function after_table_creation(){
         //Can be overrided
     }
@@ -420,7 +464,7 @@ class ObjectModel{
             return $sql_create->create($values);
         }
     }
-    
+
     protected function __parse_where($where){
         
         if (is_string($where)){
@@ -472,11 +516,11 @@ class ObjectModel{
             $this->_columns[$column]->before_unlink_trigger($old_values);
         }
         $sql = 'DELETE FROM '.$this->_table.' WHERE '.$where;
-        
+
         if (isset($context['dry_run']) && $context['dry_run']){
             return $this->_pool->db->safe_sql($sql, $where_data);
         }
-        
+
         $this->_pool->db->safe_query($sql, $where_data);
         foreach($columns_after as $column){
             $old_values = array();
@@ -501,9 +545,9 @@ class ObjectModel{
         $mql = implode(',', $fields).$where;
         $res = $this->select([$mql, $datas], $context);
         foreach($res as &$row){
-        	foreach($row as $col_name=>&$value){
-        		if (isset($this->_columns[$col_name])) $value = $this->_columns[$col_name]->sql2php($value); 
-        	}
+            foreach($row as $col_name=>&$value){
+                if (isset($this->_columns[$col_name])) $value = $this->_columns[$col_name]->sql2php($value); 
+            }
         }
         return $res;
     }
@@ -526,7 +570,7 @@ class ObjectModel{
         $sql_query = new SqlQuery($this);
         return $sql_query->get_array($mql, $context);
     }
-    
+
     public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
         list($where, $datas) = $this->__parse_where($where);
         if (is_null($where)) {
@@ -544,42 +588,42 @@ class ObjectModel{
     	$sql_query = new SqlQuery($this);
     	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
     }
-    
+
     public function get_view(array $fields_list = null){
-    	if (is_null($fields_list)) {
-    	    $fields_list = array_keys($this->_columns);
-    	    if(($key = array_search('_display_name', $fields_list)) !== false) {
-    	        unset($fields_list[$key]);
-    	    }
-    	}
-    	if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
-    	$view = array();
-    	foreach($fields_list as $name){
-    		$column = $this->_columns[$name];
-    		$col = (object)array('name'=>$name,
-    		        'label'=>$column->label,
-    		        'default_value'=>$column->default_value,
-    				'widget'=>$column->widget,
-    				'required'=>$column->required,
-    		        'help'=>$column->help,
-    				'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
-    		        'hidden'=>$column->hidden,
-    				'is_key'=>($name==$this->_key));
-    		if (isset($column->translate)){
-    		    $col->translated = $column->translate && true; // transform it in boolean
-    		}
-    		if (isset($column->relation_object_name)){
-    			$col->relation_object_name = $column->relation_object_name;
-    		}
-    		if (isset($column->relation_object_field)){
-    		    $col->relation_object_field = $column->relation_object_field;
-    		}
-    		if (isset($column->select_values)){
-    		    $col->select_values = $column->select_values;
-    		}
-    		$view[] = $col;
-    	}
-    	return $view;
+        if (is_null($fields_list)) {
+            $fields_list = array_keys($this->_columns);
+            if(($key = array_search('_display_name', $fields_list)) !== false) {
+                unset($fields_list[$key]);
+            }
+        }
+        if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
+        $view = array();
+        foreach($fields_list as $name){
+            $column = $this->_columns[$name];
+            $col = (object)array('name'=>$name,
+                    'label'=>$column->label,
+                    'default_value'=>$column->default_value,
+                    'widget'=>$column->widget,
+                    'required'=>$column->required,
+                    'help'=>$column->help,
+                    'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
+                    'hidden'=>$column->hidden,
+                    'is_key'=>($name==$this->_key));
+            if (isset($column->translate)){
+                $col->translated = $column->translate && true; // transform it in boolean
+            }
+            if (isset($column->relation_object_name)){
+                $col->relation_object_name = $column->relation_object_name;
+            }
+            if (isset($column->relation_object_field)){
+                $col->relation_object_field = $column->relation_object_field;
+            }
+            if (isset($column->select_values)){
+                $col->select_values = $column->select_values;
+            }
+            $view[] = $col;
+        }
+        return $view;
     }
 
     private function table2txt($table){
@@ -633,13 +677,13 @@ class ObjectModel{
     }
 
     public function get_form_view(){
-    	return $this->get_view($this->_form_view_fields);
+        return $this->get_view($this->_form_view_fields);
     }
 
     public function get_tree_view(){
-    	return $this->get_view($this->_tree_view_fields);
+        return $this->get_view($this->_tree_view_fields);
     }
-    
+
     public function get_full_diagram($max_depth = 0, $lvl=0, $done=null){
         if (is_null($done)) {
             $done = array($this->_name);
@@ -664,7 +708,7 @@ class ObjectModel{
         }
         return $txt;
     }
-    
+
     public function get_svg_full_diagram($max_depth=0){
         $dot_data = $this->get_dot_full_diagram($max_depth);
         $process = proc_open('dot -Tsvg',
@@ -680,7 +724,7 @@ class ObjectModel{
         $return_value = proc_close($process);
         return $svg_data;
     }
-    
+
     public function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
         if ($relations==null) $relations = array();
         $name_under = str_replace('.','_', $this->_name);
@@ -731,19 +775,19 @@ class ObjectModel{
         }
         return $txt;
     }
-    
+
     public function name_search($txt, array $context=array(), $operator='='){
         // Return ids corresponding to search on name
         $where = ['WHERE '.$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
         return $this->get_scalar_array($this->_key, null, $where, $context);
     }
-    
+
     public function name_search_details($txt, array $context=array(), $operator='='){
         // Return ids corresponding to search on name
         $where = [$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
         return $this->read($where, [$this->_key.' AS id', $this->_name_search_fieldname.' AS name'], $context);
     }
-    
+
     public function __invoke($context){
         return new ContextedObjectModel($this, $this->_pool, $context);
     }
