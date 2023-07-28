@@ -72,6 +72,7 @@ class zyfra_send_data{
         curl_setopt($cnx, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($cnx, CURLOPT_BINARYTRANSFER, TRUE);
         curl_setopt($cnx, CURLOPT_POST, TRUE);
+        curl_setopt($cnx, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         $this->cnx = $cnx;
     }
 
