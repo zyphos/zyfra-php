@@ -599,6 +599,7 @@ class ObjectModel{
         if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
         $view = array();
         foreach($fields_list as $name){
+            if ($name == '_translation') continue;
             $column = $this->_columns[$name];
             $col = (object)array('name'=>$name,
                     'label'=>$column->label,
