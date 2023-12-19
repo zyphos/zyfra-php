@@ -143,3 +143,15 @@ function date2text($the_date, $language='en'){
     }
     return $day.' of '.$months[$month].' '.$year;
 }
+
+function datetime($the_datetime, $no_seconds=false){
+    list($the_date, $the_time) = explode(' ', $the_datetime);
+    if ($no_seconds) $the_time = substr($the_time, 0, 5);
+    return date($the_date).' - '.$the_time;
+}
+
+function datetime2text($the_datetime, $language='en', $no_seconds=false){
+    list($the_date, $the_time) = explode(' ', $the_datetime);
+    if ($no_seconds) $the_time = substr($the_time, 0, 5);
+    return date2text($the_date, $language).' - '.$the_time;
+}
