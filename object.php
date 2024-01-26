@@ -192,7 +192,7 @@ class ObjectModel{
     var $_name;
     var $_table;
     var $_key = 'id';
-    var $_order_by = 'id';
+    var $_order_by = null;
     var $_create_date = 'create_date';
     var $_write_date = 'write_date';
     var $_create_user_id = 'create_user_id';
@@ -221,6 +221,8 @@ class ObjectModel{
         foreach($methods as $method){
             $this->{'__'.$method.'_fields'} = array();
         }
+
+        if (is_null($this->_order_by) || !strlen($this->_order_by)) $this->_order_by = $this->_key;
 
         if (!array_key_exists($this->_key, $this->_columns)){
             $key_col = new IntField('Id', array('primary_key'=>true, 'auto_increment'=>true));
