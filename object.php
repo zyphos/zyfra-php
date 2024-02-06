@@ -553,8 +553,7 @@ class ObjectModel{
     }
 
     public function select($mql='*', array $context = array()){
-        $oquery = new OrmQuery($this->_name, $mql);
-        $this->_pool->_queries[] = $oquery;
+        $oquery = $this->_pool->add_query($this->_name, $mql);
         if (is_string($mql)){
             $datas = [];
         }elseif (is_array($mql)){

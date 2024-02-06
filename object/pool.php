@@ -60,7 +60,7 @@ class Pool{
     public $_context = null;
     public $_model_class='ObjectModel';
     protected $_model_path = null;
-    public $_queries;
+    protected $_queries;
 
     private function __construct(){
         // private = Avoid construct this object
@@ -168,5 +168,15 @@ class Pool{
 
     public function set_model_path($path){
         $this->_model_path = $path;
+    }
+
+    public function add_query($name, $mql){
+        $oquery = new OrmQuery($name, $mql);
+        $this->_queries[] = $oquery;
+        return $oquery;
+    }
+
+    public function get_queries(){
+        return $this->_queries;
     }
 }
