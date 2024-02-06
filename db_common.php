@@ -37,9 +37,9 @@ class zyfra_db_query{
         $this->start = microtime(true);
         $this->backtrace = &$backtrace;
     }
-    
-    function stop(){
-        if ($this->duration === false) $this->duration = microtime(true) - $this->start;
+
+    function stop($force_update=false){
+        if ($this->duration === false || $force_update) $this->duration = microtime(true) - $this->start;
     }
 }
 
@@ -136,6 +136,7 @@ class zyfra_db_common {
             }
         }
         $this->free_result($result);
+        end($this->queries)->stop(true); //Update full time query
         return $temp;
     }
 
@@ -155,6 +156,7 @@ class zyfra_db_common {
             }
         }
         $this->free_result($result);
+        end($this->queries)->stop(true); //Update full time query
         return $resultArray;
     }
 
