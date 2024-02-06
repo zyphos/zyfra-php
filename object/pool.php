@@ -1,4 +1,23 @@
 <?php
+class OrmQuery{
+    public $name;
+    public $mql;
+    private $start;
+    public $duration=false;
+    public $backtrace = null;
+
+    function __construct($name, $mql, &$backtrace=null){
+        $this->name = $name;
+        $this->mql = $mql;
+        $this->start = microtime(true);
+        $this->backtrace = &$backtrace;
+    }
+
+    function stop($force_update=false){
+        if ($this->duration === false || $force_update) $this->duration = microtime(true) - $this->start;
+    }
+}
+
 class ContextedPool{
    public $_context = null;
    protected $_original_pool = null; 
@@ -7,14 +26,14 @@ class ContextedPool{
        $this->_original_pool = $pool;
        $this->_context = $context;
    }
-   
+
    public function __call($method, $args){
        if ($this->_original_pool->object_in_pool($method)){
            return new ContextedObjectModel($this->_original_pool->$method, $this, array_merge($this->_context, $args[0]));
        }
        return call_user_func_array(array($this->_original_pool, $method), $args);
    }
-   
+
    public function __get($attribute){
        $attribute = $this->_original_pool->$attribute;
        if ($attribute instanceof ObjectModel){
@@ -22,18 +41,18 @@ class ContextedPool{
        }
        return $attribute;
    }
-   
+
    public function __set($attribute, $value){
        $this->_original_pool->$attribute = $value;
    }
-   
+
    public function __invoke($context){
        return new ContextedPool($this, $context);
    }
 }
 
 class Pool{
-    protected $pool = array();
+    protected $pool = [];
     protected static $instance;
     protected $auto_create = false;
     protected $language_object_name = 'language';
@@ -41,12 +60,14 @@ class Pool{
     public $_context = null;
     public $_model_class='ObjectModel';
     protected $_model_path = null;
+    public $_queries;
 
     private function __construct(){
         // private = Avoid construct this object
         global $db;
         $this->db = $db;
-        $this->_context = array();
+        $this->_context = [];
+        $this->_queries = [];
     }
 
     private function __clone()
@@ -100,7 +121,7 @@ class Pool{
         throw new Exception('get_auto_create is not more used in pool use pool->update_sql_structure() instead');
         return $this->auto_create;
     }
-    
+
     public function update_sql_structure(){
         foreach ($this->pool as $model){
             $model->update_sql_structure();
@@ -108,43 +129,43 @@ class Pool{
     }
     
     public function get_available_objects(){
-        if (is_null($this->_model_path)) return array();
-    	$filenames = scandir($this->_model_path.'/');
-    	$result = array();
-    	foreach($filenames as $filename){
-    	    $efn = explode('.', $filename);
-    	    $ext = array_pop($efn);
-    	    if ($ext != 'php') continue;
-    	    $result[] = implode('.', $efn);
-    	}
-    	return $result;
+        if (is_null($this->_model_path)) return [];
+        $filenames = scandir($this->_model_path.'/');
+        $result = [];
+        foreach($filenames as $filename){
+            $efn = explode('.', $filename);
+            $ext = array_pop($efn);
+            if ($ext != 'php') continue;
+            $result[] = implode('.', $efn);
+        }
+        return $result;
     }
-    
+
     public function get_objects_in_pool(){
         return array_keys($this->pool);
     }
-    
+
     public function instanciate_all_objects(){
         $object_names = $this->get_available_objects();
         foreach($object_names as $object_name){
             $this->$object_name;
         }
     }
-    
+
     public function get_language_object_name(){
         return $this->language_object_name;
     }
-    
+
     public function __invoke($context){
         return new ContextedPool($this, $context);
     }
-    
+
     public function __call($method, $args){
         $object = $this->__get($method);
         $new_object = new ContextedObjectModel($object, $this, array_merge($this->_context, $args[0]));
         return $new_object;
     }
-    
+
     public function set_model_path($path){
         $this->_model_path = $path;
     }

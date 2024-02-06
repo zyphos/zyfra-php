@@ -553,8 +553,10 @@ class ObjectModel{
     }
 
     public function select($mql='*', array $context = array()){
+        $oquery = new OrmQuery($this->_name, $mql);
+        $this->_pool->_queries[] = $oquery;
         if (is_string($mql)){
-            $datas = array();
+            $datas = [];
         }elseif (is_array($mql)){
             $datas = &$mql[1];
             $mql = &$mql[0];
@@ -568,7 +570,9 @@ class ObjectModel{
             return array();
         }
         $sql_query = new SqlQuery($this);
-        return $sql_query->get_array($mql, $context);
+        $res = $sql_query->get_array($mql, $context);
+        $oquery->stop();
+        return $res;
     }
 
     public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
