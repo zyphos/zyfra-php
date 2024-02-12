@@ -62,8 +62,8 @@ class zyfra_db_common {
     public $debug=false;
 
     function __construct(){
-        $last_query_datas = array();
-        $this->queries = array();
+        $this->last_query_datas = [];
+        $this->queries = [];
     }
 
     protected function IsConnected(){
@@ -363,5 +363,3 @@ class zyfra_db_common {
         return $this->safe_var($data);
     }
 }
-
-?>
