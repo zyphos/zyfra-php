@@ -19,4 +19,3 @@ Normal
 EOF;
 $parser = new zyfra_wiki_parser;
 print $parser->parse($text);
-?>

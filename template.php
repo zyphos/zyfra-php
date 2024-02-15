@@ -196,4 +196,3 @@ class zyfra_template{
         return $content;
     }
 }
-?>

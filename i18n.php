@@ -61,4 +61,3 @@ class zyfra_i18n{
         return html_entity_decode($str);
     }
 }
-?>

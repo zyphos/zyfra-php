@@ -32,4 +32,3 @@ foreach($checks as $check){
     $result = $validator->is_valid($data, $type, true)?'true':'false';
     zyfra_debug::printr('"'.$data.'" is valid '.$type.' : '.$result);
 }
-?>

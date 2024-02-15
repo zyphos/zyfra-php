@@ -11,4 +11,3 @@ foreach ($csv->get_array() as $row){
     echo '</tr>';
 }
 echo '</table>';
-?>

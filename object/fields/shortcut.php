@@ -20,4 +20,3 @@ class ShortcutField extends Field{
         return $res;
     }
 }
-?>

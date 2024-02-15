@@ -141,4 +141,3 @@ class zyfra_cookie{
         unset($this->data[$name]);
     }
 }
-?>

@@ -20,4 +20,3 @@ zyfra_debug::printr('$a =');
 zyfra_debug::printr($a);
 zyfra_debug::printr('$b =');
 zyfra_debug::printr($b);
-?>

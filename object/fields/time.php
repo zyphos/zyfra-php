@@ -1,4 +1,4 @@
-<?
+<?php
 class DatetimeField extends Field{
     var $widget='datetime';
     function sql_format($value){
@@ -27,4 +27,3 @@ class DateField extends Field{
         return 'DATE';
     }
 }
-?>

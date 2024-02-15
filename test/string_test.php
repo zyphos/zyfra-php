@@ -30,5 +30,3 @@ zyfra_debug::printr('$c = ');
 zyfra_debug::printr($c);
 zyfra_debug::printr('$d = ');
 zyfra_debug::printr($d);
-
-?>

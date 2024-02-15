@@ -167,4 +167,3 @@ class zyfra_http {
     	return self::join_url_data($new_url, $new_data);
     }
 }
-?>

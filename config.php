@@ -50,4 +50,3 @@ class zyfra_config{
 if(!isset($config)){
   $config = new zyfra_config;
 }
-?>

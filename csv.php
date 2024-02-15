@@ -150,5 +150,3 @@ class zyfra_csv{
         return $this->nb_columns;
     }
 }
-
-?>

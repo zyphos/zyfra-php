@@ -1,4 +1,4 @@
-<?
+<?php
 abstract class RelationalField extends Field{
     var $relation_object_name;
     var $relation_object=null;

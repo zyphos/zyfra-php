@@ -53,4 +53,3 @@ class FunctionField extends Field{
         return call_user_func($this->set_fx, $ids, $value, $context, $parameters);
     }
 }
-?>

@@ -111,5 +111,3 @@ class zyfra_email{
         return $decodedStr;
     }
 }
-
-?>
