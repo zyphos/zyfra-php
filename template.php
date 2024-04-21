@@ -47,6 +47,8 @@
  *
  * ***************************************************************************
  */
+namespace zyfra\template;
+
 require_once ('debug.php');
 
 function remove_accent($str){
@@ -148,7 +150,7 @@ function html_select($name, $values, $selected = null, $attribute = null, $param
     return $res.'</select>';
 }
 
-class zyfra_template {
+class Template {
     private $template;
     protected $template_path = '';
     private $vars = [];
