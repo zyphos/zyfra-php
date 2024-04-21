@@ -205,3 +205,20 @@ class Template {
         return $content;
     }
 }
+
+function fetch_fx($fx){
+    /* Get stdout of function as variable, use template without external file
+     *
+     * Ie:
+     * fetch_fx(function() use ($name, $age){
+     *   ?>
+     *   Hello <?=html($name)?> you are <?=$age?> old.
+     *   <?php
+     * });
+     */
+    ob_start();
+    $fx();
+    $content = ob_get_contents();
+    ob_end_clean();
+    return $content;
+}
