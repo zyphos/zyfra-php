@@ -771,8 +771,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 echo "<option value='".$slst_file."'>".$slst_file."</option>";
             }
             echo "</select> ";
-            echo " <input type='checkbox' name='incremental' value='1'>Incremental</input> ";
-            echo "<input type='submit' name='do_sync' value='Go'></form>";
+            echo " <input type='checkbox' name='incremental' value='1'>Incremental</input><br><br>";
+            echo "Only table: <input type='text' name='only_table'><br><br>";
+            echo "<input type='submit' name='do_sync' value='Go'>";
+            echo "</form>";
             echo "</td></tr></table>";
         }
     }
