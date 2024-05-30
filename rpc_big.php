@@ -208,5 +208,3 @@ class zyfra_rpc_big{
         self::$crypt_key = $key;
     }
 }
-
-?>

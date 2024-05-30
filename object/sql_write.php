@@ -1,4 +1,4 @@
-<?
+<?php
 namespace zyfra\orm;
 require_once(dirname(__FILE__).'/../debug.php');
 

@@ -1,4 +1,4 @@
-<?
+<?php
 namespace zyfra\orm; 
 
 class Callback{

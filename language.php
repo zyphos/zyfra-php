@@ -140,4 +140,3 @@ class zyfra_language{
         return false;
     }
 }
-?>

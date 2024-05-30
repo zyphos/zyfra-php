@@ -322,4 +322,3 @@ class zyfra_mysql extends zyfra_db_common {
     }
 }
 $MySQL = new zyfra_mysql;
-?>

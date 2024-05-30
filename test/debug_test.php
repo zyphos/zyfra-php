@@ -21,4 +21,3 @@ flush();
         sleep(1);
         zyfra_debug::_print($i.' ');
     }
-?>

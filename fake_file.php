@@ -297,4 +297,3 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
         return is_null($this->fhandle);
     }
 }
-?>

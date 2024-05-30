@@ -1,4 +1,4 @@
-<?
+<?php
 class DbaseFile{
     var $header;
     var $fields;
@@ -77,4 +77,3 @@ class DbaseFile{
         return $results;
     }
 }
-?>

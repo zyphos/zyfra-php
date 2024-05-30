@@ -1,4 +1,4 @@
-<?
+<?php
 namespace zyfra\orm;
 
 require_once('tools.php');

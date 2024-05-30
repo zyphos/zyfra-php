@@ -534,4 +534,3 @@ class zyfra_wiki_parser {
     }
     /**#@-*/
 }
-?>

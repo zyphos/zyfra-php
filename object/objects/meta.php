@@ -25,4 +25,3 @@ class meta_columns extends ObjectModel{
         $this->dimension_id = new Many2OneField('Dimension', 'meta_dimensions');
     }
 }
-?>

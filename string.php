@@ -33,8 +33,7 @@ class zyfra_string {
                 $row = self::trim($row);
             }
         }
-        if(is_string($txt)) return trim($txt);            
+        if(is_string($txt)) return trim($txt);
         return $txt;
     }
 }
-?>

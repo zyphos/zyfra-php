@@ -36,4 +36,3 @@ switch($config->db_type){
     if(!isset($db) || !is_subclass_of($db, 'Cdb_common')) $db = $MySQL;
     break;
 }
-?>

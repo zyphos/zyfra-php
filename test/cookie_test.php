@@ -34,4 +34,3 @@
     print 'my_var='.$my_cookie->my_var.'<br>';
     print 'my_obj=<br>';
     zyfra_debug::printr($my_cookie->my_obj);
-?>

@@ -248,5 +248,3 @@ class zyfra_v_vat_net extends zyfra_v_vat{
         return $result->valid;
     }
 }
-
-?>

@@ -10,4 +10,3 @@ class my_language extends zyfra_language{
 
 $language = new my_language();
 zyfra_debug::printr($language->auto_detect());
-?>

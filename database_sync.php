@@ -792,5 +792,3 @@ class zyfra_database_synch extends zyfra_rpc_big{
         return $slst_files;
     }
 }
-
-?>

@@ -1,4 +1,4 @@
-<?
+<?php
 require_once 'relational.php';
 
 class One2ManyField extends RelationalField{
