@@ -257,7 +257,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
                 if (count($remote2update) > 0){
                     $this->log('Updating to remote...<br>');
-                    $this->log(zyfra_rpc_big::send_rpc($url, 'update', array($table_name, $key_names, $col_names, $remote2update)));
+                    $this->log(print_r(zyfra_rpc_big::send_rpc($url, 'update', [$table_name, $key_names, $col_names, $remote2update]),true));
                 }
                 unset($local2update, $remote2update);
             }
