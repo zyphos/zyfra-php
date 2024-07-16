@@ -1,5 +1,5 @@
 <?php
-namespace zyfra\orm; 
+namespace zyfra\orm;
 
 class Callback{
     public $function_name;

@@ -118,7 +118,7 @@ class ActiveRecord{
     public function save(){
         $obj = $this->__object;
         $key = $this->__object->_key;
-        
+
         if ($this->exists()){
             $values = [];
             foreach($this->__modified_columns as $col_name=>$t){

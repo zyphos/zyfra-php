@@ -9,7 +9,7 @@ class Many2OneField extends RelationalField{
     var $widget='many2one';
     var $handle_operator=true;
 
-    function __construct($label, $relation_object_name, $args = array()){
+    function __construct($label, $relation_object_name, $args = []){
         $this->local_key='';
         parent::__construct($label, $relation_object_name, $args);
     }
@@ -33,7 +33,6 @@ class Many2OneField extends RelationalField{
             foreach(array_keys($local_keys) as $index) {
                 if ($local_keys[$index] == '') unset($local_keys[$index]);
             }
-            //array_unshift($local_keys, $name);
             $n_local_keys = count($local_keys);
             if($n_local_keys < $n_foreign_keys){
                 $delta = $n_foreign_keys - $n_local_keys;
@@ -55,11 +54,11 @@ class Many2OneField extends RelationalField{
         return $this->get_relation_object()->_columns[$this->relation_object_key]->get_sql_def();
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if ($sql_query->debug > 1) echo 'M2O['.$this->name.']: '.print_r($fields, true).'<br>';
         $robj = $this->get_relation_object();
         $nb_fields = count($fields);
-        if (($nb_fields == 0)){ //||($fields[0] == $this->relation_object_key)
+        if (($nb_fields == 0)){
             $field_link = $parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
             $parent_alias->set_used();
             if ($nb_fields == 0) $field_link = $this->add_operator($field_link, $context);
@@ -70,7 +69,7 @@ class Many2OneField extends RelationalField{
         if (isset($this->local_keys)){
             // Threat multi key
             $palias = $parent_alias->alias;
-            $relations = array();
+            $relations = [];
             foreach ($this->local_keys as $key=>$local_key){
                 $foreign_key = $this->foreign_keys[$key];
                 $relations[] = '%ta%.'.$foreign_key.'='.$palias.'.'.$local_key;
@@ -79,7 +78,7 @@ class Many2OneField extends RelationalField{
         }else{
             $sql_on = '%ta%.'.$this->relation_object_key.'='.$parent_alias->alias.'.'.($this->local_key!=''?$this->local_key:$this->name);
         }
-        
+
         $sql = ($this->required?'':'LEFT ').'JOIN '.$robj->_table.' AS %ta% ON '.$sql_on;
         if (array_get($sql_query->context, 'visible', true)&&($robj->_visible_condition != '')){
             list($sql_txt, $on_condition) = explode(' ON ', $sql);
@@ -101,7 +100,7 @@ class Many2OneField extends RelationalField{
         }
         $context['parameter'] = $field_param;
         $sql_result = $robj->_columns[$field_name]->get_sql($ta, $fields, $sql_query, $context);
-        
+
         if ($nb_fields == 0) $sql_result = $this->add_operator($sql_result, $context);
         return $sql_result;
     }
@@ -113,7 +112,7 @@ class Many2OneField extends RelationalField{
             if (is_array($value)){ // Create remote object aswell
                 return $relation_object->create($value, $context);
             }
-            
+
             $relation_id = $relation_object->get_id_from_value($value, $context, $this->relation_object_key);
             return $relation_object->_columns[$this->relation_object_key]->sql_create($sql_create, $relation_id, $fields, $context);
         }
@@ -133,7 +132,7 @@ class Many2OneField extends RelationalField{
 class Many2OneSelfField extends Many2OneField{
     // Field Many2One with left and right parent optimization for recursive object
 
-    function __construct($label, $args = array()){
+    function __construct($label, $args = []){
         parent::__construct($label, null, $args);
     }
 
@@ -146,11 +145,10 @@ class Many2OneSelfField extends Many2OneField{
         $this->needed_columns[$this->pright] = new IntField($this->label.' right');
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if ($sql_query->debug > 1) echo 'M2OS['.$this->name.']: '.print_r($fields, true).'<br>';
-        $robj = $this->get_relation_object();
         $nb_fields = count($fields);
-        if (($nb_fields == 0) && array_key_exists('operator',$context) && in_array($context['operator'], array('parent_of', 'child_of'))){ //||($fields[0] == $this->relation_object_key)
+        if (($nb_fields == 0) && array_key_exists('operator',$context) && in_array($context['operator'], ['parent_of', 'child_of'])){ //||($fields[0] == $this->relation_object_key)
             $obj = $this->object;
             $pa = $parent_alias->alias;
             $operator = $context['operator'];
@@ -160,7 +158,6 @@ class Many2OneSelfField extends Many2OneField{
             }else{
                 $cmp_operator = '=';
             }
-
 
             $ta = $sql_query->get_new_table_alias();
             switch($operator){
@@ -182,7 +179,6 @@ class Many2OneSelfField extends Many2OneField{
     function after_write_trigger(&$old_values, $new_value){
         //Update left and right tree
         $db = $this->object->_pool->db;
-        $modified_values_ids = array();
         $left_col = $this->pleft;
         $right_col = $this->pright;
         $table = $this->object->_table;
@@ -204,12 +200,11 @@ class Many2OneSelfField extends Many2OneField{
                 $db->safe_query('UPDATE '.$table.' SET '.$right_col.'='.$right_col.'+'.($d+1).' WHERE '.$right_col.'>='.$l1.' AND '.$right_col.'<'.$l0);
                 $delta = $l1 - $l0;
             }
-            $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$left_col.'+'.$delta.','.$right_col.'='.$right_col.'+'.$delta.' WHERE '.$key.' in %s', array($children_ids));
+            $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$left_col.'+'.$delta.','.$right_col.'='.$right_col.'+'.$delta.' WHERE '.$key.' in %s', [$children_ids]);
         }
     }
 
     function _tree_get_new_left($id, $value){
-        $db = $this->object->_pool->db;
         $key = $this->object->_key;
         $left_col = $this->pleft;
         $right_col = $this->pright;
@@ -222,7 +217,7 @@ class Many2OneSelfField extends Many2OneField{
                 $l1 = $brother->rc + 1;
             }
         }else{
-            $parent_obj = $this->object->_pool->db->get_object('SELECT '.$left_col.' AS lc FROM '.$table.' WHERE '.$key.'=%s', array($value));
+            $parent_obj = $this->object->_pool->db->get_object('SELECT '.$left_col.' AS lc FROM '.$table.' WHERE '.$key.'=%s', [$value]);
             $l1 = $parent_obj->lc + 1;
             $brothers = $this->object->select([$key.' AS id,'.$right_col.' AS rc WHERE '.$this->name.'=%s', [$value]]);
             foreach($brothers as $brother){
@@ -241,9 +236,9 @@ class Many2OneSelfField extends Many2OneField{
         $right = $left+1;
 
         if ($id==null || $id==0){
-            $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0', array('visible'=>false));
+            $rows = $this->object->select($key.' AS id WHERE '.$this->name.' IS NULL OR '.$this->name.'=0', ['visible'=>false]);
         }else{
-            $rows = $this->object->select([$key.' AS id WHERE '.$this->name.'=%s', [$id]], array('visible'=>false));
+            $rows = $this->object->select([$key.' AS id WHERE '.$this->name.'=%s', [$id]], ['visible'=>false]);
         }
         foreach ($rows as $row){
             $right = $this->rebuild_tree($verbose, $row->id, $right, $key, $table);
@@ -253,7 +248,7 @@ class Many2OneSelfField extends Many2OneField{
             if ($verbose){
                 echo sprintf('id[%s] pleft[%s] pright[%s]<br>', $id, $left, $right);
             }
-            $db->safe_query('UPDATE '.$table.' SET '.$this->pleft.'='.$left.', '.$this->pright.'='.$right.' WHERE '.$key.'=%s', array($id));
+            $db->safe_query('UPDATE '.$table.' SET '.$this->pleft.'='.$left.', '.$this->pright.'='.$right.' WHERE '.$key.'=%s', [$id]);
         }
         return $right+1;
     }
@@ -265,7 +260,7 @@ class Many2OneSelfField extends Many2OneField{
         $left_col = $this->pleft;
         $right_col = $this->pright;
         $sql = 'SELECT '.$this->pleft.' AS pleft FROM '.$this->object->_table.' WHERE '.$this->object->_key.' IN %s ORDER BY pleft';
-        $plefts = $db->get_array($sql, 'pleft', '', array(array_keys($old_values)));
+        $plefts = $db->get_array($sql, 'pleft', '', [array_keys($old_values)]);
         $nb = count($plefts);
         for($i=0; $i<$nb; $i++){
             $nbi = ($i+1)*2;
@@ -290,6 +285,6 @@ class Many2OneSelfField extends Many2OneField{
         $table = $this->object->_table;
         $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$left_col.'+2  WHERE '.$left_col.'>='.$l1);
         $db->safe_query('UPDATE '.$table.' SET '.$right_col.'='.$right_col.'+2  WHERE '.$right_col.'>='.$l1);
-        $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$l1.', '.$right_col.'='.($l1+1).' WHERE '.$this->object->_key.'=%s', array($id));
+        $db->safe_query('UPDATE '.$table.' SET '.$left_col.'='.$l1.', '.$right_col.'='.($l1+1).' WHERE '.$this->object->_key.'=%s', [$id]);
     }
 }

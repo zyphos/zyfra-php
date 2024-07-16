@@ -61,7 +61,7 @@ class OM_SQLcreate extends OM_SQLinterface{
         foreach($obj->_columns as $field_name=>$column){
             if (in_array($field_name, $treated_columns)) continue;
             $default_value = $column->get_default();
-            if (!is_null($default_value)) $sql_values[$field_name] = $default_value; 
+            if (!is_null($default_value)) $sql_values[$field_name] = $default_value;
         }
 
         // Do the insert SQL
@@ -82,7 +82,7 @@ class OM_SQLcreate extends OM_SQLinterface{
 
         // Treat all callback and after write
         $context = $this->context; // copy context
-        
+
         foreach($this->callbacks as $callback){
             list($function_def, $params) = $callback;
             $params[] = $id;
@@ -96,7 +96,7 @@ class OM_SQLcreate extends OM_SQLinterface{
             }else{
                 $value = $obj->_columns[$column]->get_default();
             }
-        
+
             $obj->_columns[$column]->after_create_trigger($this, $id, $value, $context);
         }
         return $id;

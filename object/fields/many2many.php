@@ -13,7 +13,7 @@ class Many2ManyField extends One2ManyField{
     var $foreign_key;
     var $handle_operator=true;
 
-    function __construct($label, $relation_object_name, $args = array()){
+    function __construct($label, $relation_object_name, $args = []){
         parent::__construct($label, $relation_object_name, '', $args);
     }
 
@@ -47,23 +47,25 @@ class Many2ManyField extends One2ManyField{
             if(!isset($robj->_columns[$br_field])){
                 $many2many_field = new Many2ManyField($br_label,
                                 $object->_name,
-                                array('relation_table'=>$this->relation_table,
-                                        'rt_foreign_field'=>$this->rt_local_field,
-                                        'rt_local_field'=>$this->rt_foreign_field,
-                                        'foreign_key'=>$this->local_key,
-                                        'local_key'=>$this->foreign_key,
-                                        'model_class'=>$model_class,
-                                        )); 
+                                ['relation_table'=>$this->relation_table,
+                                 'rt_foreign_field'=>$this->rt_local_field,
+                                 'rt_local_field'=>$this->rt_foreign_field,
+                                 'foreign_key'=>$this->local_key,
+                                 'local_key'=>$this->foreign_key,
+                                 'model_class'=>$model_class,
+                                 ]);
                 $robj->add_column($br_field, $many2many_field);
             }
         }
         $pool = $object->_pool;
         if (!$pool->object_in_pool($this->relation_table)){
-            $rel_table_object = new $model_class($pool, array(
+            $rel_table_object = new $model_class($pool, [
                     '_name'=>$this->relation_table,
-                    '_columns'=>array($this->rt_local_field=>new Many2OneField(null, $object->_name, array('relation_object_key'=>$this->local_key,'required'=>false)),
-                                    $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, array('relation_object_key'=>$this->foreign_key,'required'=>false))
-                    )));
+                    '_columns'=>[
+                        $this->rt_local_field=>new Many2OneField(null, $object->_name, ['relation_object_key'=>$this->local_key,'required'=>false]),
+                        $this->rt_foreign_field=>new Many2OneField(null, $robj->_name, ['relation_object_key'=>$this->foreign_key,'required'=>false])
+                        ]
+                    ]);
             $pool->add_object($this->relation_table, $rel_table_object);
         }else{
             $rel_table_object = $object->_pool->{$this->relation_table};
@@ -101,7 +103,7 @@ class Many2ManyField extends One2ManyField{
             }
         }
     }
-    
+
     function join_key_words($keywords){
         $r = '';
         foreach($keywords as $keyword=>$value){
@@ -109,8 +111,8 @@ class Many2ManyField extends One2ManyField{
         }
         return $r;
     }
-    
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if ($sql_query->debug > 1) echo 'M2M['.$this->name.']: '.print_r($fields, true).'<br>';
         $nb_fields = count($fields);
         if (isset($context['is_where']) && $context['is_where']) {
@@ -118,7 +120,7 @@ class Many2ManyField extends One2ManyField{
                 $pa = $parent_alias->alias;
                 $operator = $context['operator'];
                 $op_data = trim($context['op_data']);
-                
+
                 $ta = $sql_query->get_new_table_alias();
                 $sql_common = 'SELECT '.$this->rt_local_field.' FROM '.$this->relation_table.' AS '.$ta.' WHERE '.$ta.'.'.$this->rt_local_field.'='.$pa.'.'.$this->local_key;
                 if ($operator == 'is' && $op_data == 'null'){
@@ -126,9 +128,9 @@ class Many2ManyField extends One2ManyField{
                 }else{
                     $sql = 'EXISTS('.$sql_common.' AND '.$ta.'.'.$this->rt_foreign_field.' '.$operator.' '.$op_data.')';
                 }
-                
+
                 $parent_alias->set_used();
-                
+
                 return $sql;
             }elseif($nb_fields>0){ // Todo handle case when parameters is set
                 $new_fields = $fields; //copy
@@ -136,12 +138,12 @@ class Many2ManyField extends One2ManyField{
                 return parent::get_sql($parent_alias, $new_fields, $sql_query, $context);
             }
         }
-       
+
         $new_fields = $fields; //copy
         $new_ctx = $context; //copy
         if ($nb_fields){
             if ($nb_fields == 1 && $fields[0] == $this->m2m_relation_object->_key){
-                $new_fields = array($this->rt_foreign_field);
+                $new_fields = [$this->rt_foreign_field];
             }else{
                 $field_name = $fields[0];
                 if($field_name[0] == '(' && $field_name[strlen($field_name)-1] == ')'){
@@ -149,23 +151,23 @@ class Many2ManyField extends One2ManyField{
                     list($mql, $keywords) = $sql_query->split_keywords($sub_mql);
                     $fields[0] = '('.$mql.')';
                 }else{
-                    $keywords = array();
+                    $keywords = [];
                 }
-                $new_fields = array('('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].$this->join_key_words($keywords).')');
+                $new_fields = ['('.$this->rt_foreign_field.'.'.implode('.',$fields).' as  '.$context['parameter'].$this->join_key_words($keywords).')'];
                 if ($sql_query->debug > 1) echo 'M2M New field: '.print_r($new_fields, true).'<br>';
                 unset($new_ctx['parameter']);
             }
         }
         return parent::get_sql($parent_alias, $new_fields, $sql_query, $new_ctx);
     }
-    
+
     function sql_create($sql_create, $value, $fields, $context){
         return new zyfra\orm\Callback('sql_create_after_trigger', null);
     }
-    
+
     function sql_create_after_trigger($sql_create, $value, $fields, $context, $id){
         $fake_sql_write = new stdClass;
-        $fake_sql_write->ids = array($id);
+        $fake_sql_write->ids = [$id];
         $this->sql_write($fake_sql_write, $value, $fields, $context);
     }
 
@@ -187,7 +189,7 @@ class Many2ManyField extends One2ManyField{
                 case 0: //create
                     $new_id = $robj->create($val[2], $context);
                     foreach ($local_ids as $id){
-                        $this->relation_object->create(array($this->rt_local_field=>$id, $this->rt_foreign_field=>$new_id));
+                        $this->relation_object->create([$this->rt_local_field=>$id, $this->rt_foreign_field=>$new_id]);
                     }
                     break;
                 case 1: //modification
@@ -203,7 +205,7 @@ class Many2ManyField extends One2ManyField{
                 case 4: //link
                     $remote_id = $robj->get_id_from_value($val[1], $context);
                     foreach ($local_ids as $id){
-                        $this->relation_object->create(array($this->rt_local_field=>$id, $this->rt_foreign_field=>$remote_id));
+                        $this->relation_object->create([$this->rt_local_field=>$id, $this->rt_foreign_field=>$remote_id]);
                     }
                     break;
                 case 5: //unlink all
@@ -220,9 +222,9 @@ class Many2ManyField extends One2ManyField{
                     }
                     $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' not in %s', [$local_ids, $new_rids]]);
                     $result = $this->relation_object->select([$this->rt_local_field.' as id,'.$this->rt_foreign_field.' as rid where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.' in %s', [$local_ids, $new_rids]]);
-                    $existing_ids = array();
+                    $existing_ids = [];
                     foreach($result as $row){
-                        if(!isset($existing_ids[$row->id])) $existing_ids[$row->id] = array();
+                        if(!isset($existing_ids[$row->id])) $existing_ids[$row->id] = [];
                         $existing_ids[$row->id][] = $row->rid;
                     }
                     foreach($local_ids as $id){
@@ -232,7 +234,7 @@ class Many2ManyField extends One2ManyField{
                             $rids2add = array_diff($new_rids, $existing_ids[$id]);
                         }
                         foreach ($rids2add as $rid){
-                            $this->relation_object->create(array($this->rt_local_field=>$id, $this->rt_foreign_field=>$rid));
+                            $this->relation_object->create([$this->rt_local_field=>$id, $this->rt_foreign_field=>$rid]);
                         }
                     }
                     break;

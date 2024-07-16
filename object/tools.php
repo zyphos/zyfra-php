@@ -213,7 +213,7 @@ function multispecialsplit($string, $split_var = ',', $return_key=false, $key_in
     $ignore = '';
     if(!is_array($split_var)) $split_var = [$split_var];
     $split_vars = [];
-    $one_key_found = false; 
+    $one_key_found = false;
     $split_varts = [];
     $str_len = strlen($string);
     foreach ($split_var as $sv){

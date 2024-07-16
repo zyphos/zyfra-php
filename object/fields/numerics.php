@@ -5,10 +5,10 @@ class IntField extends Field{ // 4 Bytes
     var $display_width = 11; // Display width
     var $default_value=null;
     var $widget='integer';
-    
+
     function sql2php($value){
         if (!is_numeric($value)) throw new UnexpectedValueException('Integer value is expected. '.$this->object->_name.'.'.$this->name);
-    	return (int)$value;
+        return (int)$value;
     }
 
     function sql_format($value){
@@ -32,7 +32,7 @@ class IntField extends Field{ // 4 Bytes
 
 class TinyIntField extends IntField{ // 1 byte
     var $display_width = 3;
-    
+
     function get_sql_def(){
         return 'TINYINT('.$this->display_width.')'.($this->unsigned?' UNSIGNED':'');
     }
@@ -65,10 +65,10 @@ class BigIntField extends IntField{ // 8 bytes
 class FloatField extends Field{
     var $default_value=0;
     var $widget='float';
-    
+
     function sql2php($value){
         if (!is_numeric($value)) throw new UnexpectedValueException('Float value is expected.');
-    	return (float)$value;
+        return (float)$value;
     }
 
     function sql_format($value){
@@ -83,11 +83,11 @@ class FloatField extends Field{
 class DoubleField extends Field{
     var $default_value=0;
     var $widget='double';
-    
+
     function sql2php($value){
         if (is_null($value)) return $this->_sql_format_null();
         if (!is_numeric($value)) throw new UnexpectedValueException('Double value is expected.');
-    	return (double)$value;
+        return (double)$value;
     }
 
     function sql_format($value){
@@ -122,9 +122,9 @@ class DecimalField extends Field{
 class BooleanField extends Field{
     var $default_value=0;
     var $widget='boolean';
-    
+
     function sql2php($value){
-    	return $value?true:false;
+        return $value?true:false;
     }
 
     function sql_format($value){
@@ -147,12 +147,12 @@ class IntSelectField extends Field{
         if (is_array($select_values)) {
             $this->select_values = $select_values;
         }else{
-            $this->select_values = array($select_values);
+            $this->select_values = [$select_values];
         }
         parent::__construct($label, $args = null);
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if (count($fields) && $fields[0] == 'value'){ // return value when using field_name.value
             $parent_alias->set_used();
             $whens = [];
@@ -175,11 +175,11 @@ class IntSelectField extends Field{
         if (is_numeric($value)) return (int)$value;
         return null;
     }
-    
+
     function sql2php($value){
         return $this->select_values[$value];
     }
-    
+
     function get_sql_def(){
         return 'INT('.$this->size.')'.($this->unsigned?' UNSIGNED':'');
     }

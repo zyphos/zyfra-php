@@ -127,7 +127,7 @@ class Pool{
             $model->update_sql_structure();
         }
     }
-    
+
     public function get_available_objects(){
         if (is_null($this->_model_path)) return [];
         $filenames = scandir($this->_model_path.'/');

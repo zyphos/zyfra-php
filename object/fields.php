@@ -91,7 +91,7 @@ abstract class Field{
         $parent_alias->set_used();
         return $this->add_operator($parent_alias->alias.'.'.$this->name, $context);
     }
-    
+
     protected function add_operator($field_sql, &$context){
         if (isset($context['operator'])){
             $operator = $context['operator'];
@@ -124,7 +124,6 @@ abstract class Field{
     }
 
     function set($ids, $value, $context){
-        
     }
 
     function get_default(){

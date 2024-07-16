@@ -5,14 +5,14 @@ abstract class RelationalField extends Field{
     var $relation_object_key;
     var $relational=true;
     var $select_all=false;
-    
-    function __construct($label, $relation_object_name, $args = array()){
+
+    function __construct($label, $relation_object_name, $args = []){
         $this->relation_object_key='';
         $this->local_key='';
         parent::__construct($label, $args);
         $this->relation_object_name = $relation_object_name;
     }
-    
+
     function get_relation_object(){
         if ($this->relation_object===null){
             try{
@@ -23,4 +23,4 @@ abstract class RelationalField extends Field{
         }
         return $this->relation_object;
     }
-} 
+}

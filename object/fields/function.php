@@ -1,7 +1,7 @@
 <?php
 class FunctionField extends Field{
     // FunctionField('Label', 'my_fx');
-    // FunctionField('Label', array($my_obj, 'my_fx'));
+    // FunctionField('Label', [$my_obj, 'my_fx']);
     var $get_fx=null;
     var $set_fx=null;
     var $parameters=null;
@@ -11,20 +11,20 @@ class FunctionField extends Field{
     var $required_fields;
 
     function __construct($label, $fx, $args = null){
-        $this->required_fields = array();
+        $this->required_fields = [];
         parent::__construct($label, $args);
         $this->get_fx = $fx;
         if (!is_null($this->set_fx) && !isset($args['read_only'])) $this->read_only = false;
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if (array_key_exists('field_alias', $context)){
             $field_alias = $context['field_alias'];
         }else{
             $field_alias = '';
         }
         $parameter = array_key_exists('parameter', $context) ? $context['parameter'] : '';
-        $reqf = array();
+        $reqf = [];
         if (count($this->required_fields)){
             foreach($this->required_fields as $rf){
                 $rf_w_param = $rf.($parameter == ''?'':'['.$parameter.']');
@@ -41,7 +41,7 @@ class FunctionField extends Field{
 
     function get($ids, $context, $datas, $param){
         //should return an array of object with array[id] = result
-        if (is_null($this->get_fx)) return array();
+        if (is_null($this->get_fx)) return [];
         if (count($ids) == 0) return [];
         $new_context = $context; //copy
         $new_context['parameter'] = $param;
@@ -49,7 +49,7 @@ class FunctionField extends Field{
     }
 
     function set($ids, $value, $context){
-        if (is_null($this->set_fx)) return array();
-        return call_user_func($this->set_fx, $ids, $value, $context, $parameters);
+        if (is_null($this->set_fx)) return [];
+        return call_user_func($this->set_fx, $ids, $value, $context);
     }
 }

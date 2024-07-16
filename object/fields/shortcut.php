@@ -10,7 +10,7 @@ class ShortcutField extends Field{
         $this->relation = $relation;
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if (count($fields)){
             $new_fieldname = $this->relation.'.'.implode('.', $fields);
         }else{

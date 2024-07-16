@@ -74,7 +74,7 @@ class MqlWhere{
             }else{
                 $previous_operator = null;
             }
-            if ($fields[$i] == 'in') $fields[$i] = ' in '; 
+            if ($fields[$i] == 'in') $fields[$i] = ' in ';
         }
 
         $fields = array_merge($fields);
@@ -167,7 +167,7 @@ class SqlQuery{
     var $debug = false;
     protected $keywords = ['limit', 'order by', 'having', 'group by', 'where'];
     protected $keywords_split = ['limit ', 'order by ', 'having ', 'group by ', 'where '];
-    private $rqi = 0; 
+    private $rqi = 0;
 
     function __construct($object, $ta_prefix = ''){
         global $sql_query_id;
@@ -187,7 +187,7 @@ class SqlQuery{
         if ($this->table_alias_prefix != ''){
             $this->ta = $this->add_table_alias('', $this->table_alias_prefix, null, '');
         }else{
-            $this->ta = $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');    
+            $this->ta = $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');
         }
         $this->sub_queries = [];
         $this->group_by = [];
@@ -395,7 +395,7 @@ class SqlQuery{
                     if (count($ids)){
                         $ids = $this->object->_pool->db->var2sql($ids, true);
                         $nctx = array_merge($context, ['domain'=>$parameter.$rfield.' IN '.$ids]);
-                        if (array_key_exists('key', $nctx)) unset($nctx['key']); 
+                        if (array_key_exists('key', $nctx)) unset($nctx['key']);
                         $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
                         foreach($row_alias_ids as $id=>$row_ids){
                             foreach($sub_datas as $sub_row){

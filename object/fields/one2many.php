@@ -7,18 +7,18 @@ class One2ManyField extends RelationalField{
     var $stored=false;
     var $local_key;
 
-    function __construct($label, $relation_object_name, $relation_object_field, $args = array()){
+    function __construct($label, $relation_object_name, $relation_object_field, $args = []){
         $this->local_key = '';
         parent::__construct($label, $relation_object_name, $args);
         $this->relation_object_field = $relation_object_field;
     }
-    
+
     function set_instance($object, $name){
         parent::set_instance($object, $name);
         if ($this->local_key == '') $this->local_key = $object->_key;
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if ($sql_query->debug > 1) echo 'O2M['.$this->name.'] fields: '.print_r($fields, true).'<br>';
         if (array_key_exists('parameter', $context)){
             $parameter = $context['parameter'];
@@ -26,7 +26,7 @@ class One2ManyField extends RelationalField{
             $parameter = '';
         }
         $is_where = isset($context['is_where']) && $context['is_where'];
-        
+
         if ($is_where && count($fields) == 0){
             $fields[] = $this->relation_object_key;
         }
