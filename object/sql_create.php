@@ -58,10 +58,17 @@ class OM_SQLcreate extends OM_SQLinterface{
         }
 
         // Do default values
+        $not_stored_default_values = [];
         foreach($obj->_columns as $field_name=>$column){
             if (in_array($field_name, $treated_columns)) continue;
             $default_value = $column->get_default();
-            if (!is_null($default_value)) $sql_values[$field_name] = $default_value;
+            if (!is_null($default_value)){
+                if ($column->stored){
+                    $sql_values[$field_name] = $default_value;
+                }else{
+                    $not_stored_default_values[$field_name] = $default_value;
+                }
+            }
         }
 
         // Do the insert SQL
@@ -79,6 +86,11 @@ class OM_SQLcreate extends OM_SQLinterface{
             throw new \Exception('Insert error: '.$sql.' - '.$obj->_pool->db->get_error());
         }
         $id = $obj->_pool->db->insert_id();
+
+        if (count($not_stored_default_values)){
+            $context = $this->context; // copy context
+            $obj->write($not_stored_default_values, $id, $context);
+        }
 
         // Treat all callback and after write
         $context = $this->context; // copy context
