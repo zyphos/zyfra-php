@@ -28,15 +28,14 @@ class MqlWhere{
 
     function __construct($sql_query){
         $this->sql_query = $sql_query;
-        $this->operators = array('parent_of', 'child_of');
-        $this->reserved_words = array('unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in','is');
-        $this->basic_operators = array('+','-','=','/','*','<','>','!','is not','is','not in','in');
-        $this->parenthesis = array('(',')',' ',',');
+        $this->operators = ['parent_of', 'child_of'];
+        $this->reserved_words = ['unknown', 'between', 'false', 'like', 'null', 'true', 'div', 'mod', 'not', 'xor', 'and', 'or','in','is'];
+        $this->basic_operators = ['+','-','=','/','*','<','>','!','is not','is','not in','in'];
+        $this->parenthesis = ['(',')',' ',','];
         $this->split_char = array_merge($this->basic_operators, $this->parenthesis);
         $this->all_operators = array_merge($this->basic_operators, $this->operators);
-        //$this->basic_operators = array_merge($this->basic_operators, ['is not','is','not in','in']);
     }
-    
+
     protected function field2sql($field_name, $obj = null, $ta = null, $field_alias = '', &$operator='', $op_data=''){
         if ($this->sql_query->debug > 4) {
             $obj_name = is_null($obj)?'':$obj->_name;
@@ -79,7 +78,7 @@ class MqlWhere{
         }
 
         $fields = array_merge($fields);
-        
+
         if ($this->sql_query->debug > 3){
             echo '<pre>Where fields:';
             print_r($fields);
@@ -96,7 +95,6 @@ class MqlWhere{
             }elseif (in_array($lfield, $this->reserved_words)){
                 continue;
             }elseif (isset($fields[$key+2]) && (in_array(strtolower($fields[$key+1]), $this->all_operators))){
-                //echo 'operator:'.$fields[$key+1].'<br>';
                 $i = 2;
                 $parenthesis_lvl = 0;
                 $op_data = '';
@@ -121,8 +119,6 @@ class MqlWhere{
                     }
                     $i++;
                 }
-                //echo 'operator:'.$fields[$key+1].'<br>';
-                //echo '$op_data:<br>'.htmlentities($op_data).'<br>';
                 // Rebuild
                 $operator = strtolower($fields[$key+1]);
                 $field = $this->field2sql($field, $this->obj, $this->ta, '', $operator, $op_data);
@@ -169,8 +165,8 @@ class SqlQuery{
     var $remove_from_result;
     protected $has_group_by = false;
     var $debug = false;
-    protected $keywords = array('limit', 'order by', 'having', 'group by', 'where');
-    protected $keywords_split = array('limit ', 'order by ', 'having ', 'group by ', 'where ');
+    protected $keywords = ['limit', 'order by', 'having', 'group by', 'where'];
+    protected $keywords_split = ['limit ', 'order by ', 'having ', 'group by ', 'where '];
     private $rqi = 0; 
 
     function __construct($object, $ta_prefix = ''){
@@ -179,7 +175,7 @@ class SqlQuery{
         $this->object = $object;
         $this->mql_where = new MqlWhere($this);
         $this->init();
-        $this->remove_from_result = array();
+        $this->remove_from_result = [];
         $this->__uid__ = ++$sql_query_id;
     }
 
@@ -187,20 +183,19 @@ class SqlQuery{
         $this->table_alias_nb = 0;
         $this->sub_query_nb = 0;
         $this->pool = $this->object->_pool;
-        $this->table_alias = array();
-        //$this->fields_alias = array();
+        $this->table_alias = [];
         if ($this->table_alias_prefix != ''){
             $this->ta = $this->add_table_alias('', $this->table_alias_prefix, null, '');
         }else{
             $this->ta = $this->get_table_alias('', 'FROM '.$this->object->_table.' AS %ta%');    
         }
-        $this->sub_queries = array();
-        $this->group_by = array();
-        $this->where = array();
-        $this->where_no_parse = array();
-        $this->order_by = array();
-        $this->required_fields = array();
-        $this->sql_field_alias = array();
+        $this->sub_queries = [];
+        $this->group_by = [];
+        $this->where = [];
+        $this->where_no_parse = [];
+        $this->order_by = [];
+        $this->required_fields = [];
+        $this->sql_field_alias = [];
     }
 
     public function no_alias($alias){
@@ -235,85 +230,20 @@ class SqlQuery{
         }
         return $tables;
     }
-    
-    /*function split_keywords_text($mql){
-        $nb_check = 1000;
-        
-        $start = microtime(true);
-        for($i=0;$i<$nb_check;$i++){
-            list($mql_old, $data_old) = $this->split_keywords_old($mql);
-        }
-        $stop = microtime(true);
-        $old_time = $stop-$start;
-        $start = microtime(true);
-        for($i=0;$i<$nb_check;$i++){
-            list($mql_new, $data_new) = $this->split_keywords_new($mql);
-        }
-        $stop = microtime(true);
-        $new_time = $stop-$start;
-        
-        $start = microtime(true);
-        for($i=0;$i<$nb_check;$i++){
-            list($mql_new, $data_new) = $this->split_keywords_new2($mql);
-        }
-        $stop = microtime(true);
-        $new2_time = $stop-$start;
 
-        list($mql_old, $data_old) = $this->split_keywords_old($mql);
-        list($mql_new, $data_new) = $this->split_keywords_new($mql);
-        list($mql_new2, $data_new2) = $this->split_keywords_new2($mql);
-        echo '<h4>old</h4>';
-        print_pre($mql_old);
-        print_pre($data_old);
-        printf("%.3f sec",$old_time);
-        echo '<h4>new</h4>';
-        print_pre($mql_new);
-        print_pre($data_new);
-        printf("%.3f sec",$new_time);
-        echo '<h4>new2</h4>';
-        print_pre($mql_new2);
-        print_pre($data_new2);
-        printf("%.3f sec",$new2_time);
-        echo '<hr>';
-        return array($mql_old, $data_old);
-    }
-    
-    function split_keywords_old($mql){
-        $query_datas = array();
-        foreach($this->keywords as $keyword){
-            $datas = multispecialsplit($mql, $keyword.' ');
-            if (count($datas)> 1){
-                $query_datas[$keyword] = trim($datas[1]);
-            }
-            $mql = $datas[0];
-        }
-        return array($mql, $query_datas);
-    }
-    
-    function split_keywords_new($mql){
-        $datas = multispecialsplit($mql, $this->keywords_split, true);
-        $mql = $datas[0];
-        $nb = count($datas);
-        $query_datas = array();
-        for($i=1; $i < $nb; $i+=2){
-            $query_datas[substr($datas[$i],0,-1)] = $datas[$i+1];
-        }
-        return array($mql, $query_datas);
-    }*/
-    
     function split_keywords($mql){
         $datas = r_multi_split_array($mql, $this->keywords_split);
         $mql = &$datas[''];
-        $query_datas = array();
+        $query_datas = [];
         $keywords = array_keys($datas);
         foreach($keywords as &$keyword){
             if ($keyword=='') continue;
             $query_datas[substr($keyword,0,-1)] = &$datas[$keyword];
         }
-        return array($mql, $query_datas);
+        return [$mql, $query_datas];
     }
 
-    function mql2sql($mql, $context = array(), $no_init=false){
+    function mql2sql($mql, $context = [], $no_init=false){
         $this->debug = array_get($context, 'debug', false);
         $this->context = $context;
         $mql = strtolower($mql);
@@ -350,7 +280,7 @@ class SqlQuery{
         }
         foreach ($keywords as $keyword){
             if (array_key_exists($keyword, $query_datas)){
-                $data = call_user_func_array(array($this, 'parse_mql_'.str_replace(' ', '_', $keyword)),array($query_datas[$keyword]));
+                $data = call_user_func_array([$this, 'parse_mql_'.str_replace(' ', '_', $keyword)], [$query_datas[$keyword]]);
                 if ($data != '') $sql_words .= ' '.strtoupper($keyword).' '.$data;
             }elseif ($keyword=='where' && array_get($this->context, 'domain', '') != ''){
                 $sql_words .= ' WHERE '.$this->mql_where->parse($this->context['domain'], $this->object, $this->ta);
@@ -359,7 +289,7 @@ class SqlQuery{
         $sql .= ' '.$this->get_table_sql().$sql_words;
         if(!$no_init) $this->init();
         if ($this->debug) {
-            $mss = multispecialsplit($sql, array('LIMIT ', 'ORDER BY ', 'HAVING ', 'GROUP BY ', 'WHERE ','SELECT ', 'FROM ', 'LEFT JOIN', 'JOIN'), true);
+            $mss = multispecialsplit($sql, ['LIMIT ', 'ORDER BY ', 'HAVING ', 'GROUP BY ', 'WHERE ','SELECT ', 'FROM ', 'LEFT JOIN', 'JOIN'], true);
             $txt = '';
             for($i=1;$i<count($mss);$i+=2){
                 $key = $mss[$i];
@@ -379,8 +309,8 @@ class SqlQuery{
         }
         return $sql;
     }
-    
-    function where2sql($mql, $context = array()){
+
+    function where2sql($mql, $context = []){
         $this->context = $context;
         if (array_get($this->context, 'domain')){
             $this->where[] = $this->context['domain'];
@@ -393,7 +323,7 @@ class SqlQuery{
         return $sql;
     }
 
-    function get_array($mql, $context = array()){
+    function get_array($mql, $context = []){
         $sql = $this->mql2sql($mql, $context, true);
         $debug = array_key_exists('debug', $context) ? $context['debug'] : false;
         if(isset($context['key'])){
@@ -402,11 +332,10 @@ class SqlQuery{
         }else{
             $key = '';
         }
-        //if (!isset($this->object->_columns[$key])) $key = ''; //$key != $this->object->_key &&
         $datas = $this->pool->db->get_array_object($sql, $key);
-        $field_alias_ids = array();
-        $row_field_alias_ids = array();
-        
+        $field_alias_ids = [];
+        $row_field_alias_ids = [];
+
         if (count($datas)>0){
             foreach($this->sub_queries as $sub_query){
                 list($robject, $rfield, $sub_mql, $field_alias, $parameter) = $sub_query;
@@ -420,14 +349,12 @@ class SqlQuery{
                 if(array_key_exists($field_alias, $field_alias_ids)){
                     $ids = $field_alias_ids[$field_alias];
                     $row_alias_ids = $row_field_alias_ids[$field_alias];
-                    //foreach(array_keys($ids) as $key) if (trim($ids[$key])=='') unset($ids[$key]);
                 }else{
                     $ids = [];
-                    $row_alias_ids = array();
+                    $row_alias_ids = [];
                     foreach($datas as $row_id=>$row){
                         $parent_id = &$row->{$field_alias};
                         $ids[$parent_id] = true;
-                        //$row_alias_ids[$row_id] = $row->$field_alias;
                         if(!isset($row_alias_ids[$parent_id])) $row_alias_ids[$parent_id] = [];
                         $row_alias_ids[$parent_id][] = $row_id;
                         if (!$is_fx) $row->$field_alias = [];
@@ -438,7 +365,7 @@ class SqlQuery{
                     $row_field_alias_ids[$field_alias] = $row_alias_ids; // Cache result
                 }
                 if ($is_fx){
-                    $fx_data = array();
+                    $fx_data = [];
                     $reqf = $parameter['reqf'];
                     $param = $parameter['param'];
                     if(count($reqf)>0){
@@ -467,11 +394,8 @@ class SqlQuery{
                     if ($parameter!='') $parameter = '('.$parameter.') AND ';
                     if (count($ids)){
                         $ids = $this->object->_pool->db->var2sql($ids, true);
-                        $nctx = array_merge($context, array('domain'=>$parameter.$rfield.' IN '.$ids));
+                        $nctx = array_merge($context, ['domain'=>$parameter.$rfield.' IN '.$ids]);
                         if (array_key_exists('key', $nctx)) unset($nctx['key']); 
-                        /*echo 'context:<br><pre>';
-                         print_r($nctx);
-                        echo '</pre>';//*/
                         $sub_datas = $robject->select($rfield.' AS _subid,'.$sub_mql, $nctx);
                         foreach($row_alias_ids as $id=>$row_ids){
                             foreach($sub_datas as $sub_row){
@@ -501,19 +425,19 @@ class SqlQuery{
         //$this->init();
         return $datas;
     }
-    
-    function get_scalar_array($value_field, $key_field=null, $where = '', $context = array()){
-    	$mql = $value_field.(is_null($key_field)?'':','.$key_field).' '.$where;
-    	$sql = $this->mql2sql($mql, $context, true);
-    	if (is_null($key_field)){
-    		$key_field = '';
-    	}
-    	return $this->pool->db->get_array($sql, $key_field, $value_field);
+
+    function get_scalar_array($value_field, $key_field=null, $where = '', $context = []){
+        $mql = $value_field.(is_null($key_field)?'':','.$key_field).' '.$where;
+        $sql = $this->mql2sql($mql, $context, true);
+        if (is_null($key_field)){
+            $key_field = '';
+        }
+        return $this->pool->db->get_array($sql, $key_field, $value_field);
     }
 
     function parse_mql_fields($field_defs, $recursive=false){
         if ($recursive) $saved_fields = $this->sql_select_fields;
-        $this->sql_select_fields = array();
+        $this->sql_select_fields = [];
         $this->split_select_fields($field_defs, $recursive);
         $result = implode(',', $this->sql_select_fields);
         if ($recursive) $this->sql_select_fields = $saved_fields;
@@ -546,7 +470,7 @@ class SqlQuery{
                 $alias = $field_name;
                 $pos = strpos($alias, '.(');
                 if ($pos !== false) $alias = substr($alias, 0, $pos);
-                $alias = str_replace(array('.', '[', ']','=','<','>'), '_', $alias);
+                $alias = str_replace(['.', '[', ']','=','<','>'], '_', $alias);
             }
             if ($pre_alias != ''){
                 $alias = $pre_alias.'_'.$alias;
@@ -584,7 +508,7 @@ class SqlQuery{
 
     function parse_mql_group_by($mql_group_by){
         $fields = explode(',', $mql_group_by);
-        $sql_fields = array();
+        $sql_fields = [];
         foreach($this->group_by as $field_name){
             $sql_fields[] = $field_name;
         }
@@ -611,7 +535,7 @@ class SqlQuery{
     }
 
     function parse_mql_order_by($mql_order_by){
-        $sql_order = array();
+        $sql_order = [];
         $this->convert_order_by($sql_order, $mql_order_by);
         if (!$this->has_group_by){
             $sql_order = array_merge($sql_order, $this->order_by);
@@ -649,8 +573,8 @@ class SqlQuery{
         list($field_name, $field_data) = specialsplitparam($field);
         if (!array_key_exists($field_name, $obj->_columns)) return $field_name;
         $field_obj = &$obj->_columns[$field_name];
-        
-        $context = array('parameter'=>$field_data, 'field_alias'=>$field_alias, 'is_where'=>$is_where);
+
+        $context = ['parameter'=>$field_data, 'field_alias'=>$field_alias, 'is_where'=>$is_where];
         if ($field_obj->handle_operator) {
             $context['operator'] = $operator;
             $context['op_data'] = $op_data;
@@ -665,9 +589,9 @@ class SqlQuery{
             echo 'sub_mql: <pre>'.$sub_mql.'</pre><br>';
             throw new Exception('Field alias can not be empty on subquery');
         }
-        $this->sub_queries[] = array($robject, $rfield, $sub_mql, $field_alias, $parameter);
+        $this->sub_queries[] = [$robject, $rfield, $sub_mql, $field_alias, $parameter];
     }
-    
+
     function add_required_fields($required_fields){
         foreach($required_fields as $field){
             if (isset($this->sql_field_alias[$field])) continue;
@@ -676,6 +600,5 @@ class SqlQuery{
             $this->sql_field_alias[$field] = $alias;
             $this->remove_from_result[] = $alias;
         }
-        //$this->required_fields = array_unique(array_merge($this->required_fields, $required_fields));
     }
 }

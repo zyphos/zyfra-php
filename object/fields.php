@@ -34,11 +34,11 @@ abstract class Field{
                 }
             }
         }
-        $this->needed_columns = array();
+        $this->needed_columns = [];
         if ($this->not_null && is_null($this->default_value))
             throw new UnexpectedValueException('Field do not accept null values, but default value is null.');
     }
-    
+
     public function is_stored(&$context){
         return $this->stored;
     }
@@ -51,11 +51,11 @@ abstract class Field{
         if ($this->read_only) return;
         $sql_write->add_assign($this->name.'='.$this->sql_format($value));
     }
-    
+
     function sql2php($value){
-    	return $value;
+        return $value;
     }
-    
+
     function _sql_format_null(){
         if ($this->not_null)
             throw new UnexpectedValueException('Null value not accepted for this field ['.$this->object->_name.'.'.$this->name.']');
@@ -64,13 +64,13 @@ abstract class Field{
 
     function sql_format($value){
         if (is_null($value)) return $this->_sql_format_null();
-    	if (is_null($this->sql_escape_fx)){
-    		return "'".str_replace("'", "\'", $value)."'"; // Warning sql injection !!!
-    	}
-    	if (is_null($this->sql_escape_fx)){ // TODO: check why this is not used
-    		$this->sql_escape_fx = array($this->object->_pool->db, 'safe_var');
-    	}
-    	return call_user_func($this->sql_escape_fx, $value);
+        if (is_null($this->sql_escape_fx)){
+            return "'".str_replace("'", "\'", $value)."'"; // Warning sql injection !!!
+        }
+        if (is_null($this->sql_escape_fx)){ // TODO: check why this is not used
+            $this->sql_escape_fx = [$this->object->_pool->db, 'safe_var'];
+        }
+        return call_user_func($this->sql_escape_fx, $value);
     }
 
     function set_instance($object, $name){
@@ -81,7 +81,7 @@ abstract class Field{
         $this->object = $object;
     }
 
-    function get_sql($parent_alias, $fields, $sql_query, $context=array()){
+    function get_sql($parent_alias, $fields, $sql_query, $context=[]){
         if(array_key_exists('field_alias', $context)){
             $field_alias = $context['field_alias'];
         }else{
@@ -118,19 +118,19 @@ abstract class Field{
     function get_sql_extra(){
         return '';
     }
-    
+
     function get($ids, $context, $datas, $param){
-        return array();
+        return [];
     }
-    
+
     function set($ids, $value, $context){
         
     }
-    
+
     function get_default(){
         return $this->default_value;
     }
-    
+
     function get_model_class(){
         if (is_null($this->model_class)){
             return $this->object->_pool->_model_class;

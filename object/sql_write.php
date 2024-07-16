@@ -7,19 +7,15 @@ class SQLWrite extends OM_SQLinterface{
         parent::__construct($object, $context);
         $this->result = $this->do_query($object, $values, $where, $where_datas, $context);
     }
-    
+
     function do_query($object, $values, $where, $where_datas, $context){
-        /*foreach(array_keys($values) as $column){
-            if (!array_key_exists($column, $object->_columns)) unset($values[$column]);
-        }*/
-        //if (count($values) == 0) return true;
         if (!is_null($object->_write_date) && !array_key_exists($object->_write_date, $values)) $values[$object->_write_date] = gmdate('Y-m-d H:i:s');
         $user_id = array_get($context, 'user_id', $object->_pool->_default_user_id);
         if (!is_null($object->_write_user_id)) $values[$object->_write_user_id] = $user_id;
         $this->values = $values;
-        $this->col_assign = array();
-        $this->col_assign_data = array();
-        $old_values = array();
+        $this->col_assign = [];
+        $this->col_assign_data = [];
+        $old_values = [];
         $db = $object->_pool->db;
         $sql = 'SELECT '.$object->_key.' FROM '.$object->_table.' WHERE '.$where;
         if ($this->debug){
@@ -53,14 +49,11 @@ class SQLWrite extends OM_SQLinterface{
         if ($this->debug){
             \zyfra_debug::print_set('WRITE SQL: Model['.$this->object->_name.']', htmlentities($sql));
         }
-        
+
         if ($this->dry_run){
             return true;
         }
         $r = $db->query($sql);
-        /*foreach($this->callbacks as $callback){
-         call_user_func($callback, $this, $values[$col_name], $this->ids, $context);
-        }*/
         foreach($old_values as $col_name=>$old_value){
             $object->_columns[$col_name]->after_write_trigger($old_value, $values[$col_name]);
         }

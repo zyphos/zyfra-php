@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
-*		 Object class
-*		 ---------------
+*         Object class
+*         ---------------
 *
-*		 ORM
+*         ORM
 *
 *    Copyright (C) 2011 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
@@ -37,7 +37,7 @@ $this->name = new CharField('Name', 20);
 
 class idea extends ObjectModel{
 function init(){
-$this->name = new CharField('Name', 20, array('translate'=>true));
+$this->name = new CharField('Name', 20, ['translate'=>true]);
 $this->type = new Many2OneField('Name', 'idea_type');
 $this->meta = new MetaField('Meta');
 }
@@ -46,7 +46,7 @@ $this->meta = new MetaField('Meta');
 $pool = Pool::get();
 
 //Create a new idea
-$pool->idea->create(array('name'=>'My Idea'));
+$pool->idea->create(['name'=>'My Idea']);
 // Or with active record
 $new_idea = $pool->idea->active_record();
 $new_idea->name = 'My Idea';
@@ -138,31 +138,31 @@ class ContextedObjectModel{
         return array_merge($this->_pool->_context, $this->_context, $context);
     }
 
-    public function active_record(array $param, array $context = array()){
+    public function active_record(array $param, array $context = []){
         return $this->_object->active_record($param, $this->_get_context($context));
     }
 
-    public function create(array $values, array $context = array()){
+    public function create(array $values, array $context = []){
         return $this->_object->create($values, $this->_get_context($context));
     }
 
-    public function write(array $values, $where, array $context = array()){
+    public function write(array $values, $where, array $context = []){
         return $this->_object->write($values, $where, $this->_get_context($context));
     }
 
-    public function select($mql='*', array $context = array()){
+    public function select($mql='*', array $context = []){
         return $this->_object->select($mql, $this->_get_context($context));
     }
 
-    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
+    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = []){
         return $this->_object->get_scalar_array($value_field, $key_field, $where, $this->_get_context($context));
     }
 
-    public function unlink($where, array $context = array()){
+    public function unlink($where, array $context = []){
         return $this->_object->unlink($where, $this->_get_context($context));
     }
 
-    public function name_search($txt, array $context=array(), $operator='='){
+    public function name_search($txt, array $context=[], $operator='='){
         return $this->_object->name_search($txt, $this->_get_context($context), $operator);
     }
 
@@ -171,7 +171,7 @@ class ContextedObjectModel{
     }
 
     public function __call($method, $args){
-        return call_user_func_array(array($this->_object, $method), $args);
+        return call_user_func_array([$this->_object, $method], $args);
     }
 
     public function __get($attribute){
@@ -216,17 +216,17 @@ class ObjectModel{
         $this->init();
         $this->_pool = $pool;
         if (!isset($this->_columns)) throw new Exception('Object needs _columns');
-        $methods = array('before_create', 'after_create', 'before_write',
-                'after_write', 'before_unlink', 'after_unlink');
+        $methods = ['before_create', 'after_create', 'before_write',
+                'after_write', 'before_unlink', 'after_unlink'];
         foreach($methods as $method){
-            $this->{'__'.$method.'_fields'} = array();
+            $this->{'__'.$method.'_fields'} = [];
         }
 
         if (is_null($this->_order_by) || !strlen($this->_order_by)) $this->_order_by = $this->_key;
 
         if (!array_key_exists($this->_key, $this->_columns)){
-            $key_col = new IntField('Id', array('primary_key'=>true, 'auto_increment'=>true));
-            $this->_columns = array($this->_key=>$key_col) + $this->_columns;
+            $key_col = new IntField('Id', ['primary_key'=>true, 'auto_increment'=>true]);
+            $this->_columns = [$this->_key=>$key_col] + $this->_columns;
         }
         if (!is_null($this->_create_date) && !array_key_exists($this->_create_date, $this->_columns)){
             $this->_columns[$this->_create_date] = new DatetimeField('Created date');
@@ -235,10 +235,10 @@ class ObjectModel{
             $this->_columns[$this->_write_date] = new DatetimeField('Writed date');
         }
         if (!is_null($this->_create_user_id) && !array_key_exists($this->_create_user_id, $this->_columns)){
-            $this->_columns[$this->_create_user_id] = new IntField('Create user', array('default_value'=>$this->_pool->_default_user_id));
+            $this->_columns[$this->_create_user_id] = new IntField('Create user', ['default_value'=>$this->_pool->_default_user_id]);
         }
         if (!is_null($this->_write_user_id) && !array_key_exists($this->_write_user_id, $this->_columns)){
-            $this->_columns[$this->_write_user_id] = new IntField('Write user', array('default_value'=>$this->_pool->_default_user_id));
+            $this->_columns[$this->_write_user_id] = new IntField('Write user', ['default_value'=>$this->_pool->_default_user_id]);
         }
         
         if (!array_key_exists('_display_name', $this->_columns)){
@@ -261,8 +261,8 @@ class ObjectModel{
         if ($name == $this->_visible_field && $this->_visible_condition == ''){
             $this->_visible_condition = $this->_visible_field.'=1';
         }
-        $methods = array('before_create', 'after_create', 'before_write',
-                'after_write', 'before_unlink', 'after_unlink');
+        $methods = ['before_create', 'after_create', 'before_write',
+                'after_write', 'before_unlink', 'after_unlink'];
         foreach($methods as $method){
             if (method_exists($col, $method.'_trigger')){
                 //echo '__'.$method.'_fields['.$name.']';
@@ -307,7 +307,7 @@ class ObjectModel{
         //Contains fields definitions
     }
 
-    public function active_record($param, array $context = array()){
+    public function active_record($param, array $context = []){
         return new ActiveRecord($this, $param, $context);
     }
 
@@ -316,9 +316,9 @@ class ObjectModel{
         if (property_exists($this, '__update_sql_done')) return;
         #1 Check if table exists
         $db = $this->_pool->db;
-        if (!$db->get_object('SHOW TABLES like %s', array($this->_table))){
+        if (!$db->get_object('SHOW TABLES like %s', [$this->_table])){
             //Does not exists
-            $columns_def = array();
+            $columns_def = [];
             foreach($this->_columns as $name=>$column){
                 if (!$column->stored) continue;
                 $columns_def[] = $name.' '.$column->get_sql_def().$column->get_sql_def_flags();
@@ -330,7 +330,7 @@ class ObjectModel{
         }else{
             $sql = 'SHOW COLUMNS FROM '.$this->_table;
             $fields = $db->get_array_object($sql, 'Field');
-            $columns_def = array();
+            $columns_def = [];
             foreach($this->_columns as $field_name=>$field){
                 if (!$field->stored || $field->primary_key) continue;
                 $sql_def = $field->get_sql_def();
@@ -360,14 +360,14 @@ class ObjectModel{
 
     public function check_table_structure(){
         $db = $this->_pool->db;
-        $error_msgs = array();
-        if (!$db->get_object('SHOW TABLES like %s', array($this->_table))){
+        $error_msgs = [];
+        if (!$db->get_object('SHOW TABLES like %s', [$this->_table])){
             $error_msgs[] = '['.$this->_table.'] does not exist.';
             return $error_msgs;
         }
         $sql = 'SHOW COLUMNS FROM '.$this->_table;
         $fields = $db->get_array_object($sql, 'Field');
-        $checked_field_names = array();
+        $checked_field_names = [];
         foreach($this->_columns as $field_name=>$field){
             $checked_field_names[] = $field_name;
             if (!$field->stored) continue;
@@ -419,39 +419,15 @@ class ObjectModel{
         return $values;
     }
 
-    public function create(array $values, array $context = array()){
+    public function create(array $values, array $context = []){
         /* Create new record(s)
          * $values = array (column: value, col2: value2);
         * or
         * $values = array[](column: value, col2: value2);
         */
         if ($this->_read_only || count($values) == 0) return null;
-        /*$require_ids = isset($context['require_ids'])?$context['require_ids']:false;
-        $values2add = array();
         if(is_int(key($values))){
-            $multi_values=true;
-            foreach($values as &$value){
-                $value = $this->__add_default_values($value, true);
-                $values2add[implode(',',array_keys($value))][] = $value;
-            }
-        }else{
-            $multi_values=false;
-            $values = $this->__add_default_values($values, true);
-            $values2add[implode(',',array_keys($values))][] = $values;
-        }
-        if (count($values2add) == 0) return;
-        
-        $ids = array();
-        foreach($values2add as $values){
-            $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
-            $id = $sql_create->create($values, $require_ids);
-            if ($require_ids){
-                $ids = array_merge($ids, $id);
-            }
-        }
-        if ($require_ids) return $ids;*/
-        if(is_int(key($values))){
-            $ids = array();
+            $ids = [];
             foreach($values as $values_data){
                 $sql_create = new zyfra\orm\OM_SQLcreate($this, $context);
                 $values_data = $this->__add_default_values($values_data, true);
@@ -469,27 +445,27 @@ class ObjectModel{
         
         if (is_string($where)){
             if (is_numeric($where)) $where = $this->_key.'='.$where;
-            $where_datas = array();
+            $where_datas = [];
         }elseif (is_int($where)){
             $where = $this->_key.'='.$where;
-            $where_datas = array();
+            $where_datas = [];
         }elseif (is_array($where)){
             $nb = count($where);
-            if ($nb==0) return array(null, null);
+            if ($nb==0) return [null, null];
             if (is_string($where[0])){
                 $where_datas = &$where[1];
                 $where = &$where[0];
             }else{
                 $where = $this->_key.' in ('.implode(',', $where).')';
-                $where_datas = array();
+                $where_datas = [];
             }
         }else{
             throw new Exception('Unsupported where ['.$where.']');
         }
-        return array($where, $where_datas);
+        return [$where, $where_datas];
     }
 
-    public function write(array $values, $where, array $context = array()){
+    public function write(array $values, $where, array $context = []){
         if ($this->_read_only) return null;
         list($where, $where_data) = $this->__parse_where($where);
         if (is_null($where)) return null;
@@ -497,7 +473,7 @@ class ObjectModel{
         return $sql_write->result;
     }
 
-    public function unlink($where, array $context = array()){
+    public function unlink($where, array $context = []){
         if ($this->_read_only) return null;
         list($where, $where_data) = $this->__parse_where($where);
         if (is_null($where)) return null;
@@ -509,7 +485,7 @@ class ObjectModel{
             $rows = $this->_pool->db->get_array_object($sql, '', $datas);
         }
         foreach($columns_before as $column){
-            $old_values = array();
+            $old_values = [];
             foreach($rows as $row){
                 $old_values[$row->{$this->_key}] = $row->{$column};
             }
@@ -523,7 +499,7 @@ class ObjectModel{
 
         $this->_pool->db->safe_query($sql, $where_data);
         foreach($columns_after as $column){
-            $old_values = array();
+            $old_values = [];
             foreach($rows as $row){
                 $old_values[$row->{$this->_key}] = $row->{$column};
             }
@@ -531,12 +507,12 @@ class ObjectModel{
         }
     }
 
-    public function read($where='', array $fields=array(), array $context = array()){
+    public function read($where='', array $fields=[], array $context = []){
         if (count($fields) == 0){
             $fields = array_keys($this->_columns);
         }
         if (is_string($where)){
-            $datas = array();
+            $datas = [];
         }elseif (is_array($where)){
             $datas = &$where[1];
             $where = &$where[0];
@@ -552,7 +528,7 @@ class ObjectModel{
         return $res;
     }
 
-    public function select($mql='*', array $context = array()){
+    public function select($mql='*', array $context = []){
         $oquery = $this->_pool->add_query($this->_name, $mql);
         if (is_string($mql)){
             $datas = [];
@@ -566,7 +542,7 @@ class ObjectModel{
             if(array_key_exists('debug', $context) && $context['debug']){
                 throw $e;
             }
-            return array();
+            return [];
         }
         $sql_query = new SqlQuery($this);
         $res = $sql_query->get_array($mql, $context);
@@ -574,11 +550,11 @@ class ObjectModel{
         return $res;
     }
 
-    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = array()){
+    public function get_scalar_array($value_field, $key_field=null, $where = '', array $context = []){
         list($where, $datas) = $this->__parse_where($where);
         if (is_null($where)) {
             $where = '';
-            $datas = array();
+            $datas = [];
         }
         try{
             $where = $this->_pool->db->safe_sql($where, $datas);
@@ -586,10 +562,10 @@ class ObjectModel{
             if(array_key_exists('debug', $context) && $context['debug']){
                 throw $e;
             }
-            return array();
+            return [];
         }
-    	$sql_query = new SqlQuery($this);
-    	return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
+        $sql_query = new SqlQuery($this);
+        return $sql_query->get_scalar_array($value_field, $key_field, $where, $context);
     }
 
     public function get_view(array $fields_list = null){
@@ -600,11 +576,11 @@ class ObjectModel{
             }
         }
         if (!in_array($this->_key, $fields_list)) array_unshift($fields_list, $this->_key);
-        $view = array();
+        $view = [];
         foreach($fields_list as $name){
             if ($name == '_translation') continue;
             $column = $this->_columns[$name];
-            $col = (object)array('name'=>$name,
+            $col = (object)['name'=>$name,
                     'label'=>$column->label,
                     'default_value'=>$column->default_value,
                     'widget'=>$column->widget,
@@ -612,7 +588,7 @@ class ObjectModel{
                     'help'=>$column->help,
                     'read_only'=>($name==$this->_key || $name==$this->_create_date || $name==$this->_write_date || $column->read_only),
                     'hidden'=>$column->hidden,
-                    'is_key'=>($name==$this->_key));
+                    'is_key'=>($name==$this->_key)];
             if (isset($column->translate)){
                 $col->translated = $column->translate && true; // transform it in boolean
             }
@@ -690,7 +666,7 @@ class ObjectModel{
 
     public function get_full_diagram($max_depth = 0, $lvl=0, $done=null){
         if (is_null($done)) {
-            $done = array($this->_name);
+            $done = [$this->_name];
         }else{
             if (in_array($this->_name, $done)){
                 return str_repeat(' ', $lvl*2).'-recursive-'."\n";
@@ -716,9 +692,9 @@ class ObjectModel{
     public function get_svg_full_diagram($max_depth=0){
         $dot_data = $this->get_dot_full_diagram($max_depth);
         $process = proc_open('dot -Tsvg',
-                             array(array('pipe','r'),
-                                   array('pipe','w'),
-                                   array('pipe','r')),
+                             [['pipe','r'],
+                              ['pipe','w'],
+                              ['pipe','r']],
                              $pipes);
         if(!is_resource($process)) throw new Exception('Can not call dot');
         fwrite($pipes[0], $dot_data);
@@ -730,18 +706,18 @@ class ObjectModel{
     }
 
     public function get_dot_full_diagram($max_depth=0, $lvl=0, &$done=null, &$relations=null, $parent=null, $column2skip=null){
-        if ($relations==null) $relations = array();
+        if ($relations==null) $relations = [];
         $name_under = str_replace('.','_', $this->_name);
         if ($done == null){
-            $done = array($this->_name);
+            $done = [$this->_name];
         }elseif (in_array($this->_name, $done)){
             return '';
         }else{
             $done[] = $this->_name;
         }
-        if ($column2skip == null) $column2skip = array();
+        if ($column2skip == null) $column2skip = [];
         $other_txt = '';
-        $columns = array();
+        $columns = [];
         foreach($this->_columns as $col){
             if (in_array($col->name, $column2skip)) continue;
             if ($col instanceof One2Many){
@@ -757,8 +733,6 @@ class ObjectModel{
                 if ($max_depth == 0 || $lvl+1 < $max_depth || in_array($robj->_name, $done)){
                     $rname_under = str_replace('.','_', $robj->_name);
                     $relation_name = $name_under.' -> '.$rname_under.' [label="'.$col->name.'['.get_class($col).']",fontname="Bitstream Vera Sans",fontsize=8]';
-                    //$rrelation_name = $rname_under.' -> '.$name_under;
-                    //if (!in_array($relation_name, $relations) && !in_array($rrelation_name, $relations)) $relations[] = $relation_name;
                     if (!in_array($relation_name, $relations)) $relations[] = $relation_name;
                 }
 
@@ -780,13 +754,13 @@ class ObjectModel{
         return $txt;
     }
 
-    public function name_search($txt, array $context=array(), $operator='='){
+    public function name_search($txt, array $context=[], $operator='='){
         // Return ids corresponding to search on name
         $where = ['WHERE '.$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
         return $this->get_scalar_array($this->_key, null, $where, $context);
     }
 
-    public function name_search_details($txt, array $context=array(), $operator='='){
+    public function name_search_details($txt, array $context=[], $operator='='){
         // Return ids corresponding to search on name
         $where = [$this->_name_search_fieldname.' '.$operator.' %s', [$txt]];
         return $this->read($where, [$this->_key.' AS id', $this->_name_search_fieldname.' AS name'], $context);

@@ -10,9 +10,9 @@ class ActiveRecord{
     protected $__exists;
     protected $__prefetch_fields;
 
-    public function __construct($object, $params, $context = array()){
+    public function __construct($object, $params, $context = []){
         /* $params is an array:
-         * it contains predefined attribute. Ie: $params = array('uid'=>4,'name'=>'test');
+         * it contains predefined attribute. Ie: $params = ['uid'=>4,'name'=>'test'];
          * or the key id
          * $param = 8;
          */
@@ -21,19 +21,19 @@ class ActiveRecord{
         $this->__data = null;
         $this->__exists = null;
         if (!is_array($params)){
-            $params = array($object->_key=>$params);
+            $params = [$object->_key=>$params];
         }
         $this->__params = $params;
-        $this->__modified_columns = array();
+        $this->__modified_columns = [];
         $key = $object->_key;
         $this->__id = array_key_exists($key, $this->__params)?$this->__params[$key]:null;
         $this->__mql_where = array_key_exists('mql_where', $this->__context)?$this->__context['mql_where']:$key.'=%s';
         $this->__prefetch_fields = array_key_exists('mql_fields', $this->__context)?array_filter(explode(',',$this->__context['mql_fields'])):['*'];
     }
-    
+
     public function prefetch_fields($fields=[]){
         // Field array or string comma separated
-        
+
         // TODO: prefetch all stored field (like Many2one)
         if (is_null($this->__id)) {
             $this->__exists = False;
@@ -47,13 +47,12 @@ class ActiveRecord{
             $fields2query = array_diff($fields, array_keys(get_object_vars($this->__data)));
             if (empty($fields2query)) return;
         }
-        
+
         $obj = $this->__object;
-        $key = $obj->_key;
         if (is_null($this->__data)) $fields2query = array_unique(array_merge($fields2query, $this->__prefetch_fields));
         $mql_fields = implode(',', $fields2query);
         $result = $obj->select([$mql_fields.' WHERE '.$this->__mql_where, [$this->__id]], $this->__context);
-        
+
         if (count($result)) {
             $this->__exists = true;
             $this->__data = $result[0];
@@ -61,7 +60,7 @@ class ActiveRecord{
             $this->__exists = False;
         }
     }
-    
+
     private function __add_data($mql_fields){
         // TODO: Handle One2Many, Many2Many
         if(is_null($this->__data)) return;
@@ -73,16 +72,16 @@ class ActiveRecord{
             }
         }
     }
-    
+
     private function __return_active_field($field_name){
         if ($this->__data->$field_name instanceof ActiveRecord) return $this->__data->$field_name;
         $column = $this->__object->_columns[$field_name];
         if($column instanceof Many2OneField){
-            $this->__data->$field_name = new ActiveRecord($column->relation_object, array($column->relation_object_key=>$this->__data->$field_name), $this->__context);
+            $this->__data->$field_name = new ActiveRecord($column->relation_object, [$column->relation_object_key=>$this->__data->$field_name], $this->__context);
         }
         return $this->__data->$field_name;
     }
-    
+
     public function __get($name){
         if (array_key_exists($name, $this->__params)) return $this->__params[$name];
         $obj = $this->__object;
@@ -110,7 +109,7 @@ class ActiveRecord{
             throw new Exception('Column '.$name.' not found in '.$this->__object->_name);
         }
     }
-    
+
     public function exists(){
         if (is_null($this->__exists)) $this->prefetch_fields([$this->__object->_key]);
         return $this->__exists;
@@ -121,7 +120,7 @@ class ActiveRecord{
         $key = $this->__object->_key;
         
         if ($this->exists()){
-            $values = array();
+            $values = [];
             foreach($this->__modified_columns as $col_name=>$t){
                 $values[$col_name] = $this->__params[$col_name];
             }

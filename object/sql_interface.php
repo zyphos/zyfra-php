@@ -18,13 +18,13 @@ class OM_SQLinterface{
 
     function __construct($object, $context){
         $this->object = $object;
-        $this->callbacks = array();
+        $this->callbacks = [];
         $this->context = $context;
         $this->debug = array_get($context, 'debug', false);
         $this->dry_run = array_get($context, 'dry_run', false);
     }
 
-    function add_callback($field_object, $callback_name, $parameters=array()){
-        $this->callbacks[] = array(array($field_object, $callback_name), $parameters);
+    function add_callback($field_object, $callback_name, $parameters=[]){
+        $this->callbacks[] = [[$field_object, $callback_name], $parameters];
     }
 }

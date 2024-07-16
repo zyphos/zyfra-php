@@ -20,8 +20,8 @@ class OrmQuery{
 
 class ContextedPool{
    public $_context = null;
-   protected $_original_pool = null; 
-   
+   protected $_original_pool = null;
+
    public function __construct(&$pool, $context){
        $this->_original_pool = $pool;
        $this->_context = $context;
@@ -31,7 +31,7 @@ class ContextedPool{
        if ($this->_original_pool->object_in_pool($method)){
            return new ContextedObjectModel($this->_original_pool->$method, $this, array_merge($this->_context, $args[0]));
        }
-       return call_user_func_array(array($this->_original_pool, $method), $args);
+       return call_user_func_array([$this->_original_pool, $method], $args);
    }
 
    public function __get($attribute){
