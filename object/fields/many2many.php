@@ -178,12 +178,13 @@ class Many2ManyField extends One2ManyField{
          *         (2, ID)                remove
          *         (3, ID)                unlink
          *         (4, ID)                link
-         *         (5, ID)                unlink all
+         *         (5)                    unlink all
          *         (6, ?, ids)            set a list of links
          * compatible with openobject
          */
         $local_ids = $sql_write->ids;
         $robj = $this->m2m_relation_object;
+        $remote_id = null;
         foreach($value as $val){
             switch($val[0]){
                 case 0: //create
@@ -192,19 +193,23 @@ class Many2ManyField extends One2ManyField{
                         $this->relation_object->create([$this->rt_local_field=>$id, $this->rt_foreign_field=>$new_id]);
                     }
                     break;
-                case 1: //modification
-                    $robj->write($val[2], [$robj->_key.'=%s', [$val[1]]], $context);
+                case 1: //update remote object ??? usefull ??
+                    $remote_id = $robj->get_id_from_value($val[1], $context);
+                    $robj->write($val[2], [$robj->_key.'=%s', [$remote_id]], $context);
                     break;
                 case 2: //remove remote object
-                    $robj->unlink($val[1]);
+                    $remote_id = $robj->get_id_from_value($val[1], $context);
+                    $robj->unlink($remote_id);
                     //Do also unlink
                 case 3: //unlink
-                    $remote_id = $robj->get_id_from_value($val[1], $context);
+                    if (is_null($remote_id)) $remote_id = $robj->get_id_from_value($val[1], $context);
                     $this->relation_object->unlink([$this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', [$local_ids, $remote_id]]);
                     break;
                 case 4: //link
                     $remote_id = $robj->get_id_from_value($val[1], $context);
-                    foreach ($local_ids as $id){
+                    $done_ids = $this->relation_object->get_scalar_array($this->rt_local_field,null,['where '.$this->rt_local_field.' in %s and '.$this->rt_foreign_field.'=%s', [$local_ids, $remote_id]]);
+                    $todo_ids = array_diff($local_ids, $done_ids);
+                    foreach ($todo_ids as $id){
                         $this->relation_object->create([$this->rt_local_field=>$id, $this->rt_foreign_field=>$remote_id]);
                     }
                     break;

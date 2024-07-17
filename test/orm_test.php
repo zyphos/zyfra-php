@@ -48,7 +48,7 @@ function check($result, $expected, $description){
         echo "OK\n";
         $nb_passed++;
     }else{
-        echo 'Failed, '.print_r($result, true).' != '.print_r($expected, true)."\n";
+        echo "Failed, result:\n".print_r($result, true)." != expected \n".print_r($expected, true)."\n";
     }
 }
 
@@ -99,11 +99,17 @@ check($o->user->select("language_id.name AS name WHERE name='max'"),[(object)['n
 check($o->language->select("user_ids.(name) WHERE name='en'"),[(object)['user_ids'=>[(object)['name'=>'tom']]]], 'read O2M');
 
 // M2M
-check($o->user->select('name,group_ids.(name) AS groups'),
+check($o->user->select('name,can_action_ids.(name),group_ids.(name) AS groups'),
    [(object)['name'=>'max',
-             'groups'=>[(object)['name'=>'reader'],
-                        (object)['name'=>'writer']]],
+             'can_action_ids'=>[
+                 (object)['name'=>'approve']
+             ],
+             'groups'=>[
+                 (object)['name'=>'reader'],
+                 (object)['name'=>'writer']]
+             ],
     (object)['name'=>'tom',
+             'can_action_ids'=>[],
              'groups'=>[(object)['name'=>'admin']]]
    ], "read M2M");
 
@@ -119,6 +125,74 @@ check($o->can_action->select("name WHERE user_ids.name='max' OR group_ids.user_i
 check($o->user->select("name WHERE can_action_ids IS NULL"),
     [(object)['name'=>'tom']
     ], 'where M2M is null');
+
+// M2M create 0
+$o->user->write(['can_action_ids'=>[[0,0,['name'=>'jump']]]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [(object)['name'=>'approve'],
+     (object)['name'=>'jump'],
+    ], 'M2M create 0');
+
+// M2M update remote 1, usefull ???
+$o->user->write(['can_action_ids'=>[[1,'jump',['name'=>'fall']]]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [(object)['name'=>'approve'],
+     (object)['name'=>'fall'],
+    ], 'M2M update remote 1 1/2');
+check($o->can_action->select("name"),
+    [(object)['name'=>'read'],
+     (object)['name'=>'create'],
+     (object)['name'=>'update'],
+     (object)['name'=>'delete'],
+     (object)['name'=>'approve'],
+     (object)['name'=>'fall']
+    ], 'M2M update remote 1 2/2');
+
+// M2M remove remote 2
+$o->user->write(['can_action_ids'=>[[2,'fall']]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [(object)['name'=>'approve']], 'M2M remove remote 2 1/2');
+check($o->can_action->select("name"),
+    [(object)['name'=>'read'],
+        (object)['name'=>'create'],
+        (object)['name'=>'update'],
+        (object)['name'=>'delete'],
+        (object)['name'=>'approve']
+    ], 'M2M remove remote 2 1/2');
+
+// M2M unlink 3
+$o->user->write(['can_action_ids'=>[[3,'approve']]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [], 'M2M remove unlink 3 1/2');
+check($o->can_action->select("name"),
+    [(object)['name'=>'read'],
+        (object)['name'=>'create'],
+        (object)['name'=>'update'],
+        (object)['name'=>'delete'],
+        (object)['name'=>'approve']
+    ], 'M2M remove unlink 3 1/2');
+
+// M2M link 4
+$o->user->write(['can_action_ids'=>[[4,'read'],[4,'update']]],['name=%s',['max']]);
+
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [(object)['name'=>'read'],
+     (object)['name'=>'update'],
+    ], 'M2M link 4');
+
+// M2M unlink all 5
+$o->user->write(['can_action_ids'=>[[5]]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [], 'M2M unlink all 5');
+
+// M2M set list 6
+$o->user->write(['can_action_ids'=>[[4,'read'],[4,'update']]],['name=%s',['max']]);
+$o->user->write(['can_action_ids'=>[[6,0,['read','create','update']]]],['name=%s',['max']]);
+check($o->can_action->select("name WHERE user_ids.name='max'"),
+    [(object)['name'=>'read'],
+     (object)['name'=>'create'],
+     (object)['name'=>'update'],
+    ], 'M2M set list 6');
 
 //is null
 $o->user->select('name WHERE language_id IS NULL', ['debug'=>0]);
