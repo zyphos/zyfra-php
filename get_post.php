@@ -1,14 +1,14 @@
 <?php
 /*****************************************************************************
 *
-*		 Get Post Class
-*		 ---------------
+*         Get Post Class
+*         ---------------
 *
-*		 Class handle GET and POST fields
+*         Class handle GET and POST fields
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@
 * Quick Usage:
 * ------------
 * zyfra_get_post::sanitize();
-* 
-* 
+*
+*
 *****************************************************************************/
 
 class zyfra_get_post {
@@ -39,10 +39,10 @@ class zyfra_get_post {
         global $var_zyfra_get_post_is_sanitized;
         if(!isset($var_zyfra_get_post_is_sanitized)||
           !$var_zyfra_get_post_is_sanitized){
-            foreach($_POST as $key=>$value) 
+            foreach($_POST as $key=>$value)
                 $_POST[$key] = self::unquote($value);
             foreach($_GET as $key=>$value) $_GET[$key] = self::unquote($value);
-            foreach($_COOKIE as $key=>$value) 
+            foreach($_COOKIE as $key=>$value)
                 $_COOKIE[$key] = self::unquote($value);
             $var_zyfra_get_post_is_sanitized = true; //Avoid doing this twice
         }

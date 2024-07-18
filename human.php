@@ -1,14 +1,14 @@
-<?php 
+<?php
 /*****************************************************************************
 *
-*		 human Class
-*		 ---------------
+*         human Class
+*         ---------------
 *
-*		 Human Interface
+*         Human Interface
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ function bin2hr($size){
     //Make Binary to human readable size
     //eg: $size = 15392074
     //result: 14.68M
-    $sizes = array(1024=>"K",1048576=>"M",1073741824=>"G");
+    $sizes = [1024 => "K", 1048576 => "M", 1073741824 => "G"];
     krsort($sizes);
     foreach($sizes as $lvl=>$lvlName){
         if($size>=$lvl){
@@ -79,7 +79,7 @@ function date2text($the_date, $language='en'){
     list($year, $month, $day) = explode('-', $the_date);
     $month = (int)$month;
     $day = (int)$day;
-    
+
     if($language == 'fr'){
         $months = [1=>'janvier',
                    2=>'f&eacute;vrier',

@@ -1,14 +1,13 @@
 <?php
 /*****************************************************************************
 *
-*		 Db Class
-*		 ---------------
+*         Db Class
+*         ---------------
 *
-*		 Unification for Database
+*         Unification for Database
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -24,8 +23,14 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 *****************************************************************************/
-
-//require_once("../config/config.php");
+/* Need to define $config with your database configuration
+ ie:
+ $config = (object)['db_type'=>'mysql',
+                    'db_host'=>'localhost',
+                    'db_user'=>'db_user',
+                    'db_password'=>'db_password',
+                    'db_name'=>'dn_name'];
+ */
 switch($config->db_type){
   case "mysql":
     require_once("db_mysql.php");

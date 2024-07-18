@@ -47,10 +47,6 @@
 * v0.01    23/10/2009    Creation
 *****************************************************************************/
 
-/*
- * Todo:
- *
- */
 
 require_once 'db.php';
 include_once 'rpc_big.php';
@@ -64,10 +60,10 @@ class zyfra_STRUCT_table_struct{
   var $fulltext;
 
   function __construct(){
-    $fields = array();
-    $primary = array();
-    $keys = array();
-    $fulltext = array();
+    $fields = [];
+    $primary = [];
+    $keys = [];
+    $fulltext = [];
   }
 }
 
@@ -220,7 +216,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $local_indexes = $this->rpc_get_table_indexes($table_name,$key_names, $sync_start_ts);
         $this->log(count($local_indexes).'<br>');
         $this->log('Getting remote table indexes... ');
-        $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', array($table_name,$key_names, $sync_start_ts));
+        $remote_indexes = zyfra_rpc_big::send_rpc($url, 'get_table_indexes', [$table_name,$key_names, $sync_start_ts]);
         $this->log(count($remote_indexes).'<br>');
 
         //Delete
@@ -233,7 +229,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             }
             if (count($remote2del) > 0){
                 $this->log('Deleting from remote...<br>');
-                $this->log(zyfra_rpc_big::send_rpc($url, 'delete', array($table_name, $key_names, $remote2del)));
+                $this->log(zyfra_rpc_big::send_rpc($url, 'delete', [$table_name, $key_names, $remote2del]));
             }
             unset($local2del, $remote2del);
         }
@@ -244,7 +240,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $local_datas = $this->rpc_get_table_datas($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental);
             $this->log(count($local_datas).'<br>');
             $this->log('Getting remote table datas... ');
-            $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', array($table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental));
+            $remote_datas = zyfra_rpc_big::send_rpc($url, 'get_table_datas', [$table_name, $key_names, $col_names, $sync_start_ts, $last_start_ts, $incremental]);
             $this->log(count($remote_datas).'<br>');
 
             //Update
@@ -273,7 +269,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
                 if (count($remote2add) > 0){
                     $this->log('Adding to remote...<br>');
-                    $this->log(zyfra_rpc_big::send_rpc($url, 'add', array($table_name, $key_names, $col_names, $remote2add)));
+                    $this->log(zyfra_rpc_big::send_rpc($url, 'add', [$table_name, $key_names, $col_names, $remote2add]));
                 }
                 unset($local2add, $remote2add);
             }
@@ -335,7 +331,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $f_handle = fopen($synch_table_lst,'r');
         $sync_id = (int)rtrim(fgets($f_handle));
         $url = rtrim(fgets($f_handle));
-        $table_list = array();
+        $table_list = [];
         while(!feof($f_handle)){
             /*On lit la ligne source
              * de type :
@@ -356,14 +352,14 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $table_list[] = $row_src;
         }
         fclose($f_handle);
-        return array($sync_id, $url, $table_list);
+        return [$sync_id, $url, $table_list];
     }
 
     function get_tables_struct($use_cache=false){
         if ($use_cache && !is_null($this->table_structure)) return $this->table_structure;
         $db = $this->db;
         //Function that creates an image of the entire database structure.
-        $tables = array();
+        $tables = [];
         //retrieve tablename from the database
         $sql = 'SHOW TABLES FROM '.$db->default_db;
         $result_table = $db->query($sql);
@@ -417,9 +413,9 @@ class zyfra_database_synch extends zyfra_rpc_big{
 
     function rpc_get_table_datas($table_name, $key_names, $col_names, $start_ts, $last_start_ts, $incremental = true){
         $db = $this->db;
-        $data_array = array();
+        $data_array = [];
         //$this->log('Getting data from '.$table_name.'...');
-        $wheres = array();
+        $wheres = [];
         //$wheres[] = $this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts);
         if($incremental){
             $wheres[] = $this->update_field.'>='.gmdate('\'Y-m-d H:i:s\'', $last_start_ts);
@@ -434,7 +430,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $result = $db->query($sql);
         while($row = $db->fetch_object($result)){
             $the_index = $this->make_index($key_names, $row);
-            $cols = array();
+            $cols = [];
             foreach($col_names as $col_name){
                 $cols[] = $row->{$col_name};
             }
@@ -451,7 +447,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         //    FROM '.$table_name. ' WHERE ('.$this->update_field.'<'.gmdate('\'Y-m-d H:i:s\'', $start_ts).')';
         $sql = 'SELECT '.implode(',',$key_names).','.$this->create_field.','.$this->update_field.'
             FROM '.$table_name;
-        $all_index = array();
+        $all_index = [];
         while($row = $this->db->get_row_object($sql)){
             $the_index = $this->make_index($key_names, $row);
             //$create = strtotime($row->{$this->create_field}.' UTC');
@@ -465,7 +461,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
 
     function make_index($key_names, $obj){
-        $keys = array();
+        $keys = [];
         foreach($key_names as $key_name){
             $keys[] = $obj->{$key_name};
         }
@@ -484,8 +480,8 @@ class zyfra_database_synch extends zyfra_rpc_big{
     }
 
     function compute2del($local_indexes, $remote_indexes, $sync_flags, $sync_start_ts, $last_start_ts){
-        $local2del = array();
-        $remote2del = array();
+        $local2del = [];
+        $remote2del = [];
         if ($sync_flags->src_dst_can_delete()){
             //$remote2del
             foreach($remote_indexes as $key=>$dates){
@@ -504,13 +500,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
             }
         }
-        return array($local2del, $remote2del);
+        return [$local2del, $remote2del];
     }
 
     function compute2update($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags){
         $fs = $this->field_separator;
-        $local2update = array();
-        $remote2update = array();
+        $local2update = [];
+        $remote2update = [];
         foreach($local_datas as $index=>$local_data){
             if(isset($remote_datas[$index])){
                 //Join dates
@@ -527,13 +523,13 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
             }
         }
-        return array($local2update, $remote2update);
+        return [$local2update, $remote2update];
     }
 
     function compute2add($local_indexes, $remote_indexes, $local_datas, $remote_datas, $sync_flags){
         $fs = $this->field_separator;
-        $local2add = array();
-        $remote2add = array();
+        $local2add = [];
+        $remote2add = [];
         if ($sync_flags->src_dst_can_add()){
             foreach($local_datas as $index=>$local_data){
                 if(!isset($remote_datas[$index])){
@@ -548,7 +544,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 }
             }
         }
-        return array($local2add,$remote2add);
+        return [$local2add,$remote2add];
     }
 
     function get_gmdate($date){
@@ -676,7 +672,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
             $keys = explode($this->field_separator,$index2add);
             $datas_array = explode($this->field_separator, $data2add);
             $datas_array = array_merge($keys, $datas_array);
-            $datas = array();
+            $datas = [];
             foreach($col_names_sql as $i=>$field_name){
                 $data = $datas_array[$i];
                 $datas[] = $this->escape_field($field_name, $data, $table_structure);
@@ -702,7 +698,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
     function get_fields_sql($col_names, $col_datas, &$table_structure){
         $db = $this->db;
         if(!$db->IsConnected()) $db->connect();
-        $fields_sql = array();
+        $fields_sql = [];
         $datas = explode($this->field_separator, $col_datas);
         foreach($datas as $id=>$data){
             $field_name = $col_names[$id];
@@ -721,9 +717,9 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $res = $db->query($sql);
         $obj = $db->fetch_object($res);
         if (!is_object($obj)){
-            return array(strtotime('1980-01-01 00:00:00 UTC'), strtotime('1980-01-01 00:00:00 UTC'));
+            return [strtotime('1980-01-01 00:00:00 UTC'), strtotime('1980-01-01 00:00:00 UTC')];
         }else{
-            return array(strtotime($obj->last_sync_start.' UTC'), strtotime($obj->last_sync_end.' UTC'));
+            return [strtotime($obj->last_sync_start.' UTC'), strtotime($obj->last_sync_end.' UTC')];
         }
     }
 
@@ -787,7 +783,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
 
     private function get_slst(){
         if (!is_null($this->only_slst_filename)) return [$this->only_slst_filename];
-        $slst_files = array();
+        $slst_files = [];
         $files = scandir(getcwd());
         foreach($files as $filename){
             $file_name_exploded = explode('.',$filename);

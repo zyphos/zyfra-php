@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
- *		 http Class
- *		 ---------------
+ *         http Class
+ *         ---------------
  *
- *		 Functions about HTTP
+ *         Functions about HTTP
  *
  *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -54,7 +54,6 @@ class zyfra_http {
         return $filesize;
     }
 
-
     static function flush(){
         //Flush output to browser. Send all data to browser
         if (ob_get_length()){
@@ -74,19 +73,19 @@ class zyfra_http {
         $html_out = '';
         if ($html_with_script != ''){
             $html_out .= '<script type="text/javascript">document.write("'.
-            str_replace(array('"',"\n"),array('\"',''),$html_with_script).
-            	'");</script>';
+            str_replace(['"',"\n"],['\"',''],$html_with_script).
+                '");</script>';
         }
         if ($html_without_script != ''){
             $html_out .= '<noscript>'.$html_without_script.'</noscript>';
         }
         return $html_out;
     }
-    
+
     static function force_auto_reload($html_content){
-        /* Force the client web browser to reload of all .css and .js when 
+        /* Force the client web browser to reload of all .css and .js when
          * they are modified.
-         * 
+         *
          * input:
          * - $html_content: string, HTML content to scan
          * output:
@@ -97,7 +96,7 @@ class zyfra_http {
          */
         return preg_replace_callback("/[a-z0-9.\/\_-]+(?:\.css|\.js)/i", 'zyfra_http::_threat_url_force_reload', $html_content);
     }
-    
+
     static function _threat_url_force_reload($matches){
         $url = &$matches[0];
         if ($url[0]=='/'){
@@ -111,59 +110,59 @@ class zyfra_http {
         $mtime = filemtime($filename);
         return preg_replace('{\\.([^./]+)$}', '_'.$mtime.".\$1", $url);
     }
-    
+
     static function split_url_data($url){
-    	/*
-    	 * Input: url to be parsed
-    	 * Output: array(url, data)
-    	 * 
-    	 * Ie:
-    	 * split_url_data('test.php?data=test&activated')
-    	 * output:
-    	 * array('test.php', array('data'=>'test', 'activated'=>''))
-    	 */
-    	$res = explode('?', $url, 2);
-    	if (count($res)==1) return array($url, array());
-    	$key_values = explode('&', $res[1]);
-    	$values = array();
-    	foreach($key_values as $key_value){
-    		$key_val = explode('=', $key_value, 2);
-    		if (count($key_val) > 1){
-    			list($key, $value) = $key_val;
-    			$values[$key] = urldecode($value);
-    		}else{
-    			$values[$key_value] = '';
-    		}
-    	}
-    	return array($res[0], $values);
+        /*
+         * Input: url to be parsed
+         * Output: [url, data]
+         *
+         * Ie:
+         * split_url_data('test.php?data=test&activated')
+         * output:
+         * ['test.php', ['data'=>'test', 'activated'=>'']]
+         */
+        $res = explode('?', $url, 2);
+        if (count($res)==1) return [$url, []];
+        $key_values = explode('&', $res[1]);
+        $values = [];
+        foreach($key_values as $key_value){
+            $key_val = explode('=', $key_value, 2);
+            if (count($key_val) > 1){
+                list($key, $value) = $key_val;
+                $values[$key] = urldecode($value);
+            }else{
+                $values[$key_value] = '';
+            }
+        }
+        return [$res[0], $values];
     }
-    
+
     static function join_url_data($url, $data){
-    	/*
-    	 * Ie:
-    	 * join_url_data('test.php', array('data'=>'test','activated'=>''))
-    	 * output:
-    	 * 'test.php?data=test&activated'
-    	 */
-    	if (count($data) == 0) return $url;
-    	$new_data = array();
-    	foreach($data as $key=>$value){
-    		$new_data[] = $key.'='.urlencode($value);
-    	}
-    	return $url.'?'.implode('&', $new_data);
+        /*
+         * Ie:
+         * join_url_data('test.php', ['data'=>'test','activated'=>''])
+         * output:
+         * 'test.php?data=test&activated'
+         */
+        if (count($data) == 0) return $url;
+        $new_data = [];
+        foreach($data as $key=>$value){
+            $new_data[] = $key.'='.urlencode($value);
+        }
+        return $url.'?'.implode('&', $new_data);
     }
-    
+
     static function redirect($url){
-    	header("location:".$url);
-    	exit();
+        header("location:".$url);
+        exit();
     }
-    
+
     static function add_session2url($url){
-    	$session_name = session_name();
-    	$session_id = session_id();
-    	list($new_url, $data) = self::split_url_data($url);
-    	if (isset($data[$session_name])) unset($data[$session_name]);
-    	$new_data = array($session_name=>$session_id) + $data;
-    	return self::join_url_data($new_url, $new_data);
+        $session_name = session_name();
+        $session_id = session_id();
+        list($new_url, $data) = self::split_url_data($url);
+        if (isset($data[$session_name])) unset($data[$session_name]);
+        $new_data = [$session_name=>$session_id] + $data;
+        return self::join_url_data($new_url, $new_data);
     }
 }

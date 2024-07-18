@@ -1,14 +1,14 @@
 <?php
 /*****************************************************************************
 *
-*		 debug Class
-*		 ---------------
+*         debug Class
+*         ---------------
 *
-*		 Debug functions
+*         Debug functions
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -27,29 +27,29 @@
 
 /*
  * Usage:
- * zyfra_debug::printr('My text'); 
+ * zyfra_debug::printr('My text');
  */
- 
+
 class zyfra_debug{
     static function printr($var){
         echo '<pre>';
         print_r($var);
         echo '</pre>';
-        self::flush();           
+        self::flush();
     }
-    
+
     static function _print($txt){
         print($txt);
         self::flush();
     }
-    
+
     static function flush(){
         if (ob_get_length()){
             ob_flush();
         }
         flush();
     }
-    
+
     static function get_backtrace($table=true, $avoid_from_self=false){
         $bt = debug_backtrace();
         $src = array_shift($bt);
@@ -97,7 +97,7 @@ class zyfra_debug{
         $txt .= $table?'</table>':'</pre>';
         return $txt;
     }
-    
+
     static function print_backtrace($table=true, $avoid_from_self=false){
         echo self::get_backtrace($table, $avoid_from_self);
     }
@@ -105,30 +105,28 @@ class zyfra_debug{
     static function print_set($title, $content){
         echo '<fieldset style=\'background:#EEE\';><legend style=\'background:#CCC\'><b>'.$title.'</b></legend>'.$content.'</fieldset>';
     }
-    
-    static function depreciated_function(){
+
+    static function depreciated_function($replacement=''){
         if (E_WARNING & error_reporting()){
             $back_traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $back_trace = $back_traces[1];
-            //print_r($back_trace);
-            echo '<b>Warning:</b> <b>'.$back_trace['function'].'</b> is a obsolete function. in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
+            $use_instead = ($replacement != '') ? ' ---> use "'.$replacement.'" instead.' : '';
+            echo '<b>Warning:</b> <b>'.$back_trace['function'].'</b> is a obsolete function. in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b>'.$use_instead.'<br>';
         }
     }
-    
+
     static function show_warning($text='', $stack_level=1){
         if (E_WARNING & error_reporting()){
             $back_traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stack_level+1);
             $back_trace = $back_traces[$stack_level];
-            //print_r($back_trace);
             echo '<b>Warning:</b> '.$text.' in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
         }
     }
-    
+
     static function show_msg($text='', $stack_level=1){
         if (E_WARNING & error_reporting()){
             $back_traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, $stack_level+1);
             $back_trace = $back_traces[$stack_level];
-            //print_r($back_trace);
             echo $text.' in <b>'.$back_trace['file'].'</b> on line <b>'.$back_trace['line'].'</b><br>';
         }
     }

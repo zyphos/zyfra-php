@@ -1,7 +1,7 @@
 <?php
 include_once '../string.php';
 include_once '../debug.php';
-$a = array('  Center  ', 'left   ', '   right', array('   center    ', 'left    ', '    right'));
+$a = ['  Center  ', 'left   ', '   right', ['   center    ', 'left    ', '    right']];
 zyfra_debug::printr('Before:');
 zyfra_debug::printr('$a =');
 zyfra_debug::printr($a);

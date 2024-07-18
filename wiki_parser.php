@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
- *		 Wiki Parser (beta, very quick implementation)
- *		 ---------------
+ *         Wiki Parser (beta, very quick implementation)
+ *         ---------------
  *
- *		 Class to parse wiki text in html
+ *         Class to parse wiki text in html
  *
  *    Copyright (C) 2010 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -30,13 +30,8 @@
  *****************************************************************************/
 
 class zyfra_wiki_parser {
-    
     var $mInPre;
-    
-    function __construct(){
-        
-    }
-    
+
     function parse($text){
         $this->clear_state();
         //$text = $this->doTableStuff( $text );
@@ -60,17 +55,17 @@ class zyfra_wiki_parser {
         $text = $this->do_block_levels($text);
         return $text;
     }
-    
+
     function clear_state() {
         $this->mAutonumber = 0;
         $this->mLastSection = '';
         $this->mDTopen = false;
-        $this->mIncludeCount = array();
+        $this->mIncludeCount = [];
         $this->mArgStack = false;
         $this->mInPre = false;
         $this->mLinkID = 0;
         $this->mRevisionTimestamp = $this->mRevisionId = null;
-        $this->mVarCache = array();
+        $this->mVarCache = [];
         /**
          * Prefix for temporary replacement strings for the multipass parser.
          * \x07 should never appear in input as it's disallowed in XML.
@@ -94,7 +89,7 @@ class zyfra_wiki_parser {
     function do_headings($text) {
         for ($i = 6; $i >= 1; --$i){
             $h = str_repeat('=', $i);
-            $text = preg_replace("/^$h(.+)$h\\s*$/m", "<h$i>\\1</h$i>", 
+            $text = preg_replace("/^$h(.+)$h\\s*$/m", "<h$i>\\1</h$i>",
                                  $text );
         }
         return $text;
@@ -278,7 +273,7 @@ class zyfra_wiki_parser {
             return $output;
         }
     }
-    
+
     // Make lists from lines starting with ':', '*', '#', etc. (DBL)
     // @param $linestart bool whether or not this is at the start of a line.
     function do_block_levels($text, $linestart = true){
@@ -386,8 +381,8 @@ class zyfra_wiki_parser {
                 // XXX: use a stack for nestable elements like span, table and div
                 $openmatch = preg_match('/(?:<table|<blockquote|<h1|<h2|<h3|<h4|<h5|<h6|<pre|<tr|<p|<ul|<ol|<li|<\\/tr|<\\/td|<\\/th)/iS', $t );
                 $closematch = preg_match(
-					'/(?:<\\/table|<\\/blockquote|<\\/h1|<\\/h2|<\\/h3|<\\/h4|<\\/h5|<\\/h6|'.
-					'<td|<th|<\\/?div|<hr|<\\/pre|<\\/p|'.$this->mUniqPrefix.'-pre|<\\/li|<\\/ul|<\\/ol|<\\/?center)/iS', $t );
+                    '/(?:<\\/table|<\\/blockquote|<\\/h1|<\\/h2|<\\/h3|<\\/h4|<\\/h5|<\\/h6|'.
+                    '<td|<th|<\\/?div|<hr|<\\/pre|<\\/p|'.$this->mUniqPrefix.'-pre|<\\/li|<\\/ul|<\\/ol|<\\/?center)/iS', $t );
                 if ( $openmatch or $closematch ) {
                     $paragraphStack = false;
                     # TODO bug 5718: paragraph closed
@@ -460,7 +455,7 @@ class zyfra_wiki_parser {
 
         return $output;
     }
-    
+
     //Used by doBlockLevels()
     function closeParagraph() {
         $result = '';
@@ -529,7 +524,7 @@ class zyfra_wiki_parser {
             $text = '</dd></dl>';
         }
     }
-    else {	return '<!-- ERR 3 -->'; }
+    else {    return '<!-- ERR 3 -->'; }
     return $text."\n";
     }
     /**#@-*/

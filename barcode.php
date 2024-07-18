@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
- *
-*		 Barcode Class
-*		 ---------------
 *
-*		 Class handle barcode input from barcode reader.
+*         Barcode Class
+*         ---------------
+*
+*         Class handle barcode input from barcode reader.
 *
 *    Copyright (C) 2013 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
@@ -27,7 +27,7 @@
 
 class zyfra_barcode{
     static function scanned2txt($barcode){
-        $c = array(
+        $c = [
                 224=>0, 192=>0, 48=>0,
                 38=>1, 49=>1,
                 233=>2, 201=>2, 50=>2,
@@ -66,7 +66,7 @@ class zyfra_barcode{
                 89=>'Y', 121=>'Y',
                 90=>'Z', 122=>'Z',
                 61=>'/'
-        );
+        ];
         $r = '';
         try{
             for ($i=0; $i< strlen($barcode);$i++){

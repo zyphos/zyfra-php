@@ -1,14 +1,13 @@
 <?php
 /*****************************************************************************
 *
-*		 Language Class
-*		 ---------------
+*         Language Class
+*         ---------------
 *
-*		 User language detection and handling class
+*         User language detection and handling class
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -28,28 +27,27 @@
 class zyfra_language{
     private $default = 'en';
     protected $languages;
-    
+
     protected function get_all_languages(){
         //Need to be override by your own method.
-        $this->languages = array();
+        $this->languages = [];
         $i = 1;
         $this->languages['en'] = (object)array('id'=>$i++, 'name'=>'english', url=>'/en/');
         $this->languages['fr'] = (object)array('id'=>$i++, 'name'=>'francais', url=>'/fr/');
-        $this->languages['nl'] = 
-            (object)array('id'=>$i++, 'name'=>'nederlands', url=>'/nl/');
+        $this->languages['nl'] = (object)array('id'=>$i++, 'name'=>'nederlands', url=>'/nl/');
         $this->languages['de'] = (object)array('id'=>$i++, 'name'=>'deutsch', url=>'/de/');
     }
-    
+
     protected function get_cookie(){
         //To be override
         return '';
     }
-    
+
     public function get_languages(){
-    	if (!is_array($this->languages)) $this->get_all_languages();
-    	return $this->languages;
+        if (!is_array($this->languages)) $this->get_all_languages();
+        return $this->languages;
     }
-    
+
     public function redirect_if_found(){
         $this->default = false;
         $lang = $this->auto_detect();
@@ -58,7 +56,7 @@ class zyfra_language{
         header("location:".$this->languages[$lang]->url);
         exit();
     }
-    
+
     public function auto_detect(){
         if (($lang = $this->check_get()) !== false) return $lang;
         if (($lang = $this->check_post()) !== false) return $lang;
@@ -66,30 +64,30 @@ class zyfra_language{
         if (($lang = $this->check_cookie()) !== false) return $lang;
         if (($lang = $this->check_navigator()) !== false) return $lang;
         //Really no hint...
-        return $this->default; 
+        return $this->default;
     }
-    
+
     public function set_default($abv){
         $abv = strtolower($abv);
         if ($this->is_a_language($abv)) $this->default = $abv;
     }
-    
+
     public function is_a_language($abv){
         $abv = strtolower($abv);
         if (!is_array($this->languages)) $this->get_all_languages();
         return isset($this->languages[strtolower($abv)]);
     }
-    
+
     public function get_id($abv){
         if(!$this->is_a_language($abv)) $this->languages[$this->default]->id;
         return $this->languages[strtolower($abv)]->id;
     }
-    
+
     public function get_name($abv){
         if(!$this->is_a_language($abv)) $this->languages[$this->default]->name;
         return $this->languages[strtolower($abv)]->name;
     }
-    
+
     public function get_correct_abv($abv){
         if (trim($abv)=='') return false;
         if($this->is_a_language($abv)){
@@ -98,29 +96,29 @@ class zyfra_language{
             return $this->default;
         }
     }
-    
+
     private function check_get(){
         if(isset($_GET['lang']))
             return $this->get_correct_abv($_GET['lang']);
         return false;
     }
-    
+
     private function check_post(){
-        if(isset($_POST['lang'])) 
+        if(isset($_POST['lang']))
             return $this->get_correct_abv($_POST['lang']);
         return false;
     }
-    
+
     private function check_session(){
         if(isset($_SESSION['lang']))
             return $this->get_correct_abv($_SESSION['lang']);
         return false;
     }
-    
-    private function check_cookie(){      
+
+    private function check_cookie(){
         return $this->get_correct_abv($this->get_cookie());
     }
-    
+
     private function check_navigator(){
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
             $accept_languages = explode(",",$_SERVER['HTTP_ACCEPT_LANGUAGE']);
@@ -133,7 +131,7 @@ class zyfra_language{
                 }else{
                     $abv = $language;
                 }
-                if($this->is_a_language($abv)) 
+                if($this->is_a_language($abv))
                     return $this->get_correct_abv($abv);
             }
         }

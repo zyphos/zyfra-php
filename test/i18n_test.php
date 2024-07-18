@@ -9,7 +9,12 @@ zyfra_debug::printr('======');
 zyfra_debug::printr('After:');
 zyfra_debug::printr(zyfra_i18n::remove_accent($a));
 echo '<hr>';
-$a = array('ha'=>html_entity_decode('H&eacute;t&eacute;rog&egrave;ne'), array(html_entity_decode('T&eacute;l&eacute;'), html_entity_decode('&acirc;&auml;&aacute;&agrave;&ecirc;&euml;&eacute;&egrave;&icirc;&iuml;&iacute;&igrave;&Acirc;&Auml;&Aacute;&Agrave;')));
+$a = [
+        'ha'=>html_entity_decode('H&eacute;t&eacute;rog&egrave;ne'),
+        [html_entity_decode('T&eacute;l&eacute;'),
+         html_entity_decode('&acirc;&auml;&aacute;&agrave;&ecirc;&euml;&eacute;&egrave;&icirc;&iuml;&iacute;&igrave;&Acirc;&Auml;&Aacute;&Agrave;')
+        ]
+    ];
 zyfra_debug::printr('Before:');
 zyfra_debug::printr('$a =');
 zyfra_debug::printr($a);

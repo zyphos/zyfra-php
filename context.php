@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
- *
-*		 Context class
-*		 ---------------
 *
-*		 Context handler
+*         Context class
+*         ---------------
+*
+*         Context handler
 *
 *    Copyright (C) 2013 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
@@ -56,7 +56,7 @@ $a = $context->color(4); // return 4
 $a = $context->color; // return false
 
 //Context support multiple inheritance of other context or array
-$context2 = new MyContext($context, array('property'=>4));
+$context2 = new MyContext($context, ['property'=>4]);
 */
 
 namespace zyfra;

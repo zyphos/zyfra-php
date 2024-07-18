@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
- *		 Validator of data
- *		 ---------------
+ *         Validator of data
+ *         ---------------
  *
- *		 Class to validate data (Anti-spam too)
+ *         Class to validate data (Anti-spam too)
  *
  *    Copyright (C) 2010 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -34,14 +34,14 @@
  *
  * $data : the data to verify (string)
  * $field_type:
- * 	'int': integer
- * 	'float': float
- * 	'string': string
- * 	'phone': phone number
- * 	'email': email
- * 	'email_net': check email against the MX DNS record
- * 	'vat': vat number
- * 	'vat_net': check vat number against http://ec.europa.eu/
+ *     'int': integer
+ *     'float': float
+ *     'string': string
+ *     'phone': phone number
+ *     'email': email
+ *     'email_net': check email against the MX DNS record
+ *     'vat': vat number
+ *     'vat_net': check vat number against http://ec.europa.eu/
  *****************************************************************************/
 
 class zyfra_validator {
@@ -80,7 +80,7 @@ class zyfra_v_float extends zyfra_validator_type{
 }
 
 class zyfra_v_string extends zyfra_validator_type{
-    var $spam_words = array('cialis','viagra');
+    var $spam_words = ['cialis','viagra'];
 
     function is_valid($data, $spam_check){
         if ($spam_check){
@@ -194,7 +194,7 @@ class zyfra_v_url extends zyfra_validator_type{
 
 class zyfra_v_vat extends zyfra_validator_type{
     function is_valid($data, $spam_check){
-        $rx = array();
+        $rx = [];
         //source: http://ec.europa.eu/taxation_customs/vies/faqvies.do#item11
         $rx[] = 'ATU\d{8}';
         $rx[] = 'BE0\d{9}';
@@ -242,7 +242,7 @@ class zyfra_v_vat_net extends zyfra_v_vat{
         $client = new SoapClient("http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl");
         $country = substr($data,0,2);
         $vat = substr($data,2);
-        $params = (object)array('countryCode'=>$country, 'vatNumber'=>$vat);
+        $params = (object)['countryCode'=>$country, 'vatNumber'=>$vat];
         $result = $client->checkVat($params);
         unset($client);
         return $result->valid;

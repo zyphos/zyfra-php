@@ -1,15 +1,15 @@
 <?php
 /*****************************************************************************
 *
-*		 Send Data Class
-*		 ---------------
+*         Send Data Class
+*         ---------------
 *
-*		 Class to send all kind of data over internet, between PHP, even big one.
-*		 All datas are crypted.
+*         Class to send all kind of data over internet, between PHP, even big one.
+*         All datas are crypted.
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -29,37 +29,31 @@
 /*****************************************************************************
 * Quick Usage:
 * ------------
-* 
+*
 * to send:
 * $sd = new zyfra_send_data();
 * $sd->send_data("http://myhost.tld/myurl.php", $data);
-* 
+*
 * to receive:
-* $rd = new zyfra_send_data(); 
+* $rd = new zyfra_send_data();
 * $data = $rd->get_data();
 *****************************************************************************/
 
 /*****************************************************************************
 * Revisions
 * ---------
-* 
-* v0.01	19/10/2009	Creation
+*
+* v0.01    19/10/2009    Creation
 *****************************************************************************/
-
-/*
- * Todo:
- * - ready to test
- */
-
 
 include_once 'fake_file.php';
 
 class zyfra_send_data{
     //private $crypt_key = "Hello world !"; // Encryption key, deprecated since PHP 7.2
     private $crypt_key = null;
-    // File first bytes limited to 20 chars !!! 
+    // File first bytes limited to 20 chars !!!
     protected $file_header = "SendData_v0.1";
-    protected $send_filename = ''; // Local filename for storing data to be sent 
+    protected $send_filename = ''; // Local filename for storing data to be sent
     protected $post_field_prefix = 'send_data_'; // Prefix
     private $file2send = NULL;
     private $current_url = '';
@@ -83,7 +77,7 @@ class zyfra_send_data{
     public function send(&$data, $url = NULL, $wait = FALSE){
         if ($this->has_content && $url != $this->current_url)
             return $this->close_and_send_file();
-        $this->current_url = $url; 
+        $this->current_url = $url;
         if (is_null($this->file2send)){
             $this->file2send = new zyfra_fake_file($this->send_filename, 'wb+');
             $file_header = rtrim($this->file_header);
@@ -124,7 +118,7 @@ class zyfra_send_data{
             //Not send_data !
             return $data;
         }
-        $datas = array();
+        $datas = [];
         while(!$ff->eof()){
             $datas[] = $this->read_block($ff);
         }
@@ -177,7 +171,7 @@ class zyfra_send_data{
         $block_data = $file->read($block_size);
         //Check data integrity
         $calc_len = strlen($block_data);
-        $calc_crc32 = crc32($block_data); 
+        $calc_crc32 = crc32($block_data);
         if(($calc_len!=$block_size)||
           ($calc_crc32!=$block_crc32)){
             //Bad data !
@@ -189,15 +183,6 @@ class zyfra_send_data{
         //Block ok
         $data = $this->unmake_str($block_data);
         unset($block_data);
-        /*if(!is_object($obj)) {
-            throw new Exception('Data is not object (read_block)');
-        }
-        if(!isset($obj->header)) {
-            throw new Exception('No header (read_block)');
-        }
-        if(rtrim($obj->header)!=rtrim($this->block_header)){
-            throw new Exception('Bad header (read_block)');
-        }*/
         return $data;
     }
 
@@ -242,7 +227,7 @@ class zyfra_send_data{
 
     private function post($post_url, $is_file, $fname_data){
         if (($post_url != '')&&(!is_null($post_url))){
-            $post_data = array();
+            $post_data = [];
             if ($is_file){
                 if (!function_exists('curl_file_create')){
                     $post_data[$this->post_field_prefix.'fname'] = "@$fname_data"; //below php 5.5

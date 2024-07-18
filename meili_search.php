@@ -26,15 +26,15 @@ class Exception extends \Exception{
 
 class JsonRPC{
     protected $_headers = ['Content-Type: application/json'];
-    
+
     function __construct($base_url){
         $this->_base_url = $base_url;
     }
-    
+
     protected function add_header($header){
         $this->_headers[] = $header;
     }
-    
+
     protected function rpc($method, $url, $data=null){
         // $method: PUT POST DELETE
         $curl = curl_init();
@@ -88,29 +88,29 @@ class RPC extends JsonRPC{
         parent::__construct($base_url);
         if (!is_null($api_key)) $this->add_header('X-Meili-API-Key: '.$api_key);
     }
-    
+
     public function list_indexes(){
         //List all indexes.
         return $this->rpc('GET', '/indexes');
     }
-    
+
     public function get_index($index_uid){
         //Get information about an index
         return $this->rpc('GET', '/indexes/'.$index_uid);
     }
-    
+
     public function create_index($index_uid, $primary_key=null){
         //Create an index
         $data = ['uid'=>$index_uid];
         if (!is_null($primary_key)) $data['primaryKey'] = $primary_key;
         return $this->rpc('POST', '/indexes', $data);
     }
-    
+
     public function update_index($index_uid, $primary_key){
         //Update an index
         return $this->rpc('PUT', '/indexes/'.$index_uid, ['primaryKey'=>$primary_key]);
     }
-    
+
     public function delete_index($index_uid){
         //Delete an index
         return $this->rpc('DELETE', '/indexes/'.$index_uid);
@@ -243,7 +243,7 @@ class Query{
     }
 
     public function filter($filter){
-        // rating >= 3 AND (NOT director = "Tim Burton") 
+        // rating >= 3 AND (NOT director = "Tim Burton")
         // director = "Jordan Peele"
         $this->_parameters['filter'] = $filter;
         return $this;
@@ -273,7 +273,7 @@ class Index{
             if ($e->http_code != 404) throw $e;
         }
     }
-    
+
     protected function _init(){
         $this->_exists = false;
         $this->_primary_key = null;
@@ -314,12 +314,12 @@ class Index{
         // Delete all documents
         $this->_rpc->delete_all_documents($this->_index_uid);
     }
-    
+
     public function delete_document($document_id){
         // Delete one document based on its unique id.
         $this->_rpc->delete_document($this->_index_uid, $document_id);
     }
-    
+
     public function delete_documents($document_ids){
         //Delete a selection of documents based on array of document id's.
         $this->_rpc->delete_documents($this->_index_uid, $document_ids);
@@ -333,7 +333,7 @@ class Index{
         // Get the settings of an index
         return $this->_rpc->get_settings($this->_index_uid);
     }
-    
+
     public function update_settings($new_settings){
         //Update the settings of an index.
         //Updates in the settings route are partial. This means that any parameters not provided will be left unchanged.
@@ -347,7 +347,7 @@ class Index{
         // acceptNewFields: Boolean True: Defines whether new fields should be searchable and displayed or not
         return $this->_rpc->update_settings($this->_index_uid, $new_settings);
     }
-    
+
     public function reset_settings(){
         //Reset the settings of an index. All settings will be reset to their default value.
         return $this->_rpc->reset_settings($this->_index_uid);

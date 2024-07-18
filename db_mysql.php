@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
- *		 Db Class
- *		 ---------------
+ *         Db Class
+ *         ---------------
  *
- *		 Unification for Database
+ *         Unification for Database
  *
  *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -37,7 +37,7 @@ class zyfra_mysql extends zyfra_db_common {
     function ver(){
         return "0.01";
     }
-    
+
     function check_connection(){
         if ($this->link == false){
             $this->connect();
@@ -63,7 +63,7 @@ class zyfra_mysql extends zyfra_db_common {
         return $result->num_rows==1;
     }
 
-    function query($the_query,$nb_row_per_page=0)	{
+    function query($the_query,$nb_row_per_page=0)    {
         parent::query($the_query);
         $start_query = microtime(true);
         if (!$this->pre_query()) return false;
@@ -84,7 +84,7 @@ class zyfra_mysql extends zyfra_db_common {
         }
         $result = $this->link->query($the_query);
         if(!$result){
-        	//throw new Exception(mysql_errno().mysql_error());
+            //throw new Exception(mysql_errno().mysql_error());
             $this->show_error($the_query,$this->link->errno, $this->link->error);
         }
         end($this->queries)->stop();
@@ -92,7 +92,7 @@ class zyfra_mysql extends zyfra_db_common {
         return $result;
     }
 
-    function query_a($the_query,$the_col,$first_letter="")	{
+    function query_a($the_query,$the_col,$first_letter=""){
         /* Fonction pour les query, tri�e par ordre alphab�tique, et s�par�e par premi�re lettre.
          *  $the_col = nom de la colonne soumise au tri
          *  $first_letter = premi�re lettre de la colonne.
@@ -242,6 +242,7 @@ class zyfra_mysql extends zyfra_db_common {
     }
 
     function get_pages_link($url,$separator="&nbsp;&nbsp;",$next_prev=true){
+        zyfra_debug::depreciated_function();
         if($this->nb_pages==1) return "";
         $content = "";
         $is_first = true;
@@ -259,7 +260,7 @@ class zyfra_mysql extends zyfra_db_common {
         }
         if ($content!="") $content = "[&nbsp;".$content."&nbsp;]";
         if (($this->nb_pages>1)&&($next_prev)){
-            //On ajoute next et prev
+            // add next prev
             //Check is first
             if($this->page_nr>2){
                 $content = "<a href='".$url."--".($this->page_nr-1).".html'>__L_prev_page__</a>&nbsp;&nbsp;".$content;
@@ -287,23 +288,10 @@ class zyfra_mysql extends zyfra_db_common {
         }
     }
 
-    function explode_query_in_array($sql){
-        $sql_struct = array();
-        $sql_struct[] = "SELECT";
-        $sql_struct[] = "FROM";
-        $sql_struct[] = "LEFT JOIN";
-        $sql_struct[] = "RIGHT JOIN";
-        $sql_struct[] = "JOIN";
-        $sql_struct[] = "WHERE";
-        $sql_struct[] = "GROUP BY";
-        $sql_struct[] = "ORDER BY";
-        $sql_struct[] = "LIMIT";
-    }
-
     function safe_var($data){
         //Counter-injection function
         if (is_array($data)){
-            $res = array();
+            $res = [];
             foreach($data as $key=>$value){
                 $res[$key] = $this->safe_var($value);
             }
@@ -314,11 +302,6 @@ class zyfra_mysql extends zyfra_db_common {
             return $this->link->real_escape_string($data);
         }
         return $data;
-    }
-
-    function safeVar($data){
-        //Counter-injection function
-        return $this->link->real_escape_string($data);
     }
 }
 $MySQL = new zyfra_mysql;

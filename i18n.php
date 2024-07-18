@@ -1,11 +1,11 @@
 <?php
 /*****************************************************************************
  *
- *		 i18n Class
- *		 ---------------
+ *         i18n Class
+ *         ---------------
  *
- *		 Internalization class
- *		 Pass trought UTF8, ISO-8859-15, ISO-8859-1 problem
+ *         Internalization class
+ *         Pass trought UTF8, ISO-8859-15, ISO-8859-1 problem
  *
  *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -55,7 +55,7 @@ class zyfra_i18n{
         }
         if(!is_string($str)) return $str;
         $str = htmlentities($str);
-        $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1', 
+        $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde);/', '$1',
             $str);
         $str = str_replace("&amp;"," and ",$str);
         return html_entity_decode($str);

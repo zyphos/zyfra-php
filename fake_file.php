@@ -1,16 +1,16 @@
 <?php
 /*****************************************************************************
 *
-*		 Fake File Class
-*		 ---------------
+*         Fake File Class
+*         ---------------
 *
-*		 Class Cfake_file_memory to emulate a file in memory.
-*		 Class Cfake_file to emulate a file in memory, and write it to disk
-*				if a thresold is reach. Usefull if you don't have enough memory.
+*         Class Cfake_file_memory to emulate a file in memory.
+*         Class Cfake_file to emulate a file in memory, and write it to disk
+*                if a thresold is reach. Usefull if you don't have enough memory.
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -30,26 +30,26 @@
 /*****************************************************************************
 * Quick Usage:
 * ------------
-* 
+*
 *****************************************************************************/
 
 /*****************************************************************************
 * Revisions
 * ---------
-* 
-* v0.01	20/10/2009	Creation
+*
+* v0.01    20/10/2009    Creation
 *****************************************************************************/
 
 
 class zyfra_fake_file_memory{
     protected $data;
     protected $ptr;
-    
+
     public function __construct($init_data = ""){
         $this->data = $init_data;
         $this->ptr = 0;
     }
-    
+
     public function write($data, $length = -1){
         if ($length >= 0) $data = substr($data, 0, $length);
         if($this->ptr == strlen($this->data)){
@@ -58,12 +58,12 @@ class zyfra_fake_file_memory{
         }else{
             if ((strlen($this->data)-$this->ptr-strlen($data)) <= 0){
                 $this->data = substr($this->data, 0, $this->ptr).$data;
-                $this->ptr = strlen($this->data); 
+                $this->ptr = strlen($this->data);
             }else{
                 $this->data = substr($this->data, 0, $this->ptr).$data.
                     substr($this->data, -(strlen($this->data)-$this->ptr
                     -strlen($data)));
-                $this->ptr += strlen($data);    
+                $this->ptr += strlen($data);
             }
         }
         return strlen($data);
@@ -73,20 +73,19 @@ class zyfra_fake_file_memory{
         if ($this->eof()) return "";
         if ($length < 0){
             $result = substr($this->data, $this->ptr);
-            
         }else{
             $result = substr($this->data, $this->ptr, $length);
         }
-        $this->ptr += strlen($result);  
+        $this->ptr += strlen($result);
         return $result;
     }
-    
+
     public function eof(){
         return $this->ptr == strlen($this->data);
     }
-    
+
     public function seek($offset, $whence = -1){
-        /* $whence: 
+        /* $whence:
          * -1, from the beginning
          * 0, from current position
          * 1, from the end
@@ -107,20 +106,20 @@ class zyfra_fake_file_memory{
         $this->ptr = $new_ptr;
         return 0;
     }
-    
+
     public function tell(){
         return $this->ptr;
     }
-    
+
     public function rewind(){
         $this->ptr = 0;
         return true;
     }
-    
+
     public function is_physic(){
         return false;
     }
-    
+
     protected function sign($nb){
         if ($nb < 0) {
             return -1;
@@ -128,7 +127,7 @@ class zyfra_fake_file_memory{
             return 1;
         }
         return 0;
-    } 
+    }
 }
 
 class zyfra_fake_file extends zyfra_fake_file_memory{
@@ -138,10 +137,10 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
     private $filename;
     private $is_tmp_file = false;
     private $fhandle = NULL;
-    
+
     function __construct($filename, $mode, $max_mem_size = 1048576){
         $this->max_mem_size = $max_mem_size;
-        if (trim($filename) == "") $this->is_tmp_file = true; 
+        if (trim($filename) == "") $this->is_tmp_file = true;
         $this->filename = $filename;
         $this->mode = $mode;
         parent::__construct('');
@@ -149,7 +148,7 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
             $this->open_file();
         }
     }
-    
+
     public function write($data,$length = -1){
         if (!$this->writeable()) throw new Exception('File "'.
             $this->filename.'" isn\'t open in write mode.');
@@ -159,7 +158,7 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
                 $this->open_file();
                 $written_nb = fwrite($this->fhandle,$this->data);
                 if ($written_nb === FALSE) throw new Exception(
-                		'Can\'t write to file "'.$this->filename.'".'); 
+                        'Can\'t write to file "'.$this->filename.'".');
                 $this->data = '';
             }else{
                 if (stripos($this->mode,'a')){
@@ -173,7 +172,7 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
         }
         return fwrite($this->fhandle, $data);
     }
-    
+
     public function read($length = -1){
         if (!$this->readable()) throw new Exception('File "'.
             $this->filename.'" isn\'t open in read mode.');
@@ -187,14 +186,14 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
         }
         return fread($this->fhandle, $length);
     }
-    
+
     public function eof(){
-        if ($this->in_memory()) return parent::eof();            
+        if ($this->in_memory()) return parent::eof();
         return feof($this->fhandle);
     }
-    
+
     public function seek($offset, $whence = -1){
-        /* $whence: 
+        /* $whence:
          * -1, from the beginning
          * 0, from current position
          * 1, from the end
@@ -206,30 +205,30 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
             case 1: return fseek($fhandle,$offset, SEEK_END);
         }
     }
-    
+
     public function tell(){
         if ($this->in_memory()) return parent::tell();
         return ftell($this->fhandle);
     }
-    
+
     public function rewind(){
         if ($this->in_memory()) return parent::rewind();
         return rewind($this->fhandle);
     }
-    
+
     public function tmp_file(){
         return $this->is_tmp_file;
     }
-    
+
     public function is_physic(){
         // return true if the file is stored physically on disk.
         return !is_null($this->fhandle);
     }
-    
+
     public function get_filename(){
         return $this->filename;
     }
-    
+
     function __destruct(){
         if(!$this->in_memory()){
             fclose($this->fhandle);
@@ -243,20 +242,20 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
             }
         }
     }
-    
+
     protected function get_tmp_file(){
         $tmp_filename = tempnam(sys_get_temp_dir(), "ff");
         if ($tmp_filename === FALSE){
-            throw new Exception('Can\'t open temporary file.'); 
+            throw new Exception('Can\'t open temporary file.');
         }
         return $tmp_filename;
     }
-    
+
     protected function get_file_size(){
         if (!is_file($this->filename)) return 0;
         return filesize($this->filename);
     }
-    
+
     protected function open_file(){
         if (!is_null($this->fhandle)) throw new Exception('File already open "'.
             $this->filename.'".');
@@ -270,7 +269,7 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
                 $this->filename.'" in '.$this->mode.' mode.');
         }
     }
-    
+
     protected function len_after_write($data){
         if(($this->ptr == strlen($this->data))||(stripos($this->mode,'a'))){
             return $this->ptr + strlen($data);
@@ -282,17 +281,17 @@ class zyfra_fake_file extends zyfra_fake_file_memory{
             }
         }
     }
-    
+
     protected function readable(){
         return ((stripos($this->mode, 'r') !== FALSE)||
           (stripos($this->mode, '+') !== FALSE));
     }
-    
+
     protected function writeable(){
         return ((stripos($this->mode, 'w') !== FALSE)||
           (stripos($this->mode, '+') !== FALSE));
     }
-    
+
     protected function in_memory(){
         return is_null($this->fhandle);
     }

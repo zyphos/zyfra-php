@@ -1,10 +1,10 @@
 <?php
 /*****************************************************************************
  *
- *		 Db Class
- *		 ---------------
+ *         Db Class
+ *         ---------------
  *
- *		 Unification for Database
+ *         Unification for Database
  *
  *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
  *    All Rights Reserved
@@ -24,14 +24,15 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *****************************************************************************/
-#require_once("htmlMimeMail5/htmlMimeMail5.php");
+
+require_once('debug.php');
 
 class zyfra_db_query{
     var $sql;
     var $start;
     var $duration=false;
     var $backtrace = null;
-    
+
     function __construct($sql, &$backtrace=null){
         $this->sql = $sql;
         $this->start = microtime(true);
@@ -107,13 +108,13 @@ class zyfra_db_common {
         return true;
     }
 
-    public function get_array($sql,$key='',$value='', $datas=array()){
+    public function get_array($sql,$key='',$value='', $datas=[]){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
             $result = $sql;
         }
-        $temp = array();
+        $temp = [];
         if ($value == ''){
           if ($key == ''){
             while($row = $this->fetch_array($result)){
@@ -147,7 +148,7 @@ class zyfra_db_common {
             $result = $sql;
         }
 
-        $resultArray = array();
+        $resultArray = [];
         while($a = $this->fetch_object($result)){
             if($idRow!=""){
                 $resultArray[$a->{$idRow}] = $a;
@@ -165,6 +166,7 @@ class zyfra_db_common {
     }
 
     public function get_pages_link($url,$separator="&nbsp;&nbsp;",$next_prev=true){
+        trigger_error('Method ' . __METHOD__ . ' is deprecated', E_USER_DEPRECATED);
         /*if(stripos($url,"?") === false){
          $url .= "?";
          }else{
@@ -204,23 +206,28 @@ class zyfra_db_common {
                 }
             }
         }
-        //if ($this->nb_pages<2) $content = "";
         return $content;
     }
-    
-    public function render_backtrace(&$traceback){
-        //$res = "<table bgcolor='grey'>";
-        $res = '<ol>';
+
+    public function render_backtrace(&$traceback, $html=true){
+        if ($html){
+            $res = '<ol>';
+            foreach($traceback as $line){
+                if (!isset($line['class'])) $line['class'] = '';
+                if (!isset($line['type'])) $line['type'] = '';
+                $res .= '<li>'.$line['class'].$line['type'].$line['function'].'() from '.$line['file'].' at line '.$line['line'].'</li>';
+            }
+            $res .= '</ol>';
+            return $res;
+        }
+        $res = '';
         $i = 1;
         foreach($traceback as $line){
-            if (!isset($line["class"])) $line["class"] = '';
-            if (!isset($line["type"])) $line["type"] = '';
-            //$res .= "<tr><td bgcolor='orange'>".$i."</td><td>".$line["class"].$line["type"].$line["function"]."() from ".$line["file"]." at line ".$line["line"]."</td></tr>";
-            $res .= "<li>".$line["class"].$line["type"].$line["function"]."() from ".$line["file"]." at line ".$line["line"]."</li>";
+            if (!isset($line['class'])) $line['class'] = '';
+            if (!isset($line['type'])) $line['type'] = '';
+            $res .= $i.'. '.$line['class'].$line['type'].$line['function'].'() from '.$line['file'].' at line '.$line['line'].'</li>'."\n";
             $i++;
         }
-        //$res .= "</table>";
-        $res .= "</ol";
         return $res;
     }
 
@@ -235,19 +242,15 @@ class zyfra_db_common {
         }
         $sql .= "</table>";
         $backtrace = debug_backtrace();
-        //reverse
+        // reverse
         $backtrace = array_reverse($backtrace);
-        //On retire ce qui est relatif � cette classe
+        // remove what is relative to this class
         array_pop($backtrace);
-        //array_pop($debug);
         $loca = $this->render_backtrace($backtrace);
         $the_html_error= "<table border='1' cellspacing='0'><tr bgcolor='#FF0000'><td>MySQL Error</td></tr>
-					<tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
-					Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
-        
-        /*$f = fopen($log_filename, 'a');
-        $fwrite($f, $the_html_error."\n");
-        fclose($f);*/
+                    <tr><td>SQL:<BR>".$sql."</td></tr><tr><td>
+                    Error : ".$err_no." : ".$err."</td></tr><tr><td>".$loca."</td></tr></table>";
+
         if (!isset($security) || $security->is_dev()){
             echo $the_html_error;
             throw new Exception($the_html_error);
@@ -255,12 +258,12 @@ class zyfra_db_common {
         if (!is_null($this->error_callback)) call_user_func($this->error_callback, $the_html_error);
         $this->errors2mail .= $the_html_error;
     }
-    
+
     public function set_error_callback($callback){
         $this->error_callback = $callback;
     }
 
-    public function get_object($sql, $datas = array()){
+    public function get_object($sql, $datas = []){
         if($sql!=$this->last_query || $this->last_query_datas!=$datas){
             $this->result=$this->safe_query($sql, $datas);
             $this->last_query = $sql;
@@ -276,7 +279,7 @@ class zyfra_db_common {
     public function safe_var($data){
         //Counter-injection function
         if (is_array($data)){
-            $res = array();
+            $res = [];
             foreach($data as $key=>$value){
                 $res[$key] = $this->safe_var($data);
             }
@@ -309,7 +312,7 @@ class zyfra_db_common {
          * @param $datas: array of datas
          *
          * Ie:
-         * safe_sql('select a from b where c=%s and e in %s and t=%s', array(4, array(4,5,7), 'ha'))
+         * safe_sql('select a from b where c=%s and e in %s and t=%s', [4, [4,5,7], 'ha'])
          * result in
          * 'select a from b where c=4 and e in (4,5,7) and t=\'ha\''
          */
@@ -330,7 +333,7 @@ class zyfra_db_common {
          * @param $datas: array of datas
          *
          * Ie:
-         * safe_query('select a from b where c=%s and e in %s and t=%s', array(4, array(4,5,7), 'ha'))
+         * safe_query('select a from b where c=%s and e in %s and t=%s', [4, [4,5,7], 'ha'])
          * result in
          * query('select a from b where c=4 and e in (4,5,7) and t=\'ha\'');
          */
@@ -338,28 +341,20 @@ class zyfra_db_common {
         return $this->query($sql);
     }
 
-    public function __destruct(){
-        /*if (strlen($this->errors2mail)>0){
-         //Email the error to webmaster@matedex.be
-         $mailError = new htmlMimeMail5();
-         $mailError->setFrom("website@matedex.be");
-         $mailError->setSubject("Matedex web db error");
-         $mailError->setHTML($this->errors2mail);
-         $mailError->send(array("webmaster@matedex.be"));
-         }*/
-    }
-
     //Compatibility
     public function get_row_object($sql){
+        zyfra_debug::depreciated_function('get_object');
         return $this->get_object($sql);
     }
 
     public function getArrayObject($sql,$idRow=""){
+        zyfra_debug::depreciated_function('get_array_object');
         //Compatibility
         return $this->get_array_object($sql, $idRow);
     }
 
     public function safeVar($data){
+        zyfra_debug::depreciated_function('safe_var');
         return $this->safe_var($data);
     }
 }

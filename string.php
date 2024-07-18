@@ -1,14 +1,14 @@
 <?php
 /*****************************************************************************
 *
-*		 String Class
-*		 ---------------
+*         String Class
+*         ---------------
 *
-*		 Class to manipulate strings 
+*         Class to manipulate strings
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by

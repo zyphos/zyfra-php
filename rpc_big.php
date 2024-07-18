@@ -1,15 +1,15 @@
-<?php 
+<?php
 /*****************************************************************************
 *
-*		 RPC big Class
-*		 ---------------
+*         RPC big Class
+*         ---------------
 *
-*		 Class that provide Remote Procedure Call with big data parameters.
-*		 All datas are crypted.
+*         Class that provide Remote Procedure Call with big data parameters.
+*         All datas are crypted.
 *
 *    Copyright (C) 2009 De Smet Nicolas (<http://ndesmet.be>).
 *    All Rights Reserved
-*    
+*
 *
 *    This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -29,34 +29,34 @@
 /*****************************************************************************
 * Quick Usage:
 * ------------
-* 
+*
 * Server:
 * zyfra_rpc_big::set_crypt_key('my secret key');
 * class MyClass extends zyfra_rpc_big{
-* 	function __construct(){
-* 		parent::__construct();
-* 	}
-* 
-* 	function rpc_myFx($a, $b ,$c){
-* 		return $a + $b + $c;
-* 	}
-* 
+*     function __construct(){
+*         parent::__construct();
+*     }
+*
+*     function rpc_myFx($a, $b ,$c){
+*         return $a + $b + $c;
+*     }
+*
 *   function no_rpc(){
-*   	echo "No RPC !";
+*       echo "No RPC !";
 *   }
 * }
-* 
+*
 * Client:
 * zyfra_rpc_big::set_crypt_key('my secret key');
-* $result = zyfra_rpc_big::send_rpc($server_url, 'myFx', array($a, $b, $c));
-* 
+* $result = zyfra_rpc_big::send_rpc($server_url, 'myFx', [$a, $b, $c]);
+*
 * Multi-query:
-* $result = zyfra_rpc_big::send_rpc($server_url, array(array('myFx', array($a, $b, $c)), array('fx2', NULL));
+* $result = zyfra_rpc_big::send_rpc($server_url, [['myFx', [$a, $b, $c]], ['fx2', NULL]]);
 * $result[0] = MyFx result
 * $result[1] = fx2 result
-* 
+*
 * if $server_url is an object, the request will be send to the script itself.
-* 
+*
 * the no_rpc method is called if there isn't any rpc call asked.
 *
 *****************************************************************************/
@@ -64,8 +64,8 @@
 /*****************************************************************************
 * Revisions
 * ---------
-* 
-* v0.01	23/10/2009	Creation
+*
+* v0.01    23/10/2009    Creation
 *****************************************************************************/
 
 include_once 'send_data.php';
@@ -73,7 +73,7 @@ include_once 'send_data.php';
 class zyfra_STRUCT_rpc{
     var $fx;
     var $params;
-    
+
     function __construct($fx){
         $this->fx = $fx;
     }
@@ -85,7 +85,7 @@ class zyfra_rpc_big{
     private static $crypt_key = null;
     private $is_rpc = false;
     private static $log_error_file = '';
-    
+
     function __construct(){
         $sd = new zyfra_send_data();
         $sd->set_file_header(self::$file_header);
@@ -104,15 +104,15 @@ class zyfra_rpc_big{
         }
         unset($sd);
     }
-    
+
     public function is_rpc_call(){
         return $this->is_rpc;
     }
-    
+
     public function set_rpc_error_file($filename){
         self::$log_error_file = $filename;
     }
-    
+
     private static function throw_exception($msg){
         if(self::$log_error_file!=''){
             $fp = fopen(self::$log_error_file,'a');
@@ -121,7 +121,7 @@ class zyfra_rpc_big{
         }
         throw new Exception($msg);
     }
-    
+
     public static function send_rpc($url, $fx_name, $params = NULL){
         if ($url instanceof zyfra_rpc_big){
             $url = self::get_self_url();
@@ -144,7 +144,7 @@ class zyfra_rpc_big{
         }
         if (is_array($results)){
             if (count($results) > 1){
-                return $results;   
+                return $results;
             }else{
                 return $results[0];
             }
@@ -152,15 +152,15 @@ class zyfra_rpc_big{
             echo '<b>Remote answer:</b><br>';
             echo '<textarea rows=50 style="width:100%;">'.$results.'</textarea>';
             self::throw_exception('RPC response should be an array ('.$results.')');
-        }    
+        }
     }
-    
+
     private function dispatch_rpc($rpc){
         if(!is_object($rpc)) return NULL;
         if ($rpc instanceof zyfra_STRUCT_rpc){
             $rpc_fx_name = 'rpc_'.$rpc->fx;
             if (method_exists($this, $rpc_fx_name)){
-                if (is_null($rpc->params)) $rpc->params = array();
+                if (is_null($rpc->params)) $rpc->params = [];
                 return call_user_func_array(array($this, $rpc_fx_name), $rpc->params);
             }else{
                 self::throw_exception("RPC method doesn't exists (".$rpc_fx_name.')');
@@ -169,23 +169,23 @@ class zyfra_rpc_big{
             return NULL;
         }
     }
-    
+
     protected function no_rpc(){
         //To be overrided
         $this->show_rpc_methods();
     }
-    
+
     protected function get_rpc_methods(){
         $methods = get_class_methods($this);
-        $rpc_methods = array();
+        $rpc_methods = [];
         foreach ($methods as $method){
             if (substr($method, 0, 4) == 'rpc_'){
                 $rpc_methods[] = substr($method, 4);
-            } 
+            }
         }
         return $rpc_methods;
     }
-    
+
     protected function show_rpc_methods(){
         $rpc_methods = $this->get_rpc_methods();
         print '<h2>RPC Methods</h2>';
@@ -195,15 +195,15 @@ class zyfra_rpc_big{
         }
         print '</ul>';
     }
-    
+
     public function get_self_url(){
         return 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
     }
-    
+
     public static function set_file_header($header){
         self::$file_header = $header;
     }
-    
+
     public static function set_crypt_key($key){
         self::$crypt_key = $key;
     }

@@ -4,18 +4,18 @@ class DbaseFile{
     var $fields;
     var $records;
     var $field_types;
-    
+
     function __construct($db_filename){
         $this->parse($db_filename);
     }
-    
+
     function parse_file_types(){
-        $this->field_types = array();
+        $this->field_types = [];
         foreach($this->fields as $field){
             $this->field_types[$field['fieldname']] = $field['fieldtype'];
         }
     }
-    
+
     function parse_data($fieldname, $data){
         if (!array_key_exists($fieldname, $this->field_types)) return $data;
         $data_type = $this->field_types[$fieldname];
@@ -30,11 +30,11 @@ class DbaseFile{
         }
         return $data;
     }
-    
+
     function parse($db_filename) {
         // Skip deleted lines
         $fdbf = fopen($db_filename,'r');
-        $this->fields = array();
+        $this->fields = [];
         $buf = fread($fdbf,32);
         $this->header = unpack( "VRecordCount/vFirstRecord/vRecordLength", substr($buf,4,8));
         $goon = true;
@@ -53,7 +53,7 @@ class DbaseFile{
         }
         $this->parse_file_types();
         fseek($fdbf, $this->header['FirstRecord']); // move back to the start of the first record (after the field definitions)
-        $records = array();
+        $records = [];
         for ($i=1; $i<=$this->header['RecordCount']; $i++) {
             $buf = fread($fdbf,$this->header['RecordLength']);
             $record=unpack($unpackString, $buf);
@@ -66,9 +66,9 @@ class DbaseFile{
         fclose($fdbf);
         $this->records = $records;
     }
-    
+
     function filter_field($field_name, $value){
-        $results = array();
+        $results = [];
         foreach($this->records as $record){
             if ($record[$field_name] == $value){
                 $results[] = $record;
