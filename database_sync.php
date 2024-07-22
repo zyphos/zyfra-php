@@ -448,7 +448,7 @@ class zyfra_database_synch extends zyfra_rpc_big{
         $sql = 'SELECT '.implode(',',$key_names).','.$this->create_field.','.$this->update_field.'
             FROM '.$table_name;
         $all_index = [];
-        while($row = $this->db->get_row_object($sql)){
+        while($row = $this->db->get_object($sql)){
             $the_index = $this->make_index($key_names, $row);
             //$create = strtotime($row->{$this->create_field}.' UTC');
             if ($row->{$this->update_field} < $row->{$this->create_field}){
