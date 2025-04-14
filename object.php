@@ -188,22 +188,30 @@ class ContextedObjectModel{
 }
 
 class ObjectModel{
-    var $_columns;
-    var $_name;
-    var $_table;
-    var $_key = 'id';
-    var $_order_by = null;
-    var $_create_date = 'create_date';
-    var $_write_date = 'write_date';
-    var $_create_user_id = 'create_user_id';
-    var $_write_user_id = 'write_user_id';
-    var $_visible_field = 'visible';
-    var $_visible_condition;
-    var $_read_only = false;
-    var $_instanciated = false;
-    var $_form_view_fields = null;
-    var $_tree_view_fields = null;
-    var $_display_name_field = 'name'; // Used for widget display
+    public $_pool;
+    public $_columns;
+    public $_name;
+    public $_table;
+    public $_key = 'id';
+    public $_order_by = null;
+    public $_create_date = 'create_date';
+    public $_write_date = 'write_date';
+    public $_create_user_id = 'create_user_id';
+    public $_write_user_id = 'write_user_id';
+    public $_visible_field = 'visible';
+    public $_visible_condition;
+    public $_read_only = false;
+    public $_instanciated = false;
+    public $_form_view_fields = null;
+    public $_tree_view_fields = null;
+    public $_display_name_field = 'name'; // Used for widget display
+    public $__before_create_fields;
+    public $__after_create_fields;
+    public $__before_write_fields;
+    public $__after_write_fields;
+    public $__before_unlink_fields;
+    public $__after_unlink_fields;
+    public $__update_sql_done = false;
 
     protected $_name_search_fieldname = 'name';
 
@@ -295,7 +303,7 @@ class ObjectModel{
             }
             $this->_columns[$name] = $value;
         }else{
-            $this->{$name} = $value;
+            throw new Exception('Can not create dynamic property ['.$name.']');
         }
     }
 
@@ -313,7 +321,7 @@ class ObjectModel{
 
     public function update_sql_structure(){
         if ($this->_read_only) return null;
-        if (property_exists($this, '__update_sql_done')) return;
+        if ($this->__update_sql_done) return;
         #1 Check if table exists
         $db = $this->_pool->db;
         if (!$db->get_object('SHOW TABLES like %s', [$this->_table])){

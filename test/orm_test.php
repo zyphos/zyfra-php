@@ -32,7 +32,9 @@ function clear_database($o, $db){
 
 
 // Create tables
+echo "Clear database\n";
 clear_database($o, $db);
+echo "Update SQL structure\n";
 $o->update_sql_structure();
 
 

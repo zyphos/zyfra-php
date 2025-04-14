@@ -2,16 +2,17 @@
 require_once 'relational.php';
 
 class Many2ManyField extends One2ManyField{
-    var $widget='many2many';
-    var $relation_object_field;
-    var $stored=false;
-    var $back_ref_field=null; // If set, name of the back reference (O2M) to this field in the relational object
-    var $relation_table=null;
-    var $rt_local_field=null;
-    var $rt_foreign_field=null;
-    var $equal2equal = false;
-    var $foreign_key;
-    var $handle_operator=true;
+    public $widget='many2many';
+    public $relation_object_field;
+    public $m2m_relation_object;
+    public $stored=false;
+    public $back_ref_field=null; // If set, name of the back reference (O2M) to this field in the relational object
+    public $relation_table=null;
+    public $rt_local_field=null;
+    public $rt_foreign_field=null;
+    public $equal2equal = false;
+    public $foreign_key;
+    public $handle_operator=true;
 
     function __construct($label, $relation_object_name, $args = []){
         parent::__construct($label, $relation_object_name, '', $args);

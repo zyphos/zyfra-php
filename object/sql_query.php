@@ -22,9 +22,15 @@ class SqlTableAlias{
 }
 
 class MqlWhere{
-    var $sql_query;
-    var $ta;
-    var $obj;
+    protected $sql_query;
+    protected $ta;
+    protected $obj;
+    protected $operators;
+    protected $reserved_words;
+    protected $basic_operators;
+    protected $parenthesis;
+    protected $split_char;
+    protected $all_operators;
 
     function __construct($sql_query){
         $this->sql_query = $sql_query;
@@ -150,23 +156,30 @@ class MqlWhere{
 $sql_query_id = 0;
 
 class SqlQuery{
-    var $table_alias;
-    var $table_alias_nb;
-    var $table_alias_prefix;
-    var $sub_query_nb;
-    var $group_by;
-    var $order_by;
-    var $where;
-    var $where_no_parse;
-    var $sub_queries;
-    var $no_alias = '';
-    var $sql_field_alias;
-    var $required_fields;
-    var $remove_from_result;
+    public $table_alias;
+    protected $table_alias_nb;
+    protected $table_alias_prefix;
+    protected $sub_query_nb;
+    public $group_by;
+    public $order_by;
+    protected $where;
+    protected $where_no_parse;
+    protected $sub_queries;
+    protected $no_alias = '';
+    protected $sql_field_alias;
+    protected $required_fields;
+    protected $remove_from_result;
+    public $object;
     protected $has_group_by = false;
-    var $debug = false;
+    public $debug = false;
     protected $keywords = ['limit', 'order by', 'having', 'group by', 'where'];
     protected $keywords_split = ['limit ', 'order by ', 'having ', 'group by ', 'where '];
+    protected $mql_where;
+    protected $pool;
+    protected $ta;
+    protected $__uid__;
+    public $context;
+    protected $sql_select_fields;
     private $rqi = 0;
 
     function __construct($object, $ta_prefix = ''){

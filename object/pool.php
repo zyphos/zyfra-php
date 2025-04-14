@@ -61,6 +61,7 @@ class Pool{
     public $_model_class='ObjectModel';
     protected $_model_path = null;
     protected $_queries;
+    public $db;
 
     private function __construct(){
         // private = Avoid construct this object

@@ -159,7 +159,7 @@ class Template {
         $this->template = $template;
         $template_file = $this->get_template_file();
         if (!file_exists($template_file))
-            zyfra_debug::show_warning('Template <b>'.$template_file.'</b> not found.', $stack_level);
+            \zyfra_debug::show_warning('Template <b>'.$template_file.'</b> not found.', $stack_level);
     }
 
     public function set_template_path($template_path){
@@ -191,7 +191,7 @@ class Template {
     }
 
     public function assign($var_name, $value = ''){ // Used for backward compatibility
-        zyfra_debug::depreciated_function();
+        \zyfra_debug::depreciated_function();
         return $this->set($var_name, $value);
     }
 

@@ -12,9 +12,11 @@ class Callback{
 }
 
 class OM_SQLinterface{
-    var $callbacks;
-    var $object;
-    var $debug;
+    public $callbacks;
+    public $context;
+    public $debug;
+    public $dry_run;
+    public $object;
 
     function __construct($object, $context){
         $this->object = $object;

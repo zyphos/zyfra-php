@@ -62,22 +62,49 @@ $context2 = new MyContext($context, ['property'=>4]);
 namespace zyfra;
 
 class Context{
+    private $_values;
+
     public function __construct(){
+        $this->_values = [];
         foreach(func_get_args() as $default){
-            if (is_object($default)) $default = get_object_vars($default);
+            if (is_object($default)){
+                $new_default = get_object_vars($default);
+                if (method_exists($default, '_get_all_values')){
+                    $new_default = array_merge($new_default, $default->_get_all_values());
+                }
+                $default = $new_default;
+                unset($new_default);
+            }
             if (is_array($default)){
-                foreach ($default as $name=>$value) $this->$name = $value;
+                foreach ($default as $name=>$value) {
+                    if ($name == '_values') continue; // skip _values
+                    $this->$name = $value;
+                }
             }
         }
     }
 
+    public function __set($name, $value){
+        $this->_values[$name] = $value;
+    }
+
     public function __get($name){
+        if (array_key_exists($name, $this->_values)) return $this->_values[$name];
         return false;
+    }
+
+    public function __isset($name){
+        return array_key_exists($name, $this->_values) && !is_null($this->_values[$name]);
     }
 
     public function __call($name, $arguments){
         if (property_exists($this, $name)) return $this->$name;
+        if (array_key_exists($name, $this->_values)) return $this->_values[$name];
         if (isset($arguments[0])) return $arguments[0];
         return false;
+    }
+
+    public function _get_all_values(){
+        return $this->_values;
     }
 }

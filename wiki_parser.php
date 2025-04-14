@@ -30,7 +30,17 @@
  *****************************************************************************/
 
 class zyfra_wiki_parser {
-    var $mInPre;
+    private $mArgStack;
+    private $mAutonumber;
+    private $mDTopen;
+    private $mIncludeCount;
+    private $mInPre;
+    private $mLastSection;
+    private $mLinkID;
+    private $mRevisionId;
+    private $mRevisionTimestamp;
+    private $mUniqPrefix;
+    private $mVarCache;
 
     function parse($text){
         $this->clear_state();

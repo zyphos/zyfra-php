@@ -1,27 +1,28 @@
 <?php
 
 abstract class Field{
-    var $name=null;
-    var $object=null;
-    var $unique=false;
-    var $primary_key=false;
-    var $index=false;
-    var $key=false;
-    var $stored=true;
-    var $relational = false;
-    var $needed_columns;
-    var $default_value=null;
-    var $widget='text';
-    var $required=false;
-    var $read_only=false;
-    var $instanciated=false;
-    var $sql_escape_fx=null;
-    var $help='';
-    var $handle_operator=false;
-    var $not_null=false;
-    var $select_all=true;
-    var $model_class=null;
-    var $hidden=false;
+    public $name=null;
+    public $object=null;
+    public $unique=false;
+    public $primary_key=false;
+    public $index=false;
+    public $key=false;
+    public $stored=true;
+    public $relational = false;
+    public $needed_columns;
+    public $default_value=null;
+    public $widget='text';
+    public $required=false;
+    public $read_only=false;
+    public $instanciated=false;
+    public $sql_escape_fx=null;
+    public $help='';
+    public $handle_operator=false;
+    public $not_null=false;
+    public $select_all=true;
+    public $model_class=null;
+    public $hidden=false;
+    public $label;
 
     function __construct($label, $args = null){
         $this->label = $label;

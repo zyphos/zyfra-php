@@ -131,6 +131,8 @@ class Many2OneField extends RelationalField{
 
 class Many2OneSelfField extends Many2OneField{
     // Field Many2One with left and right parent optimization for recursive object
+    private $pleft;
+    private $pright;
 
     function __construct($label, $args = []){
         parent::__construct($label, null, $args);

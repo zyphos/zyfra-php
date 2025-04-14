@@ -3,6 +3,12 @@ namespace zyfra\orm;
 require_once(dirname(__FILE__).'/../debug.php');
 
 class SQLWrite extends OM_SQLinterface{
+    private $values;
+    private $col_assign;
+    private $col_assign_data;
+    public $ids;
+    public $result;
+
     function __construct($object, $values, $where, $where_datas, $context){
         parent::__construct($object, $context);
         $this->result = $this->do_query($object, $values, $where, $where_datas, $context);

@@ -53,11 +53,12 @@ include_once 'rpc_big.php';
 include_once 'debug.php';
 
 class zyfra_STRUCT_table_struct{
-  var $name;
-  var $fields;
-  var $primary;
-  var $keys;
-  var $fulltext;
+  public $name;
+  public $fields;
+  public $index;
+  public $primary;
+  public $keys;
+  public $fulltext;
 
   function __construct(){
     $fields = [];
@@ -68,15 +69,17 @@ class zyfra_STRUCT_table_struct{
 }
 
 class zyfra_STRUCT_table_fields{
-  var $name;
-  var $type;
-  var $null;
-  var $default;
-  var $extra;
+  public $name;
+  public $type;
+  public $type_short;
+  public $null;
+  public $default;
+  public $default_value;
+  public $extra;
 }
 
 class zyfra_synch_flag{
-  var $flags;
+  public $flags;
   function __construct($the_flags){
       $this->flags = $the_flags;
   }
@@ -149,14 +152,14 @@ class zyfra_synch_flag{
 }
 
 class zyfra_database_synch extends zyfra_rpc_big{
-    var $delta_time=0;
-    var $field_separator;
-    var $sync_data_table_name = 'data_sync';
-    var $create_field = 'created_on';
-    var $update_field = 'modified_on';
-    var $db;
-    var $table_structure = null;
-    var $only_slst_filename = null;
+    public $delta_time=0;
+    public $field_separator;
+    public $sync_data_table_name = 'data_sync';
+    public $create_field = 'created_on';
+    public $update_field = 'modified_on';
+    public $db;
+    public $table_structure = null;
+    public $only_slst_filename = null;
 
     function __construct(){
         global $db;
@@ -380,10 +383,10 @@ class zyfra_database_synch extends zyfra_rpc_big{
                 $the_col->type_short = $type[0];  //Get the col type
                 $the_col->null = 'NOT NULL';
                 if($col->Null=='YES') $the_col->null = 'NULL';  //Is col type null ?
-                $the_col->extra = trim($col->Extra);
+                $the_col->extra = is_null($col->Extra) ? null: trim($col->Extra);
                 $the_col->default = '';
                 $the_col->default_value = $col->Default;
-                if(trim($col->Default)!=''){
+                if(!is_null($col->Default) && trim($col->Default)!=''){
                     $the_col->default = "DEFAULT '".$col->Default."'";  //Get default value
                 }
                 $the_table->fields[$the_col->name] = $the_col;
