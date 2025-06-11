@@ -18,6 +18,8 @@ namespace MeiliSearch;
  */
 
 class Exception extends \Exception{
+    public $http_code;
+
     function __construct($http_code, $msg){
         parent::__construct($msg);
         $this->http_code = $http_code;
