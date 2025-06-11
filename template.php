@@ -99,10 +99,12 @@ function html($var, $nl2br = false){
 }
 
 function htmlquotes($var){
+    if (is_null($var)) return '';
     return htmlentities($var, ENT_QUOTES, 'UTF-8');
 }
 
 function html_value($var){
+    if (is_null($var)) return '';
     return htmlspecialchars($var, ENT_QUOTES);
 }
 
@@ -110,6 +112,7 @@ function accent2html($str){
     // return strtr($chaine,
     // 'àâäåãáÂÄÀÅÃÁæÆçÇéèêëÉÊËÈïîìíÏÎÌÍñÑöôóòõÓÔÖÒÕùûüúÜÛÙÚÿ',
     // 'aaaaaaaaaaaaaacceeeeeeeeiiiiiiiinnoooooooooouuuuuuuuy');
+    if (is_null($str)) return '';
     $str = htmlentities($str, ENT_QUOTES, 'UTF-8');
     $str = preg_replace('/&([a-zA-Z])(uml|acute|grave|circ|tilde|cedil);/', '&amp;$1$2;', $str);
     // $var = str_replace(chr(153),'<sup>TM</sup>', $var);
