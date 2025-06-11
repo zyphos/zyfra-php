@@ -45,6 +45,16 @@
  *****************************************************************************/
 
 class zyfra_validator {
+    private $zyfra_v_int;
+    private $zyfra_v_float;
+    private $zyfra_v_string;
+    private $zyfra_v_phone;
+    private $zyfra_v_email;
+    private $zyfra_v_email_net;
+    private $zyfra_v_url;
+    private $zyfra_v_vat;
+    private $zyfra_v_vat_net;
+
     function is_valid($data, $data_type, $spam_check = False){
         $class = 'zyfra_v_'.$data_type;
         if (!isset($this->{$class})){
