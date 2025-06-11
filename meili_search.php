@@ -26,6 +26,7 @@ class Exception extends \Exception{
 
 class JsonRPC{
     protected $_headers = ['Content-Type: application/json'];
+    protected $_base_url;
 
     function __construct($base_url){
         $this->_base_url = $base_url;
@@ -355,6 +356,8 @@ class Index{
 }
 
 class Client{
+    protected $_rpc;
+
     function __construct($base_url, $api_key=null){
         $this->_rpc = new RPC($base_url, $api_key);
     }
