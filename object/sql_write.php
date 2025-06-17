@@ -27,7 +27,7 @@ class SQLWrite extends OM_SQLinterface{
         if ($this->debug){
             \zyfra_debug::print_set('WRITE SQL: Model['.$this->object->_name.']', htmlentities($sql));
         }
-        $this->ids = $db->get_array($sql, $object->_key, '', $where_datas);
+        $this->ids = $db->get_array($sql, $object->_key, null, $where_datas);
         if (count($this->ids) == 0) return true;
         foreach($values as $column=>$value){
             $fields = specialsplit($column, '.');

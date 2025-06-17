@@ -108,15 +108,15 @@ class zyfra_db_common {
         return true;
     }
 
-    public function get_array($sql,$key='',$value='', $datas=[]){
+    public function get_array($sql,$key=null,$value=null, $datas=[]){
         if (is_string($sql)){
             $result = $this->safe_query($sql, $datas);
         }else{
             $result = $sql;
         }
         $temp = [];
-        if ($value == ''){
-          if ($key == ''){
+        if (is_null($value)){
+          if (is_null($key)){
             while($row = $this->fetch_array($result)){
               $temp[]=$row[0];
             }
@@ -126,13 +126,20 @@ class zyfra_db_common {
             }
           }
         }else{
-            if ($key == ''){
+            if (is_null($key)){
                 while($row = $this->fetch_object($result)){
                     $temp[]=$row->{$value};
                 }
             }else{
-                while($row = $this->fetch_object($result)){
-                    $temp[$row->{$key}]=$row->{$value};
+                if (is_array($value)){
+                    $value = $value[0];
+                    while($row = $this->fetch_object($result)){
+                        $temp[$row->{$key}][]=$row->{$value};
+                    }
+                }else{
+                    while($row = $this->fetch_object($result)){
+                        $temp[$row->{$key}]=$row->{$value};
+                    }
                 }
             }
         }

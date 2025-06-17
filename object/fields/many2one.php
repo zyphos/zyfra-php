@@ -262,7 +262,7 @@ class Many2OneSelfField extends Many2OneField{
         $left_col = $this->pleft;
         $right_col = $this->pright;
         $sql = 'SELECT '.$this->pleft.' AS pleft FROM '.$this->object->_table.' WHERE '.$this->object->_key.' IN %s ORDER BY pleft';
-        $plefts = $db->get_array($sql, 'pleft', '', [array_keys($old_values)]);
+        $plefts = $db->get_array($sql, 'pleft', null, [array_keys($old_values)]);
         $nb = count($plefts);
         for($i=0; $i<$nb; $i++){
             $nbi = ($i+1)*2;

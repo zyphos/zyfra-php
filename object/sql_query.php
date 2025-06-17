@@ -442,9 +442,6 @@ class SqlQuery{
     function get_scalar_array($value_field, $key_field=null, $where = '', $context = []){
         $mql = $value_field.(is_null($key_field)?'':','.$key_field).' '.$where;
         $sql = $this->mql2sql($mql, $context, true);
-        if (is_null($key_field)){
-            $key_field = '';
-        }
         return $this->pool->db->get_array($sql, $key_field, $value_field);
     }
 
