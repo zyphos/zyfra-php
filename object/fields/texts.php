@@ -71,8 +71,8 @@ class TextField extends Field{
                 $r = $object_tr->select([implode(',',$cols2check).' WHERE '.$where,$where_values]);
                 if (count($r)>0){
                     $to_unlink = true;
-                    foreach($r[0] as $key=>$value){
-                        if ($value != ''){
+                    foreach($r[0] as $v){
+                        if ($v != ''){
                             $to_unlink = false;
                             break;
                         }
