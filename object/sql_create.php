@@ -42,6 +42,7 @@ class OM_SQLcreate extends OM_SQLinterface{
                 $this->add_callback($col_obj, $sql_value->function_name, [$this, $value, $fields, $ctx]);
                 $sql_value = $sql_value->return_value;
             }
+            if(is_null($sql_value)) $sql_value = 'null';
             if($col_obj->is_stored($ctx)) $sql_values[$field_name] = $sql_value;
             $treated_columns[] = $field;
         }
