@@ -32,7 +32,7 @@ class TextField extends Field{
 
         $language_id = $this->get_language_id($context);
 
-        if (!$language_id){
+        if (!$language_id || $language_id == $this->object->_pool->_base_language_id){
             return parent::sql_create($sql_create, $value, $fields, $context);
         }
         return new zyfra\orm\Callback('sql_create_after_trigger', null);
@@ -50,8 +50,7 @@ class TextField extends Field{
             return parent::sql_write($sql_write, $value, $fields, $context);
         }
         $language_id = $this->get_language_id($context);
-
-        if (!$language_id){
+        if (!$language_id || $language_id == $this->object->_pool->_base_language_id){
             return parent::sql_write($sql_write, $value, $fields, $context);
         }
 
@@ -62,8 +61,28 @@ class TextField extends Field{
         $where = $t['key'].' IN %s AND '.$t['language_id'].'=%s';
         $where_values = [$sql_write->ids, $language_id];
         if ($value == null || $value == ''){
-            $object_tr->unlink([$where, $where_values]);
-            return;
+            // Check if other tr fields are null too
+            $cols2check = [];
+            foreach($object_tr->_columns as $col_name => $col){
+                if ($col_name == $this->name || $col->sys || !$col->stored) continue;
+                $cols2check[] = $col_name;
+            }
+            if (count($cols2check)){
+                $r = $object_tr->select([implode(',',$cols2check).' WHERE '.$where,$where_values]);
+                if (count($r)>0){
+                    $to_unlink = true;
+                    foreach($r[0] as $key=>$value){
+                        if ($value != ''){
+                            $to_unlink = false;
+                            break;
+                        }
+                    }
+                    if ($to_unlink){
+                        $object_tr->unlink([$where, $where_values]);
+                        return;
+                    }
+                }
+            }
         }
         $sql = $t['key'].' AS oid,'.$object_tr->_key.' AS id,'.$t['column'].' AS tr WHERE '.$where;
         $new_context = array_merge($context, ['key'=>'oid']);

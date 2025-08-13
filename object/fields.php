@@ -22,6 +22,7 @@ abstract class Field{
     public $select_all=true;
     public $model_class=null;
     public $hidden=false;
+    public $sys=false;
     public $label;
 
     function __construct($label, $args = null){

@@ -56,6 +56,7 @@ class Pool{
     protected static $instance;
     protected $auto_create = false;
     protected $language_object_name = 'language';
+    public $_base_language_id = null;
     public $_default_user_id = 1;
     public $_context = null;
     public $_model_class='ObjectModel';

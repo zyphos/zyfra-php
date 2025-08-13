@@ -233,20 +233,20 @@ class ObjectModel{
         if (is_null($this->_order_by) || !strlen($this->_order_by)) $this->_order_by = $this->_key;
 
         if (!array_key_exists($this->_key, $this->_columns)){
-            $key_col = new IntField('Id', ['primary_key'=>true, 'auto_increment'=>true]);
+            $key_col = new IntField('Id', ['primary_key'=>true, 'auto_increment'=>true, 'sys'=>true]);
             $this->_columns = [$this->_key=>$key_col] + $this->_columns;
         }
         if (!is_null($this->_create_date) && !array_key_exists($this->_create_date, $this->_columns)){
-            $this->_columns[$this->_create_date] = new DatetimeField('Created date');
+            $this->_columns[$this->_create_date] = new DatetimeField('Created date', ['sys'=>true]);
         }
         if (!is_null($this->_write_date) && !array_key_exists($this->_write_date, $this->_columns)){
-            $this->_columns[$this->_write_date] = new DatetimeField('Writed date');
+            $this->_columns[$this->_write_date] = new DatetimeField('Writed date', ['sys'=>true]);
         }
         if (!is_null($this->_create_user_id) && !array_key_exists($this->_create_user_id, $this->_columns)){
-            $this->_columns[$this->_create_user_id] = new IntField('Create user', ['default_value'=>$this->_pool->_default_user_id]);
+            $this->_columns[$this->_create_user_id] = new IntField('Create user', ['default_value'=>$this->_pool->_default_user_id,'sys'=>true]);
         }
         if (!is_null($this->_write_user_id) && !array_key_exists($this->_write_user_id, $this->_columns)){
-            $this->_columns[$this->_write_user_id] = new IntField('Write user', ['default_value'=>$this->_pool->_default_user_id]);
+            $this->_columns[$this->_write_user_id] = new IntField('Write user', ['default_value'=>$this->_pool->_default_user_id,'sys'=>true]);
         }
 
         if (!array_key_exists('_display_name', $this->_columns)){
@@ -290,7 +290,6 @@ class ObjectModel{
         foreach($this->_columns as $name=>&$col){
             $this->set_column_instance($name, $col);
         }
-
         if (!isset($this->_table)) $this->_table = $this->_name;
         //if ($this->_pool->get_auto_create()) $this->update_sql_structure();
     }
